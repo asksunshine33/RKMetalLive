@@ -1,0 +1,1304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>RK Metal ERP - M-RM Reference Master</title>
+<link rel="stylesheet" href="rk-foundation.css?v=RKF-1.13.0"/>
+<script src="rk-foundation.js?v=RKF-1.13.0"></script>
+<style>
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--ink);font-size:var(--fs-body);min-height:100vh;display:flex;flex-direction:column}
+.main{flex:1;display:flex;flex-direction:column;min-height:0}
+
+.mod-badge{font-size:var(--fs-caption);font-weight:800;color:var(--surface);background:var(--teal);padding:3px 8px;border-radius:5px}
+.mod-title{font-size:var(--fs-emphasis);font-weight:800;color:var(--navy)}
+.mod-crumb{font-size:var(--fs-caption);color:var(--muted)}
+.mod-role{font-size:var(--fs-caption);background:var(--tealbg);color:var(--teal);padding:2px 7px;border-radius:5px;font-weight:700}
+.mod-cfg{font-size:var(--fs-caption);background:var(--purplebg);color:var(--purple);padding:2px 7px;border-radius:5px;font-weight:700}
+.dep-strip{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:7px 18px;background:var(--surface2);border-bottom:1px solid var(--line);font-size:var(--fs-caption)}
+.dep-chip{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:6px;font-weight:700;font-size:var(--fs-caption);border:1px solid var(--line2);background:var(--surface);color:var(--ink2)}
+.dep-chip.ok{border-color:var(--green);color:var(--green);background:var(--greenbg)}
+.dep-chip.bad{border-color:var(--accent);color:var(--accent);background:var(--accentbg)}
+.secE-note{margin:10px 18px 0;padding:8px 12px;border:1px solid #ecd9ae;background:var(--warnbg);border-radius:8px;font-size:var(--fs-body);color:#8a6412}
+.tabbar{background:var(--surface);border-bottom:1px solid var(--line);display:flex;padding:0 18px;gap:4px;flex-shrink:0}
+.mod-tab{padding:13px 16px;font-size:var(--fs-body);font-weight:500;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:all .12s;user-select:none}
+.mod-tab:hover{color:var(--navy)}
+.mod-tab.act{color:var(--navy);font-weight:700;border-bottom-color:var(--accent)}
+.content{flex:1;overflow-y:auto;padding:16px 18px}
+.toolbar{display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.search{flex:1;max-width:280px;min-width:280px;border:1.5px solid var(--line2);border-radius:7px;padding:7px 11px;font-size:var(--fs-body);color:var(--ink);outline:none;font-family:inherit}
+.search:focus{border-color:var(--teal)}
+.fsel{border:1.5px solid var(--line2);border-radius:7px;padding:7px 10px;font-size:var(--fs-body);color:var(--ink);outline:none;font-family:inherit;background:var(--surface)}
+.fsel:focus{border-color:var(--teal)}
+.tb-sp2{flex:1}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:7px 13px;border-radius:7px;font-size:var(--fs-body);font-weight:600;cursor:pointer;border:none;transition:all .15s;white-space:nowrap;font-family:inherit}
+.btn-p{background:var(--accent);color:var(--surface)}.btn-p:hover{background:#9e2c1a}
+.btn-g{background:transparent;color:var(--ink2);border:1px solid var(--line2)}.btn-g:hover{background:var(--surface2)}
+.btn-t{background:var(--teal);color:var(--surface)}.btn-t:hover{background:#0b6280}
+.btn-w{background:var(--warn);color:var(--surface)}.btn-w:hover{background:#8f6110}
+.btn-sm{padding:5px 10px;font-size:var(--fs-body)}
+.grp{margin-bottom:18px}
+.grp-hd{display:flex;align-items:center;gap:10px;padding:7px 12px;background:var(--bluebg);border:1px solid var(--line);border-radius:8px 8px 0 0;border-bottom:none}
+.grp-name{font-size:var(--fs-body);font-weight:800;color:var(--navy);text-transform:uppercase;letter-spacing:.4px}
+.grp-base{font-size:var(--fs-caption);font-weight:700;color:var(--blue);background:var(--surface);padding:2px 8px;border-radius:5px;border:1px solid var(--line2)}
+.grp-count{font-size:var(--fs-caption);color:var(--muted);margin-left:auto}
+.data-table{width:100%;border-collapse:collapse;background:var(--surface);border:1px solid var(--line);border-radius:0 0 10px 10px;overflow:hidden}
+.data-table.solo{border-radius:10px}
+.data-table thead th{background:var(--surface2);padding:9px 14px;font-size:var(--fs-caption);font-weight:700;color:var(--ink2);text-transform:uppercase;letter-spacing:.35px;border-bottom:2px solid var(--line);text-align:left;white-space:nowrap}
+.data-table tbody td{padding:9px 14px;border-bottom:1px solid var(--line);font-size:var(--fs-body);vertical-align:middle}
+.data-table tbody tr:last-child td{border-bottom:none}
+.data-table tbody tr:hover{background:var(--surface2)}
+.code{font-family:'Consolas','Courier New',monospace;font-weight:700;color:var(--blue);font-size:var(--fs-body)}
+.fct{font-family:'Consolas','Courier New',monospace;color:var(--teal);font-weight:700}
+.fct-to{font-size:var(--fs-caption);color:var(--muted);font-weight:600;margin-left:4px}
+.ctx-chip{display:inline-block;font-size:var(--fs-caption);font-weight:700;padding:2px 6px;border-radius:4px;margin-right:3px}
+.ctx-in{background:var(--tealbg);color:var(--teal)}
+.ctx-out{background:var(--purplebg);color:var(--purple)}
+.ctx-inv{background:var(--orangebg);color:var(--orange)}
+.gst-chip{font-family:'Consolas',monospace;font-weight:700;font-size:var(--fs-body);background:var(--greenbg);color:var(--green);padding:2px 9px;border-radius:5px}
+.toggle{position:relative;width:34px;height:18px;border-radius:10px;background:var(--line2);cursor:pointer;transition:background .15s;flex-shrink:0;display:inline-block;vertical-align:middle}
+.toggle.on{background:var(--green)}
+.toggle::after{content:"";position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:var(--surface);transition:left .15s}
+.toggle.on::after{left:18px}
+.toggle.readonly{opacity:.45;cursor:not-allowed;pointer-events:none}
+.row-off{opacity:.5}
+.protected{background:var(--warnbg)}
+
+.act-btns{display:flex;gap:5px;justify-content:flex-end}
+.iconbtn{cursor:pointer;color:var(--muted);font-size:13px;padding:3px 6px;border-radius:5px;transition:all .12s;border:1px solid transparent}
+.iconbtn:hover{background:var(--surface2);color:var(--navy);border-color:var(--line2)}
+.footer-note{margin-top:14px;padding:10px 14px;background:var(--surface2);border:1px solid var(--line);border-radius:8px;font-size:var(--fs-caption);color:var(--ink2);line-height:1.6}
+.hist-panel{background:var(--surface2);border:1px solid var(--line);border-top:none}
+.hist-panel td{font-size:var(--fs-body);color:var(--ink2)}
+.hist-row td{padding:6px 14px 6px 40px}
+.hist-cur{font-weight:700;color:var(--green)}
+.mrm-list-purpose{font-size:var(--fs-caption);color:var(--muted);margin-left:8px}
+
+.ovl{position:fixed;inset:0;background:rgba(10,25,45,.4);z-index:var(--z-modal);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s}
+.ovl.show{opacity:1;pointer-events:all}
+.modal{background:var(--surface);border-radius:12px;width:560px;max-height:88vh;overflow-y:auto;box-shadow:0 20px 60px rgba(10,25,45,.25)}
+.modal-lg{width:680px}
+.modal-hd{background:var(--navy);padding:15px 20px;color:var(--surface);border-radius:12px 12px 0 0}
+.modal-hd h3{font-size:var(--fs-emphasis);font-weight:700}
+.modal-hd p{font-size:var(--fs-caption);opacity:.7;margin-top:3px}
+.modal-body{padding:18px 20px}
+.modal-ft{padding:12px 20px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:8px;background:var(--surface2);border-radius:0 0 12px 12px}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:var(--fs-body);font-weight:700;color:var(--ink2);margin-bottom:5px}
+.req{color:var(--accent)}
+.field input,.field select,.field textarea{width:100%;border:1.5px solid var(--line2);border-radius:7px;padding:8px 11px;font-size:var(--fs-body);color:var(--ink);outline:none;font-family:inherit}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--teal)}
+.field input:focus-visible,.field select:focus-visible,.field textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.field input.readonly{background:var(--surface2);color:var(--muted);cursor:not-allowed}
+.hint{font-size:var(--fs-caption);color:var(--muted);margin-top:4px}
+.eng-note{font-size:var(--fs-caption);font-weight:700;color:var(--teal);background:var(--tealbg);padding:6px 10px;border-radius:6px;margin-top:5px}
+.row2{display:flex;gap:12px}
+.row2>.field{flex:1}
+.ctx-pick{display:flex;gap:8px;flex-wrap:wrap}
+.ctx-opt{display:flex;align-items:center;gap:6px;padding:6px 11px;border:1.5px solid var(--line2);border-radius:7px;font-size:var(--fs-body);font-weight:600;cursor:pointer;color:var(--ink2);user-select:none}
+.ctx-opt.sel{border-color:var(--teal);background:var(--tealbg);color:var(--teal)}
+.live-conf{font-size:var(--fs-body);font-weight:700;color:var(--green);background:var(--greenbg);padding:7px 11px;border-radius:7px;margin-top:6px;display:none}
+.live-conf.show{display:block}
+.warn-box{font-size:var(--fs-body);color:var(--warn);background:var(--warnbg);border:1px solid var(--warn);padding:9px 12px;border-radius:7px;margin-bottom:14px;line-height:1.5}
+.err-box{font-size:var(--fs-body);color:var(--accent);background:var(--accentbg);border:1px solid var(--accent);padding:9px 12px;border-radius:7px;margin-bottom:14px;line-height:1.5;display:none}
+.err-box.show{display:block}
+.tmpl-banner{display:flex;align-items:center;gap:10px;background:var(--tealbg);border:1px solid var(--teal);border-radius:8px;padding:10px 14px;margin-bottom:14px}
+.tmpl-banner .t1{flex:1;font-size:var(--fs-body);color:var(--teal);font-weight:600}
+.dropzone{border:2px dashed var(--line2);border-radius:9px;padding:22px;text-align:center;color:var(--muted);font-size:var(--fs-body);cursor:pointer;transition:all .15s}
+.dropzone:hover{border-color:var(--teal);background:var(--surface2)}
+.preview-box{margin-top:14px;background:var(--surface2);border:1px solid var(--line);border-radius:8px;padding:12px 14px;font-size:var(--fs-body);display:none}
+.preview-box.show{display:block}
+.pv-stat{display:inline-block;font-weight:700;padding:2px 9px;border-radius:5px;margin-right:8px;font-size:var(--fs-caption)}
+.copybox{width:100%;height:150px;border:1.5px solid var(--line2);border-radius:7px;padding:10px;font-family:'Consolas',monospace;font-size:var(--fs-caption);color:var(--ink2);resize:vertical;outline:none}
+.copybox:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.hide{display:none!important}
+</style>
+</head>
+<body>
+
+<div id="uat-loadstrip" data-loading="boot" style="display:none">Loading live data&hellip;</div>
+
+<div class="main">
+  <div class="mod-hdr rkf-halfbar">
+    <span class="mod-badge">M-RM</span>
+    <span class="mod-title">Reference Master</span>
+    <span class="mod-crumb">Product &rsaquo; UOM &amp; HSN/GST</span>
+    <span class="mod-role">Admin / Product Admin edit</span>
+    <span class="mod-cfg">Configuration</span>
+
+    <span id="alog-access-point" style="margin-left:auto">
+      <button class="btn btn-g btn-sm rkf-kbd-activatable" id="history-btn" title="Activity Log" onclick="openHistory()">&#128340; History</button>
+    </span>
+  </div>
+
+  <div class="tabbar">
+    <div class="mod-tab act" id="tab-uom" onclick="switchTab('uom')">UOM (Units of Measure)</div>
+    <div class="mod-tab" id="tab-hsn" onclick="switchTab('hsn')">HSN / GST</div>
+    <div class="mod-tab" id="tab-lists" onclick="switchTab('lists')">Customization Lists</div>
+  </div>
+
+  <!-- ===================== UOM TAB ===================== -->
+  <div class="content" id="pane-uom">
+    <div class="toolbar">
+      <input class="search" id="uom-search" placeholder="Search UOMs" oninput="renderUOM()"/>
+      <select class="fsel" id="uom-mt" onchange="renderUOM()">
+        <option value="">All measure types</option>
+      </select>
+      <select class="fsel" id="uom-ctx" onchange="renderUOM()">
+        <option value="">All contexts</option>
+        <option value="Input">Input</option>
+        <option value="Output">Output</option>
+        <option value="Inventory">Inventory</option>
+      </select>
+      <select class="fsel" id="uom-status" onchange="renderUOM()">
+        <option value="active">Active only</option>
+        <option value="all">Show inactive</option>
+      </select>
+      <div class="tb-sp2"></div>
+      <button class="btn btn-p btn-sm rkf-write" id="uom-add-btn" onclick="openAddUOM()">+ Add UOM</button>
+    </div>
+    <div id="uom-groups"></div>
+  </div>
+
+  <!-- ===================== HSN TAB ===================== -->
+  <div class="content hide" id="pane-hsn">
+    <div class="toolbar">
+      <input class="search" id="hsn-search" placeholder="Search HSN codes" oninput="renderHSN()"/>
+      <select class="fsel" id="hsn-status" onchange="renderHSN()">
+        <option value="active">Active only</option>
+        <option value="all">Show inactive</option>
+      </select>
+      <div class="tb-sp2"></div>
+      <button class="btn btn-g btn-sm rkf-write" id="hsn-upload-btn" onclick="openUpload()">&#8681; Upload HSN</button>
+      <button class="btn btn-g btn-sm" id="hsn-export-btn" onclick="exportHSN()">Export</button>
+      <button class="btn btn-p btn-sm rkf-write" id="hsn-add-btn" onclick="openAddHSN()">+ Add HSN</button>
+    </div>
+    <table class="data-table solo">
+      <thead><tr>
+        <th style="width:130px">HSN Code</th><th>Description</th>
+        <th style="width:90px">GST Rate</th>
+        <th style="width:70px">Active</th><th style="width:130px"></th>
+      </tr></thead>
+      <tbody id="hsn-body"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ============ ADD / EDIT UOM MODAL ============ -->
+<div class="ovl" id="ovl-uom" onclick="overlayClose(event,'ovl-uom')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-hd"><h3 id="uom-modal-title">Add UOM</h3></div>
+    <div class="modal-body">
+      <div class="err-box" id="uom-err"></div>
+      <div class="row2">
+        <div class="field">
+          <label>Measure Type <span class="req">*</span>
+            <button type="button" class="iconbtn rkf-kbd-activatable rkf-write" id="mt-add-btn" title="Add a measure type"
+                    aria-label="Add a measure type" onclick="openAddMT()" style="margin-left:6px">+</button>
+          </label>
+          <select id="f-mt" onchange="onMTChange()">
+            <option value="">Select...</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>UOM Code <span class="req">*</span></label>
+          <input id="f-code" maxlength="10" placeholder="e.g. FT" oninput="upperCode(this)"/>
+        </div>
+      </div>
+      <div class="field">
+        <label>Label <span class="req">*</span></label>
+        <input id="f-label" placeholder="e.g. Feet"/>
+      </div>
+      <div class="field">
+        <label>Factor to base <span class="req">*</span> <span id="f-base-lbl" class="fct-to"></span></label>
+        <input id="f-factor" type="number" step="any" placeholder="e.g. 0.3048" oninput="liveFactor()"/>
+
+        <div class="live-conf" id="f-live"></div>
+      </div>
+      <div class="field">
+        <label>Usage context <span class="req">*</span> </label>
+
+        <div class="ctx-pick" role="group" aria-label="Usage context">
+          <label class="rkf-tick" for="ctx-Input"><input type="checkbox" id="ctx-Input" onchange="toggleCtx('Input')"/> Input (typed on documents)</label>
+          <label class="rkf-tick" for="ctx-Output"><input type="checkbox" id="ctx-Output" onchange="toggleCtx('Output')"/> Output (billing)</label>
+          <label class="rkf-tick" for="ctx-Inventory"><input type="checkbox" id="ctx-Inventory" onchange="toggleCtx('Inventory')"/> Inventory (stock)</label>
+        </div>
+        <input type="hidden" id="f-ctx" value=""/>
+      </div>
+      <div class="field"><label>Tally Alias</label><input id="f-tally" placeholder="e.g. KGS / NOS (Tally unit name)"/></div>
+
+    </div>
+    <div class="modal-ft">
+      <button class="btn btn-g" id="uom-cancel-btn" onclick="closeOvl('ovl-uom')">Cancel</button>
+      <button class="btn btn-p" id="uom-save-btn" onclick="saveUOM()">Save UOM</button>
+    </div>
+  </div>
+</div>
+
+<!-- CHANGE FACTOR -->
+
+<div class="ovl" id="ovl-mt" onclick="overlayClose(event,'ovl-mt')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-hd"><h3>Add Measure Type</h3></div>
+    <div class="modal-body">
+      <div class="err-box" id="mt-err"></div>
+      <div class="row2">
+        <div class="field"><label>Code <span class="req">*</span></label>
+          <input id="mt-code" maxlength="20" autocomplete="off" placeholder="e.g. Angle"/></div>
+        <div class="field"><label>Label <span class="req">*</span></label>
+          <input id="mt-label" maxlength="40" autocomplete="off" placeholder="e.g. Angle"/></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label>Base unit label <span class="req">*</span></label>
+          <input id="mt-base" maxlength="40" autocomplete="off" placeholder="e.g. Degree"/>
+          </div>
+        <div class="field"><label>Allows conversion</label>
+          <span id="mt-conv-host"></span>
+          </div>
+      </div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn btn-g" type="button" onclick="closeOvl('ovl-mt')">Cancel</button>
+      <button class="btn btn-p" type="button" id="mt-save" onclick="saveMT()">Add measure type</button>
+    </div>
+  </div>
+</div>
+
+<div class="ovl" id="ovl-factor" onclick="overlayClose(event,'ovl-factor')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-hd"><h3>Change Factor</h3></div>
+    <div class="modal-body">
+      <div class="warn-box">Issued documents keep their factor.</div>
+      <div class="field"><label>UOM</label><input id="cf-uom" class="readonly" readonly/></div>
+      <div class="row2">
+        <div class="field"><label>Current factor (read-only)</label><input id="cf-current" class="readonly" readonly/></div>
+        <div class="field"><label>New factor <span class="req">*</span> <span id="cf-base" class="fct-to"></span></label><input id="cf-new" type="number" step="any" oninput="liveCF()"/></div>
+      </div>
+      <div class="field" style="display:none"><label>Effective from <span class="req">*</span> <span class="fct-to">today</span></label><input id="cf-date" class="in readonly" readonly placeholder="DD-MM-YYYY"/></div>
+      <div class="live-conf" id="cf-live"></div>
+      <div id="cf-impact" style="margin-top:8px;font-size:var(--fs-body);color:var(--ink2);background:var(--surface2);border-radius:6px;padding:8px 10px"></div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn btn-g" id="factor-cancel-btn" onclick="closeOvl('ovl-factor')">Cancel</button>
+      <button class="btn btn-p" id="factor-save-btn" onclick="saveFactor()">Save factor change</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ DEACTIVATE MODAL ============ -->
+<div class="ovl" id="ovl-deact" onclick="overlayClose(event,'ovl-deact')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-hd"><h3>Request Deactivation</h3></div>
+    <div class="modal-body">
+      <div class="warn-box" id="deact-msg"></div>
+      <div class="field"><label>Reason <span class="req">*</span></label><textarea id="deact-reason" rows="3" placeholder="Why deactivated?"></textarea></div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn btn-g" id="deact-cancel-btn" onclick="closeOvl('ovl-deact')">Cancel</button>
+      <button class="btn btn-w" id="deact-save-btn" onclick="submitDeact()">Deactivate &amp; log to Accounts</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ ADD / EDIT HSN MODAL ============ -->
+<div class="ovl" id="ovl-hsn" onclick="overlayClose(event,'ovl-hsn')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-hd"><h3 id="hsn-modal-title">Add HSN Code</h3></div>
+    <div class="modal-body">
+      <div class="err-box" id="hsn-err"></div>
+      <div class="field"><label>HSN Code <span class="req">*</span> <span class="hint">min 6 digits, 8 preferred</span></label><input id="h-code" maxlength="8" placeholder="e.g. 73090000" oninput="digitsOnly(this)"/></div>
+      <div class="field"><label>Description <span class="req">*</span></label><input id="h-desc" placeholder="e.g. Roofing Sheets"/></div>
+      <div class="row2">
+        <div class="field">
+          <label>GST Rate <span class="req">*</span> <span class="hint">current legal slabs</span></label>
+          <select id="h-gst"><option value="">Select...</option></select>
+        </div>
+        <div class="field"><label>Effective from <span class="req">*</span></label><div id="h-date-wrap"></div></div>
+      </div>
+      <div class="field"><label>Tally Alias</label><input id="h-tally" placeholder="Tally HSN/ledger alias"/></div>
+      <div class="hint" id="hsn-edit-note" style="display:none"></div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn btn-g" id="hsn-cancel-btn" onclick="closeOvl('ovl-hsn')">Cancel</button>
+      <button class="btn btn-p" id="hsn-save-btn" onclick="saveHSN()">Save HSN</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ CHANGE GST RATE MODAL ============ -->
+<div class="ovl" id="ovl-rate" onclick="overlayClose(event,'ovl-rate')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-hd"><h3>Change GST Rate</h3></div>
+    <div class="modal-body">
+      <div class="warn-box">Issued documents keep their rate.</div>
+      <div class="field"><label>HSN</label><input id="cr-hsn" class="readonly" readonly/></div>
+      <div class="row2">
+        <div class="field"><label>Current rate (read-only)</label><input id="cr-current" class="readonly" readonly/></div>
+        <div class="field"><label>New rate <span class="req">*</span></label>
+          <select id="cr-new"><option value="">Select...</option></select>
+        </div>
+      </div>
+      <div class="field" style="display:none"><label>Effective from <span class="req">*</span> <span class="fct-to">today</span></label><input id="cr-date" class="in readonly" readonly placeholder="DD-MM-YYYY"/></div>
+      <div id="cr-impact" style="margin-top:8px;font-size:var(--fs-body);color:var(--ink2);background:var(--surface2);border-radius:6px;padding:8px 10px"></div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn btn-g" id="rate-cancel-btn" onclick="closeOvl('ovl-rate')">Cancel</button>
+      <button class="btn btn-p" id="rate-save-btn" onclick="saveRate()">Save rate change</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ UPLOAD HSN MODAL ============ -->
+<div class="ovl" id="ovl-upload" onclick="overlayClose(event,'ovl-upload')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-hd"><h3>Bulk Upload HSN</h3></div>
+    <div class="modal-body">
+      <div class="tmpl-banner">
+
+        <button class="btn btn-t btn-sm" id="tmpl-dl-btn" onclick="downloadTemplate()">&#8681; Template</button>
+      </div>
+      <div class="dropzone" onclick="pickCsv()">Select a .csv file</div>
+      <input type="file" id="up-file" accept=".csv,text/csv" style="display:none" onchange="handleCsv(this)"/>
+      <div class="preview-box" id="up-preview">
+        <div style="margin-bottom:8px;font-weight:700">Preview</div>
+        <span class="pv-stat" style="background:var(--greenbg);color:var(--green)" id="pv-ok">0 ready</span>
+        <span class="pv-stat" style="background:var(--accentbg);color:var(--accent)" id="pv-bad">0 blocked</span>
+        <span class="pv-stat" style="background:var(--warnbg);color:var(--warn)" id="pv-flag">0 flagged</span>
+
+        <div class="hint" id="pv-detail" style="margin-top:6px"></div>
+      </div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn btn-g" id="upload-cancel-btn" onclick="closeOvl('ovl-upload')">Cancel</button>
+      <button class="btn btn-p" id="up-confirm" disabled style="opacity:.5" onclick="confirmUpload()">Confirm Import</button>
+    </div>
+  </div>
+</div>
+
+<!-- TEMPLATE COPY MODAL -->
+<div class="ovl" id="ovl-tmpl" onclick="overlayClose(event,'ovl-tmpl')">
+  <div class="modal modal-lg" onclick="event.stopPropagation()">
+    <div class="modal-hd"><h3>HSN Import Template</h3></div>
+    <div class="modal-body">
+      <textarea class="copybox" id="tmpl-text" readonly></textarea>
+    </div>
+    <div class="modal-ft">
+      <button class="btn btn-g" id="tmpl-close-btn" onclick="closeOvl('ovl-tmpl')">Close</button>
+      <button class="btn btn-t" id="tmpl-select-btn" onclick="selectTmpl()">Select All</button>
+      <button class="btn btn-p" id="tmpl-copy-btn" onclick="copyTmpl()">Copy</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+/* M-RM Reference Master */
+var BASE = {};  
+
+var MRM = {user:null, uoms:[], hsns:[], rates:[], ufh:{}, hrh:{}, mt:[], NOCONV:{}};
+var editingUOM=null, editingHSN=null, ctxState=[], deactTarget=null, factorTarget=null, rateTarget=null, expandedUOM=null;
+
+function today(){return new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Kolkata'}).format(new Date());}
+function switchTab(t){
+  document.getElementById('tab-uom').classList.toggle('act', t==='uom');
+  document.getElementById('tab-hsn').classList.toggle('act', t==='hsn');
+  var tl=document.getElementById('tab-lists'); if(tl) tl.classList.toggle('act', t==='lists');
+  document.getElementById('pane-uom').classList.toggle('hide', t!=='uom');
+  document.getElementById('pane-hsn').classList.toggle('hide', t!=='hsn');
+  var pl=document.getElementById('pane-lists'); if(pl){ pl.classList.toggle('hide', t!=='lists'); if(t==='lists') mrmLoadLists(); }
+}
+
+/* UOM RENDER */
+function ctxChips(arr){
+  var m={Input:'ctx-in',Output:'ctx-out',Inventory:'ctx-inv'},s='';
+  (arr||[]).forEach(function(c){ s+='<span class="ctx-chip '+(m[c]||'ctx-in')+'">'+c.substring(0,3).toUpperCase()+'</span>'; });
+  return s;
+}
+function renderUOM(){
+  var q=(document.getElementById('uom-search').value||'').toLowerCase();
+  var mtF=document.getElementById('uom-mt').value;
+  var ctxF=document.getElementById('uom-ctx').value;
+  var stF=document.getElementById('uom-status').value;
+  var host=document.getElementById('uom-groups'); host.innerHTML='';
+  MRM.mt.forEach(function(_m){ var mt=_m.code;
+    if(mtF && mt!==mtF) return;
+    var rows=MRM.uoms.filter(function(u){
+      if(u.measure_type!==mt) return false;
+      if(stF==='active' && !u.active) return false;
+      if(ctxF && (u.usage_context||[]).indexOf(ctxF)<0) return false;
+      if(q && u.uom_code.toLowerCase().indexOf(q)<0 && (u.label||'').toLowerCase().indexOf(q)<0) return false;
+      return true;
+    });
+    if(rows.length===0) return;
+    var convNote = (MRM.NOCONV[mt]) ? ' (no cross-convert)' : '';
+    var html='<div class="grp"><div class="grp-hd"><span class="grp-name">'+mt+'</span>'+
+      '<span class="grp-base">base: '+BASE[mt]+convNote+'</span>'+
+      '<span class="grp-count">'+rows.length+' unit(s)</span></div>'+
+      '<table class="data-table"><thead><tr>'+
+      '<th style="width:90px">Code</th><th>Label</th>'+
+      '<th style="width:170px">Factor to '+BASE[mt]+'</th><th style="width:170px">Context</th>'+
+      '<th style="width:70px">Active</th><th style="width:150px"></th></tr></thead><tbody>';
+    rows.forEach(function(u){
+      var hist=MRM.ufh[u.uom_code]||[];
+      var prot = u.is_protected ? ' protected' : '';
+      var baseTag = u.base_unit_flag ? RKF.chip.html('Base','info',{small:true}) : '';
+      var lockTag = u.is_protected ? RKF.chip.html('Protected','pending',{small:true}) : '';
+      var lifeChip = u.active ? '' : RKF.chip.html('Inactive','retired',{small:true});
+      var rowcls = u.active ? '' : ' row-off';
+      html+='<tr class="'+rowcls+prot+'">'+
+        '<td><span class="code">'+u.uom_code+'</span></td>'+
+        '<td>'+(u.label||'')+baseTag+lockTag+lifeChip+(u.tally_alias?RKF.chip.html('T:'+u.tally_alias,'info',{small:true,code:true,title:'Tally alias'}):'')+'</td>'+
+        '<td><span class="fct">'+u.factor_to_base+'</span>'+(hist.length?RKF.chip.html('Edited','info',{small:true,title:'has archived factor history'}):'')+'</td>'+
+        '<td>'+ctxChips(u.usage_context)+'</td>'+
+        '<td><span class="rkf-write">'+mrmTgl(u.active,"toggleUOM(\'"+u.uom_code+"\')",u.uom_code+' active')+'</span></td>'+
+        '<td><div class="act-btns rkf-write">'+
+          (u.is_protected ? '' :
+          '<button type="button" class="iconbtn rkf-kbd-activatable" title="Edit" aria-label="Edit '+u.uom_code+'" onclick="openEditUOM(\''+u.uom_code+'\')">&#9998;</button>'+
+          (MRM.NOCONV[u.measure_type]||u.base_unit_flag ? '' : '<button type="button" class="iconbtn rkf-kbd-activatable" title="Change factor" aria-label="Change factor for '+u.uom_code+'" onclick="openFactor(\''+u.uom_code+'\')">&#8644;</button>')+
+          (hist.length ? '<button type="button" class="iconbtn rkf-kbd-activatable" title="Factor history" aria-label="Factor history for '+u.uom_code+'" onclick="toggleHist(\''+u.uom_code+'\')">&#8987;</button>' : '')
+          )+
+        '</div></td></tr>';
+      if(expandedUOM===u.uom_code && hist.length){
+        html+='<tr class="hist-panel"><td colspan="6"><table style="width:100%"><tbody>';
+        html+='<tr class="hist-row"><td style="width:110px">'+u.factor_to_base+'</td><td>from '+fmtDate(u.valid_from)+'</td><td><span class="hist-cur">current</span></td></tr>';
+        hist.forEach(function(h){
+          html+='<tr class="hist-row"><td style="width:110px">'+h.factor+'</td><td>from '+fmtDate(h.valid_from)+' to '+fmtDate(h.valid_to)+'</td><td></td></tr>';
+        });
+        html+='</tbody></table></td></tr>';
+      }
+    });
+    html+='</tbody></table></div>';
+    host.innerHTML+=html;
+  });
+  if(host.innerHTML===''){ host.innerHTML='<div class="footer-note" data-empty-state="uom">No UOMs match the current filters.</div>'; }
+}
+function toggleHist(code){ expandedUOM = (expandedUOM===code)?null:code; renderUOM(); }
+
+/* ============ UOM ADD / EDIT ============ */
+function openAddUOM(){
+  editingUOM=null; ctxState=[];
+  document.getElementById('uom-modal-title').textContent='Add UOM';
+  document.getElementById('f-mt').value=''; document.getElementById('f-mt').disabled=false;
+  document.getElementById('f-code').value=''; document.getElementById('f-code').disabled=false;
+  document.getElementById('f-label').value='';
+  document.getElementById('f-tally').value='';
+  document.getElementById('f-factor').value='';
+  document.getElementById('f-factor').disabled=false;
+  document.getElementById('f-base-lbl').textContent='';
+  document.getElementById('f-live').classList.remove('show');
+  document.getElementById('uom-err').classList.remove('show');
+  syncCtx();
+  openOvl('ovl-uom');
+}
+
+function openAddMT(){
+  ['mt-code','mt-label','mt-base'].forEach(function(id){ document.getElementById(id).value=''; });
+  document.getElementById('mt-conv-host').innerHTML=RKF.toggle.html({on:true,label:'Allows conversion'});
+  document.getElementById('mt-err').classList.remove('show');
+  openOvl('ovl-mt');
+}
+function mtErr(msg){ var e=document.getElementById('mt-err'); e.textContent=msg; e.classList.add('show'); }
+async function saveMT(){
+  var code=(document.getElementById('mt-code').value||'').trim();
+  var label=(document.getElementById('mt-label').value||'').trim();
+  var base=(document.getElementById('mt-base').value||'').trim();
+  var convEl=document.querySelector('#mt-conv-host input[type=checkbox]');
+  if(!code)  { mtErr('A code is required.'); return; }
+  if(!label) { mtErr('A label is required.'); return; }
+  if(!base)  { mtErr('A base unit label is required.'); return; }
+  if(MRM.mt.some(function(m){return m.code.toLowerCase()===code.toLowerCase();})){
+    mtErr('Measure type '+code+' already exists.'); return; }
+  var btn=document.getElementById('mt-save');
+  await RKF.saveGuard(btn,'Adding...',async function(){
+
+    var r=await mrmMeasureType(code,{label:label, base_unit_label:base,
+        allow_convert:(convEl?convEl.checked:true),
+        sort_order:(MRM.mt.length?Math.max.apply(null,MRM.mt.map(function(m){return m.sort_order||0;}))+1:1)});
+    if(r.error){ mtErr(RKF.errText(r.error,{fallback:'The save was refused. Nothing was changed.'})); return; }
+    closeOvl('ovl-mt');
+    await mrmReload();               
+    document.getElementById('f-mt').value=code; onMTChange();
+    toast('Measure type '+code+' added.');
+  });
+}
+function openEditUOM(code){
+  var u=MRM.uoms.filter(function(x){return x.uom_code===code;})[0]; if(!u) return;
+  editingUOM=u; ctxState=(u.usage_context||[]).slice();
+  document.getElementById('uom-modal-title').textContent='Edit UOM';
+  document.getElementById('f-mt').value=u.measure_type; document.getElementById('f-mt').disabled=true;
+  document.getElementById('f-code').value=u.uom_code; document.getElementById('f-code').disabled=true;
+  document.getElementById('f-label').value=u.label||'';
+  document.getElementById('f-tally').value=u.tally_alias||'';
+  document.getElementById('f-factor').value=u.factor_to_base;
+  document.getElementById('f-base-lbl').textContent='to '+BASE[u.measure_type];
+  document.getElementById('f-factor').disabled=(MRM.NOCONV[u.measure_type]||!!u.base_unit_flag);
+  document.getElementById('uom-err').classList.remove('show');
+  syncCtx();
+  liveFactor();
+  openOvl('ovl-uom');
+}
+function onMTChange(){
+  var mt=document.getElementById('f-mt').value;
+  document.getElementById('f-base-lbl').textContent= mt ? ('to '+BASE[mt]) : '';
+  if(MRM.NOCONV[mt]){ document.getElementById('f-factor').value=1; document.getElementById('f-factor').disabled=true; }
+  else { document.getElementById('f-factor').disabled=false; }
+  liveFactor();
+}
+var UOM_CTX=['Input','Output','Inventory']; 
+function syncCtx(){var el=document.getElementById('f-ctx');if(el)el.value=ctxState.join(',');
+
+  UOM_CTX.forEach(function(c){var o=document.getElementById('ctx-'+c);if(o)o.checked=(ctxState.indexOf(c)>=0);});}
+function toggleCtx(c){
+  var i=ctxState.indexOf(c);
+  if(i>=0) ctxState.splice(i,1); else ctxState.push(c);
+  syncCtx();
+}
+(function(){document.addEventListener('input',function(e){ 
+  if(e.target&&e.target.id==='f-ctx'){ctxState=String(e.target.value||'').split(',').map(function(x){return x.trim();}).filter(function(x){return UOM_CTX.indexOf(x)>=0;});syncCtx();}
+},true);})();
+function upperCode(el){ el.value=el.value.replace(/[^A-Z0-9-]/g,''); }
+function liveFactor(){
+  var mt=document.getElementById('f-mt').value;
+  var f=parseFloat(document.getElementById('f-factor').value);
+  var lbl=document.getElementById('f-label').value||'1 unit';
+  var box=document.getElementById('f-live');
+  if(mt && !MRM.NOCONV[mt] && f>0){ box.textContent='1 '+lbl+' = '+f+' '+BASE[mt]; box.classList.add('show'); }
+  else { box.classList.remove('show'); }
+}
+async function saveUOM(){
+  var err=document.getElementById('uom-err');
+  var mt=document.getElementById('f-mt').value;
+  var code=document.getElementById('f-code').value.trim();
+  var label=document.getElementById('f-label').value.trim();
+  var factor=parseFloat(document.getElementById('f-factor').value);
+  var tally=document.getElementById('f-tally').value.trim()||null;
+  function fail(m){ err.textContent=m; err.classList.add('show'); }
+  if(!mt) return fail('Measure type is required.');
+  if(!code) return fail('UOM code is required.');
+  if(!/^[A-Z0-9-]{1,10}$/.test(code)) return fail('Code: letters, digits, hyphen; up to ten.');
+  if(!label) return fail('Label is required.');
+  if(MRM.NOCONV[mt]) factor=1;
+  if(!(factor>0)) return fail('Factor must be greater than 0.');
+  if(ctxState.length===0) return fail('Pick at least one usage context.');
+  if(editingUOM){
+    var patch={label:label,usage_context:ctxState.slice(),tally_alias:tally};
+    var wasFactor=Number(editingUOM.factor_to_base), archNote='';
+    if(!editingUOM.base_unit_flag && !MRM.NOCONV[editingUOM.measure_type] && factor!==wasFactor){
+      patch.factor_to_base=factor; archNote=' - factor '+wasFactor+' -> '+factor;
+    }
+    var r=await mrmUom(editingUOM.uom_code, patch);
+    if(r.error) return fail('The save was refused.');
+    if(!r.data||!r.data.length) return fail('No row updated. Reload.');
+    toast('UOM "'+code+'" updated.');
+  } else {
+    var dup=MRM.uoms.some(function(u){return u.uom_code===code;});
+    if(dup) return fail('UOM code "'+code+'" already exists.');
+    var hasBase=MRM.uoms.some(function(u){return u.measure_type===mt && u.base_unit_flag && u.active;});
+    var beBase=!hasBase && factor===1;
+    var r2=await mrmUom(code, {label:label,measure_type:mt,base_unit_flag:beBase,
+      factor_to_base:factor,usage_context:ctxState.slice(),active:false,tally_alias:tally});
+    if(r2.error) return fail('The save was refused.');
+    if(!r2.data||!r2.data.length) return fail('Insert returned no row - nothing was saved.');
+    if(!hasBase && factor!==1) toast('UOM "'+code+'" added (Inactive). '+mt+' has no base unit.',null);
+    else toast('UOM "'+code+'" added (Inactive).');
+    if(window.rkRecentPush)rkRecentPush('UOM',code,label);
+  }
+  closeOvl('ovl-uom'); await mrmReload();
+}
+function toggleUOM(code){
+  var u=MRM.uoms.filter(function(x){return x.uom_code===code;})[0]; if(!u) return;
+  if(u.is_protected){ toast('This protected unit cannot be deactivated.'); return; }
+  if(u.active){
+    var others=MRM.uoms.filter(function(x){return x.measure_type===u.measure_type && x.active && x.uom_code!==u.uom_code;});
+    if(u.base_unit_flag && others.length>0){
+      toast('Base unit of '+u.measure_type+': '+others.length+' unit(s) convert through it.');
+      return;
+    }
+    deactTarget={type:'uom',obj:u};
+    document.getElementById('deact-msg').innerHTML='<b>'+u.uom_code+' - '+(u.label||'')+'</b> may be in use on items and documents. Deactivation is sent to Accounts with your reason. Historical records are never broken.';
+    document.getElementById('deact-reason').value='';
+    openOvl('ovl-deact');
+  } else {
+    mrmActive('uom', code, true).then(async function(r){
+      if(r.error){toast(RKF.errText(r.error,{fallback:'The save was refused. Nothing was changed.'}));return;}
+      await mrmReload(); toast('UOM "'+code+'" reactivated.');
+    });
+  }
+}
+
+/* CHANGE FACTOR */
+function openFactor(code){
+  var u=MRM.uoms.filter(function(x){return x.uom_code===code;})[0]; if(!u) return;
+  factorTarget=u;
+  document.getElementById('cf-uom').value=u.uom_code+' - '+(u.label||'');
+  document.getElementById('cf-current').value=u.factor_to_base;
+  document.getElementById('cf-base').textContent='to '+BASE[u.measure_type];
+  document.getElementById('cf-new').value='';
+  document.getElementById('cf-date').value=isoToDMY(today());
+  document.getElementById('cf-live').classList.remove('show');
+  document.getElementById('cf-impact').innerHTML='<b>Impact:</b> issued documents keep their factor. New ones use this.';
+  openOvl('ovl-factor');
+}
+function liveCF(){
+  var f=parseFloat(document.getElementById('cf-new').value);
+  var box=document.getElementById('cf-live');
+  if(factorTarget && f>0){ box.textContent='1 '+(factorTarget.label||'')+' = '+f+' '+BASE[factorTarget.measure_type]; box.classList.add('show'); }
+  else box.classList.remove('show');
+}
+async function saveFactor(){
+  var f=parseFloat(document.getElementById('cf-new').value);
+  if(!(f>0)){ toast('New factor must be greater than 0.'); return; }
+  var u=factorTarget;
+  var priorF=Number(u.factor_to_base); 
+  if(f===priorF){ toast('Factor unchanged.'); return; }
+  var r=await mrmUom(u.uom_code, {factor_to_base:f});
+  if(r.error){ toast(RKF.errText(r.error,{fallback:'The save was refused. Nothing was changed.'})); return; }
+  if(!r.data||!r.data.length){ toast('Nothing was saved.'); return; }
+  closeOvl('ovl-factor'); expandedUOM=u.uom_code; await mrmReload();
+  toast('Factor changed for "'+u.uom_code+'".');
+}
+
+/* DEACTIVATE */
+async function submitDeact(){
+  var reason=document.getElementById('deact-reason').value.trim();
+  if(!reason){ toast('A reason is required.'); return; }
+  var t=deactTarget; if(!t) return;
+  var key=t.type==='uom'?'uom_code':'hsn_code', code=t.obj[key]; 
+  var r=await mrmActive((t.type==='uom'?'uom':'hsn'), code, false, reason);
+  if(r.error){ toast(RKF.errText(r.error,{fallback:'The save was refused. Nothing was changed.'})); return; }
+  if(!r.data||!r.data.length){ toast('Nothing was saved.'); return; }
+  closeOvl('ovl-deact'); document.getElementById('deact-reason').value='';
+  await mrmReload();
+  toast(code+' deactivation sent to Accounts.',[{label:'Undo',fn:function(){
+    mrmActive((t.type==='uom'?'uom':'hsn'), code, true).then(async function(r2){
+      if(r2.error){toast(RKF.errText(r2.error,{fallback:'The save was refused. Nothing was changed.'}));return;}
+      await mrmReload(); toast(code+' reactivated.');});
+  }}]);
+}
+
+/* ============ HSN RENDER ============ */
+function renderHSN(){
+  var q=(document.getElementById('hsn-search').value||'').toLowerCase();
+  var stF=document.getElementById('hsn-status').value;
+  var body=document.getElementById('hsn-body'); body.innerHTML='';
+  var shown=MRM.hsns.filter(function(h){
+    if(stF==='active' && !h.active) return false;
+    if(q && h.hsn_code.toLowerCase().indexOf(q)<0 && (h.description||'').toLowerCase().indexOf(q)<0) return false;
+    return true;
+  });
+  if(shown.length===0){ body.innerHTML='<tr><td colspan="5" data-empty-state="hsn" style="text-align:center;color:var(--muted);padding:20px">No HSN codes match.</td></tr>'; return; }
+  var html='';
+  shown.forEach(function(h){
+    var hist=MRM.hrh[h.hsn_code]||[];
+    var off=h.active?'':' row-off';
+    html+='<tr class="'+off+'">'+
+      '<td><span class="code">'+h.hsn_code+'</span>'+(hist.length?RKF.chip.html('Edited','info',{small:true,title:'archived rate history'}):'')+'</td>'+
+      '<td>'+(h.description||'')+(h.active?'':RKF.chip.html('Inactive','retired',{small:true}))+(h.tally_alias?RKF.chip.html('T:'+h.tally_alias,'info',{small:true,code:true,title:'Tally alias'}):'')+'</td>'+
+      '<td><span class="gst-chip">'+h.gst_rate+'%</span></td>'+
+      '<td><span class="rkf-write">'+mrmTgl(h.active,"toggleHSN(\'"+h.hsn_code+"\')",h.hsn_code+' active')+'</span></td>'+
+      '<td><div class="act-btns rkf-write">'+
+        '<button type="button" class="iconbtn rkf-kbd-activatable" title="Edit" aria-label="Edit '+h.hsn_code+'" onclick="openEditHSN(\''+h.hsn_code+'\')">&#9998;</button>'+
+        '<button type="button" class="iconbtn rkf-kbd-activatable" title="Change GST rate" aria-label="Change GST rate for '+h.hsn_code+'" onclick="openRate(\''+h.hsn_code+'\')">&#8377;</button>'+
+      '</div></td></tr>';
+  });
+  body.innerHTML=html;
+}
+
+function openAddHSN(){
+  editingHSN=null;
+  document.getElementById('hsn-modal-title').textContent='Add HSN Code';
+  document.getElementById('h-code').value=''; document.getElementById('h-code').disabled=false;
+  document.getElementById('h-desc').value='';
+  document.getElementById('h-tally').value='';
+  document.getElementById('h-gst').value=''; document.getElementById('h-gst').disabled=false;
+  document.getElementById('h-date-wrap').innerHTML=dateFieldHTML('h-date'); document.getElementById('h-date').value=isoToDMY(today()); document.getElementById('h-date').disabled=false;
+  document.getElementById('hsn-edit-note').style.display='none';
+  document.getElementById('hsn-err').classList.remove('show');
+  openOvl('ovl-hsn');
+}
+function openEditHSN(code){
+  var h=MRM.hsns.filter(function(x){return x.hsn_code===code;})[0]; if(!h) return;
+  editingHSN=h;
+  document.getElementById('hsn-modal-title').textContent='Edit HSN Code';
+  document.getElementById('h-code').value=h.hsn_code; document.getElementById('h-code').disabled=true;
+  document.getElementById('h-desc').value=h.description||'';
+  document.getElementById('h-tally').value=h.tally_alias||'';
+  document.getElementById('h-gst').value=h.gst_rate; document.getElementById('h-gst').disabled=true;
+  document.getElementById('h-date-wrap').innerHTML=dateFieldHTML('h-date'); document.getElementById('h-date').value=isoToDMY(String(h.valid_from).slice(0,10)); document.getElementById('h-date').disabled=true;
+  document.getElementById('hsn-edit-note').style.display='block';
+  document.getElementById('hsn-err').classList.remove('show');
+  openOvl('ovl-hsn');
+}
+function digitsOnly(el){ el.value=el.value.replace(/[^0-9]/g,''); }
+async function saveHSN(){
+  var err=document.getElementById('hsn-err');
+  var code=document.getElementById('h-code').value.trim();
+  var desc=document.getElementById('h-desc').value.trim();
+  var gst=document.getElementById('h-gst').value;
+  var date=readDMY('h-date');
+  var tally=document.getElementById('h-tally').value.trim()||null;
+  function fail(m){ err.textContent=m; err.classList.add('show'); }
+  if(!(code.length===6||code.length===8)) return fail('HSN must be exactly six or eight digits.');
+  if(!desc) return fail('Description is required.');
+  if(editingHSN){
+    var r=await mrmHsn(editingHSN.hsn_code, {description:desc,tally_alias:tally});
+    if(r.error) return fail('The save was refused.');
+    if(!r.data||!r.data.length) return fail('No row updated. Reload.');
+    toast('HSN "'+code+'" updated.');
+  } else {
+    if(gst==='') return fail('Select a GST rate from the current legal slabs.');
+    if(!date) return fail('Effective-from date is required.');
+    var dup=MRM.hsns.some(function(h){return h.hsn_code===code;});
+    if(dup) return fail('HSN "'+code+'" already exists.');
+    var r2=await mrmHsn(code, {description:desc,gst_rate:Number(gst),valid_from:date,active:false,tally_alias:tally});
+    if(r2.error) return fail('The save was refused.');
+    if(!r2.data||!r2.data.length) return fail('Insert returned no row - nothing was saved.');
+    toast('HSN "'+code+'" added (Inactive).');
+    if(window.rkRecentPush)rkRecentPush('HSN',code,desc);
+  }
+  closeOvl('ovl-hsn'); await mrmReload();
+}
+function toggleHSN(code){
+  var h=MRM.hsns.filter(function(x){return x.hsn_code===code;})[0]; if(!h) return;
+  if(h.active){
+    deactTarget={type:'hsn',obj:h};
+    document.getElementById('deact-msg').innerHTML='<b>'+h.hsn_code+' - '+(h.description||'')+'</b> may be assigned to items. Deactivation is sent to Accounts with your reason. Historical records keep their snapshot.';
+    document.getElementById('deact-reason').value='';
+    openOvl('ovl-deact');
+  } else {
+    mrmActive('hsn', code, true).then(async function(r){
+      if(r.error){toast(RKF.errText(r.error,{fallback:'The save was refused. Nothing was changed.'}));return;}
+      await mrmReload(); toast('HSN "'+code+'" reactivated.');
+    });
+  }
+}
+
+/* CHANGE GST RATE */
+function openRate(code){
+  var h=MRM.hsns.filter(function(x){return x.hsn_code===code;})[0]; if(!h) return;
+  rateTarget=h;
+  document.getElementById('cr-hsn').value=h.hsn_code+' - '+(h.description||'');
+  document.getElementById('cr-current').value=h.gst_rate+'%';
+  document.getElementById('cr-new').value='';
+  document.getElementById('cr-date').value=isoToDMY(today());
+  document.getElementById('cr-impact').innerHTML='<b>Impact:</b> issued documents keep their rate. New ones use this.';
+  openOvl('ovl-rate');
+}
+async function saveRate(){
+  var nr=document.getElementById('cr-new').value;
+  if(nr===''){ toast('Select a new rate.'); return; }
+  var h=rateTarget;
+  var priorR=Number(h.gst_rate); 
+  if(Number(nr)===priorR){ toast('Rate unchanged.'); return; }
+  var r=await mrmHsn(h.hsn_code, {gst_rate:Number(nr)});
+  if(r.error){ toast(RKF.errText(r.error,{fallback:'The save was refused. Nothing was changed.'})); return; }
+  if(!r.data||!r.data.length){ toast('Nothing was saved.'); return; }
+  closeOvl('ovl-rate'); await mrmReload();
+  toast('GST rate changed for "'+h.hsn_code+'".');
+}
+
+/* UPLOAD */
+var upRows=null;
+function openUpload(){
+  upRows=null;
+  document.getElementById('up-preview').classList.remove('show');
+  document.getElementById('up-file').value='';
+  document.getElementById('pv-detail').textContent='';
+  var c=document.getElementById('up-confirm'); c.disabled=true; c.style.opacity='.5';
+  openOvl('ovl-upload');
+}
+function pickCsv(){ document.getElementById('up-file').click(); }
+function handleCsv(inp){
+  var f=inp.files&&inp.files[0]; if(!f) return;
+  var rd=new FileReader();
+  rd.onload=function(){ previewCsv(String(rd.result||'')); };
+  rd.readAsText(f);
+}
+function previewCsv(text){
+  var lines=text.split(/\r?\n/).filter(function(l){return l.trim()!=='';});
+  var ok=[],bad=[],flag=[],detail=[];
+  var liveRates=MRM.rates.map(function(r){return Number(r.rate);});
+  lines.forEach(function(l,i){
+    if(i===0 && /hsn_code/i.test(l)) return;              /* header */
+    if(/^\(/.test(l.trim()) || /^INSTRUCTIONS/i.test(l.trim()) || /^[0-9]+\./.test(l.trim())) return; 
+    var p=l.split(',');
+    if(p.length<4){ bad.push(l); detail.push('line '+(i+1)+': needs 4 columns'); return; }
+    var code=(p[0]||'').trim(), desc=(p[1]||'').trim(), rate=Number((p[2]||'').trim()), from=(p[3]||'').trim();
+    if(!/^([0-9]{6}|[0-9]{8})$/.test(code)){ bad.push(l); detail.push('line '+(i+1)+': HSN "'+code+'" must be 6 or 8 digits'); return; }
+    if(!desc){ bad.push(l); detail.push('line '+(i+1)+': description empty'); return; }
+    if(liveRates.indexOf(rate)<0){ bad.push(l); detail.push('line '+(i+1)+': rate '+p[2]+' not in the live slab list'); return; }
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(from)){ bad.push(l); detail.push('line '+(i+1)+': date "'+from+'" must be YYYY-MM-DD'); return; }
+    var row={hsn_code:code,description:desc,gst_rate:rate,valid_from:from};
+    if(MRM.hsns.some(function(h){return h.hsn_code===code;})){ row._update=true; flag.push(row); } else ok.push(row);
+  });
+  upRows={ok:ok,flag:flag};
+  document.getElementById('up-preview').classList.add('show');
+  document.getElementById('pv-ok').textContent=ok.length+' ready';
+  document.getElementById('pv-bad').textContent=bad.length+' blocked';
+  document.getElementById('pv-flag').textContent=flag.length+' flagged';
+  document.getElementById('pv-detail').textContent=detail.slice(0,6).join(' | ')+(detail.length>6?' | +'+(detail.length-6)+' more':'');
+  var c=document.getElementById('up-confirm');
+  var can=(ok.length+flag.length)>0;
+  c.disabled=!can; c.style.opacity=can?'1':'.5';
+}
+async function confirmUpload(){
+  if(!upRows) return;
+  var ins=0,upd=0,fail=0,msgs=[];
+  for(var i=0;i<upRows.ok.length;i++){
+    var row=upRows.ok[i];
+    var r=await mrmHsn(row.hsn_code, {description:row.description,gst_rate:row.gst_rate,valid_from:row.valid_from,active:false});
+    if(r.error||!r.data||!r.data.length){fail++;msgs.push(row.hsn_code+': '+(r.error?'refused':'no row'));} else ins++;
+  }
+  for(var j=0;j<upRows.flag.length;j++){
+    var row2=upRows.flag[j];
+    var r2=await mrmHsn(row2.hsn_code, {description:row2.description,gst_rate:row2.gst_rate});
+    if(r2.error||!r2.data||!r2.data.length){fail++;msgs.push(row2.hsn_code+': '+(r2.error?'refused':'no row'));} else upd++;
+  }
+  closeOvl('ovl-upload'); await mrmReload();
+  toast(ins+' HSN rows imported (Inactive), '+upd+' updated'+(fail?', '+fail+' FAILED: '+msgs.slice(0,2).join('; '):'')+'.');
+}
+function downloadTemplate(){
+  var t="HSN_Code,Description,GST_Rate,Effective_From\n";
+  t+="(8 digits preferred; min 6),(text),("+MRM.rates.map(function(r){return Number(r.rate);}).join('/')+" only - live slab list),(YYYY-MM-DD)\n";
+  t+="73090000,Roofing Sheets,18,2025-04-01\n";
+  t+="\nINSTRUCTIONS:\n";
+  t+="1. HSN_Code: minimum 6 digits, 8 preferred for a manufacturer. Anything else is rejected.\n";
+  t+="2. GST_Rate: live legal slabs only . Any other value is blocked on import.\n";
+  t+="3. Effective_From: date the rate applies (YYYY-MM-DD). A rate change to an existing HSN archives the prior rate.\n";
+  t+="4. Do not insert blank rows between data rows.\n";
+  document.getElementById('tmpl-text').value=t;
+  openOvl('ovl-tmpl');
+}
+function selectTmpl(){ var t=document.getElementById('tmpl-text'); t.focus(); t.select(); }
+function copyTmpl(){
+  var t=document.getElementById('tmpl-text'); t.focus(); t.select();
+
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(t.value).then(function(){ toast('Template copied.'); },
+      function(){ toast('Clipboard unavailable - copy manually.'); });
+    return;
+  }
+  try{ document.execCommand('copy'); toast('Template copied.'); }
+  catch(e){ toast('Clipboard unavailable - copy manually.'); }
+}
+
+function exportHSN(){
+  var rows=(MRM.hsns||[]).map(function(h){
+    return { HSN_Code: h.hsn_code,
+             Description: h.description||'',
+             GST_Rate: h.gst_rate,
+             Effective_From: String(h.valid_from).slice(0,10),
+             Active: h.active?'Y':'N',
+             Tally_Alias: h.tally_alias||'' };
+  });
+  try{
+    RKF.exportRows(rows,'hsn_gst_export_'+today()+'.csv',
+      ['HSN_Code','Description','GST_Rate','Effective_From','Active','Tally_Alias']);
+    toast('Exported '+rows.length+' HSN rows to CSV.');
+  }catch(e){ toast('The export could not be produced.','err'); }
+}
+
+/* ============ MODAL PLUMBING ============ */
+function openOvl(id){ document.getElementById(id).classList.add('show'); }
+function closeOvl(id){ document.getElementById(id).classList.remove('show'); }
+function closeModals(){ document.querySelectorAll('.ovl.show').forEach(function(o){o.classList.remove('show');}); }
+
+function overlayClose(e,id){
+  if(e.target.id!==id) return;
+  if(window._mrmDown!==e.target){ window._mrmDown=null; return; }
+  window._mrmDown=null; closeOvl(id);
+}
+
+/* TOAST */
+</script>
+
+<script>
+/* LIVE LAYER */
+var MRM_STUBBED=!!(window.supabase&&!window.supabase.createClient&&window.supabase.from); 
+if(!window.supabase||(!window.supabase.createClient&&!MRM_STUBBED)){document.documentElement.innerHTML='<div style="font-family:sans-serif;padding:48px"><h2 style="color:#b8341f">RK ERP UAT cannot start</h2><p>The screen cannot open.</p></div>';throw new Error('supabase-js missing');}
+
+var supa=MRM_STUBBED?window.supabase:RKF.client('https://ntymdsbezetobrnjqqvl.supabase.co','sb_publishable_nev1rE7tHlu-bOWOm1JpXw_jd40773y');
+
+(function(){var d=document.createElement('div');d.id='uat-login';d.style.cssText='position:fixed;inset:0;background:var(--navy,#0f3a5f);display:flex;align-items:center;justify-content:center;z-index:var(--z-modal)';
+
+ d.innerHTML='<div id="uat-bootmsg" style="color:#fff;font-size:var(--fs-emphasis);font-weight:600">Opening Reference Master&hellip;</div>'+'<div id="uat-loginform" style="display:none;background:#fff;border-radius:12px;padding:28px 30px;width:360px"><div style="font-weight:800;font-size:17px;color:#0f3a5f">RK Metal ERP - M-RM Reference Master</div><div style="font-size:var(--fs-body);color:#4a5868;margin:10px 0 14px;line-height:1.5">You are not signed in. The ERP is signed into once, on the home page, and every screen shares that one sign-in.</div><button class="btn btn-p" style="width:100%" onclick="location.href=\'index.html\'">Go to the ERP home page</button></div>';
+ document.body.appendChild(d);})();
+(async function(){if(MRM_STUBBED){MRM.user={email:'generated-checks'};await mrmBoot();return;}
+ var s=await supa.auth.getSession();if(!s.data.session){var bm=document.getElementById('uat-bootmsg'),lf=document.getElementById('uat-loginform');if(bm)bm.style.display='none';if(lf)lf.style.display='block';}if(s.data.session){MRM.user=s.data.session.user;await mrmLoadActor();await mrmBoot();}})();
+function mrmBy(){return (MRM.user&&MRM.user.email)||'UAT';}
+
+var MRM_ACTOR_EMP=null, MRM_ACTOR_NAME=null;
+
+async function mrmLoadActor(){
+  var a=await RKF.actor(supa);
+  if(a){ MRM_ACTOR_EMP=a.id; MRM_ACTOR_NAME=a.name; }
+}
+function mrmReqId(){ return (window.crypto&&crypto.randomUUID)?crypto.randomUUID():(String(Date.now())+'-'+Math.random().toString(16).slice(2)); }
+function mrmNoActor(){ return { error:{ message:'Your login is not mapped to an employee. Saving is disabled.' } }; }
+function mrmEnvelope(r){
+  if(r.error) return { error:r.error };
+  var env=r.data||{};
+  if(env.ok!==true){ return { error:env.error||{} }; }
+  return { data:[env.data||{ok:true}] };
+}
+async function mrmUom(code, data){
+  if(!MRM_ACTOR_EMP) return mrmNoActor();
+  return mrmEnvelope(await supa.rpc('rpc_mrm_uom_save',{p_payload:{uom_code:code,data:data},p_request_id:mrmReqId(),p_by_emp:MRM_ACTOR_EMP}));
+}
+
+async function mrmMeasureType(code, data){
+  if(!MRM_ACTOR_EMP) return mrmNoActor();
+  return mrmEnvelope(await supa.rpc('rpc_mrm_measure_type_save',{p_payload:{code:code,data:data},p_request_id:mrmReqId(),p_by_emp:MRM_ACTOR_EMP}));
+}
+async function mrmHsn(code, data){
+  if(!MRM_ACTOR_EMP) return mrmNoActor();
+  return mrmEnvelope(await supa.rpc('rpc_mrm_hsn_save',{p_payload:{hsn_code:code,data:data},p_request_id:mrmReqId(),p_by_emp:MRM_ACTOR_EMP}));
+}
+async function mrmActive(entity, key, on, reason){
+  if(!MRM_ACTOR_EMP) return mrmNoActor();
+  return mrmEnvelope(await supa.rpc('rpc_mrm_set_active',{p_payload:{entity:entity,key:key,active:!!on,reason:reason||null},p_request_id:mrmReqId(),p_by_emp:MRM_ACTOR_EMP}));
+}
+async function mrmRefValue(code, listId, data){
+  if(!MRM_ACTOR_EMP) return mrmNoActor();
+  return mrmEnvelope(await supa.rpc('rpc_mrm_refvalue_save',{p_payload:{code:code,list_id:listId,data:data},p_request_id:mrmReqId(),p_by_emp:MRM_ACTOR_EMP}));
+}
+
+function mrmLog(t){  }
+
+async function mrmLoad(){
+ var U=await supa.from('uom').select('uom_code,label,measure_type,base_unit_flag,factor_to_base,usage_context,valid_from,valid_to,active,is_protected,tally_alias').eq('is_deleted',false).order('uom_code');
+ if(U.error)throw new Error(mrmBiz('uom')+' could not be loaded');
+ MRM.uoms=(U.data||[]).map(function(u){u.factor_to_base=Number(u.factor_to_base);return u;});
+ var MT=await supa.from('measure_type').select('code,label,base_unit_label,base_uom_code,allow_convert,sort_order,active').eq('active',true).order('sort_order');
+ if(MT.error)throw new Error(mrmBiz('measure_type')+' could not be loaded');
+ MRM.mt=MT.data||[]; BASE={}; MRM.NOCONV={};
+ MRM.mt.forEach(function(m){BASE[m.code]=m.base_unit_label; if(m.allow_convert===false)MRM.NOCONV[m.code]=true;});
+ mrmFillMeasureTypes();
+ var H=await supa.from('hsn_gst').select('hsn_code,description,gst_rate,valid_from,valid_to,active,tally_alias').eq('is_deleted',false).order('hsn_code');
+ if(H.error)throw new Error(mrmBiz('hsn_gst')+' could not be loaded');
+ MRM.hsns=(H.data||[]).map(function(h){h.gst_rate=Number(h.gst_rate);return h;});
+ var R=await supa.from('valid_gst_rates').select('rate,description,active').eq('active',true).order('rate');
+ if(R.error)throw new Error(mrmBiz('valid_gst_rates')+' could not be loaded');
+ MRM.rates=R.data||[];
+ var UF=await supa.from('uom_factor_history').select('uom_code,factor,valid_from,valid_to').order('valid_from',{ascending:false});
+ if(UF.error)throw new Error(mrmBiz('uom_factor_history')+' could not be loaded');
+ MRM.ufh={};(UF.data||[]).forEach(function(x){(MRM.ufh[x.uom_code]=MRM.ufh[x.uom_code]||[]).push(x);});
+ var HR=await supa.from('hsn_rate_history').select('hsn_code,gst_rate,valid_from,valid_to').order('valid_from',{ascending:false});
+ if(HR.error)throw new Error(mrmBiz('hsn_rate_history')+' could not be loaded');
+ MRM.hrh={};(HR.data||[]).forEach(function(x){(MRM.hrh[x.hsn_code]=MRM.hrh[x.hsn_code]||[]).push(x);});
+}
+function mrmFillMeasureTypes(){
+ var f=document.getElementById('uom-mt');
+ if(f){var keep=f.value;f.innerHTML='<option value="">All measure types</option>'+MRM.mt.map(function(m){return '<option value="'+m.code+'">'+m.label+'</option>';}).join('');f.value=keep;}
+ var a=document.getElementById('f-mt');
+ if(a){var keepA=a.value;a.innerHTML='<option value="">Select...</option>'+MRM.mt.map(function(m){return '<option value="'+m.code+'">'+m.label+' (base: '+m.base_unit_label+(m.allow_convert===false?', no convert':'')+')</option>';}).join('');a.value=keepA;}
+}
+function mrmFillRates(){
+ ['h-gst','cr-new'].forEach(function(id){
+  var sel=document.getElementById(id);if(!sel)return;
+  var keep=sel.value;
+
+  if(!MRM.rates.length){ sel.innerHTML='<option value="">No GST rate yet.</option>'; sel.disabled=true; return; }
+  sel.disabled=false;
+  sel.innerHTML='<option value="">Select...</option>'+MRM.rates.map(function(r){var v=Number(r.rate);return '<option value="'+v+'">'+v+'%</option>';}).join('');
+  sel.value=keep;
+ });
+}
+function mrmDeps(){ var b=document.getElementById('mrm-deps'); if(b&&b.parentNode)b.parentNode.removeChild(b); }
+
+var MRM_BIZ={uom:'Units of measure',measure_type:'Measure types',hsn_gst:'HSN and GST',
+  valid_gst_rates:'GST rates',uom_factor_history:'Conversion-factor history',
+  hsn_rate_history:'GST-rate history'};
+function mrmBiz(t){return MRM_BIZ[t]||'A required list';}
+async function mrmBoot(){
+ try{
+  var lg=document.getElementById('uat-login');
+
+  if(!MRM_STUBBED){
+    var LVL=await RKF.accessGate('M-RM',{client:supa});
+    if(LVL!=='Read'&&LVL!=='Full'){ if(lg)lg.remove(); return; }
+    document.body.classList.toggle('rkf-readonly',LVL!=='Full');
+  }
+  await mrmLoad();
+  mrmFillRates();mrmDeps();
+  renderUOM();renderHSN();
+  if(lg)lg.remove();
+ }catch(e){
+  var lg2=document.getElementById('uat-login');if(lg2)lg2.remove();
+  var host=document.getElementById('uom-groups');
+  if(host)host.innerHTML='<div class="footer-note" style="border-color:var(--accent);color:var(--accent)">This screen could not be loaded.</div>';
+  var hb=document.getElementById('hsn-body');
+  if(hb)hb.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--accent);padding:20px">This screen could not be loaded.</td></tr>';
+  toast(RKF.errText(e,{fallback:'This screen could not be loaded.'}));
+ }
+}
+async function mrmReload(){await mrmLoad();mrmFillRates();mrmDeps();renderUOM();renderHSN();}
+</script>
+
+<script>
+/* FOUNDATION ADOPTION */
+(function(){
+
+ var SAVES={'ovl-uom':function(){saveUOM();},'ovl-factor':function(){saveFactor();},'ovl-deact':function(){submitDeact();},
+  'ovl-hsn':function(){saveHSN();},'ovl-rate':function(){saveRate();}};
+ RKF.keys.register({ctrlS:SAVES,enterSave:true,escCloses:'any'});
+})();
+(function(){
+
+ ['saveUOM','saveFactor','submitDeact','saveHSN','saveRate','confirmUpload'].forEach(function(n){
+  if(typeof window[n]==='function')window[n]=RKF.guard(n,window[n]);});
+ var ob=window['mrmBoot'];
+ if(typeof ob==='function')window['mrmBoot']=function(){
+  RKF.loading(true);
+  var rm=function(){RKF.loading(false);};
+  var r;try{r=ob.apply(this,arguments);}catch(e){rm();throw e;}
+  if(r&&typeof r.then==='function')return r.then(function(v){rm();return v;},function(e){rm();throw e;});
+  rm();return r;};
+})();
+
+RKF.inputLaw.attach(document,{dupWarnRules:[
+ {id:'f-code',existing:function(val){var v=(val||'').trim().toUpperCase();
+   return (!!v&&!document.getElementById('f-code').disabled&&(MRM.uoms||[]).some(function(u){return u.uom_code===v;}))?v:null;},
+  msg:function(v){return v+' already exists.';}},
+ {id:'h-code',existing:function(val){var v=(val||'').trim();
+   return (!!v&&!document.getElementById('h-code').disabled&&(MRM.hsns||[]).some(function(h){return h.hsn_code===v;}))?v:null;},
+  msg:function(v){return v+' already exists - saving would update nothing; edit the existing row instead';}}
+]});
+
+['openAddUOM','openAddHSN'].forEach(function(n){var f=window[n];if(typeof f!=='function')return;
+ window[n]=function(){var r=f.apply(this,arguments);['f-code','h-code'].forEach(function(id){var el=document.getElementById(id);if(el)RKF.inputLaw.hint(el,null);});return r;};});
+(function(){
+ RKF.theme.apply(); 
+
+  RKF.modal.a11y();
+ window.rkRecentPush=function(t,c,l){return RKF.recents.push(t,c,l);};
+})();
+
+(function(){
+ if(new URLSearchParams(location.search).get('embed')!=='1')return;
+ var ds=document.querySelector('.dep-strip');if(ds)ds.style.paddingLeft='18px';
+})();
+</script>
+
+<!-- M-RM BROWNFIELD BUILD -->
+
+<div class="content hide" id="pane-lists">
+    <div id="lists-body"></div>
+</div>
+
+<div class="ovl" id="ovl-listval" onclick="closeModals(event)"><div class="modal" onclick="event.stopPropagation()">
+  <div class="modal-hd"><h3 id="lv-title">Add value</h3></div>
+  <div class="modal-body">
+    <div class="field"><label>Code <span class="req">*</span></label><input id="lv-code" placeholder="e.g. XB06"></div>
+    <div class="field"><label>Label <span class="req">*</span></label><input id="lv-label" placeholder="e.g. per Bend"></div>
+    <div class="err-box" id="lv-err" role="alert" aria-live="polite"></div>
+  </div>
+  <div class="modal-ft"><button class="btn btn-g" onclick="closeModals()">Cancel</button><button class="btn btn-p" id="btn-save-listval" onclick="saveListValue()">Add value</button></div>
+</div></div>
+
+<div id="toast-el" class="rkf-toast"></div>
+
+<script>
+/* M-RM build script */
+
+function mrmTgl(on,call,label){
+
+  return RKF.toggle.html({on:on,label:label,onchange:'RKF.toggle.revert(this);'+call});
+}
+
+function mrmCurrentRecord(){
+  var tabU=document.getElementById('pane-uom');
+  var onUom=tabU && !tabU.classList.contains('hide');
+  if(onUom){
+    var code=(editingUOM&&editingUOM.uom_code)||expandedUOM;
+    return code?{entity:'uom',key:code,label:'UOM '+code}:null;
+  }
+  var h=editingHSN&&editingHSN.hsn_code;
+  if(h){ var r=(MRM.hsns||[]).filter(function(x){return x.hsn_code===h;})[0];
+         return r?{entity:'gst',key:String(r.gst_rate),label:'HSN '+h}:null; }
+  return null;
+}
+
+window.openHistory=function(){
+  var rec=mrmCurrentRecord();
+  if(!rec){
+    RKF.history.open({empty:'Open a unit or an HSN code first.',
+                      focus:'history-btn'});
+    return;
+  }
+  RKF.history.open({client:supa, module_code:'M-RM', record_entity:rec.entity, record_key:rec.key,
+                    title:rec.label, focus:'history-btn'});
+};
+window.closeHistory=function(){ RKF.history.close(); };
+
+var MRM_LIST_PURPOSE={
+  XT:'',
+  XO:'',
+  XB:'how a customization is charged',
+  XR:''
+};
+function mrmListPurpose(id){ return MRM_LIST_PURPOSE[id]||''; }
+
+function mrmNextCode(list){
+  var used=(MRM.custVals||[]).filter(function(v){return v.list_id===list;})
+            .map(function(v){ return parseInt(String(v.code).slice(2),10); })
+            .filter(function(n){ return !isNaN(n); });
+  var n=1; while(used.indexOf(n)>=0) n++;
+  if(n>99) return list;               
+  return list + (n<10 ? '0'+n : String(n));
+}
+
+function mrmListState(state,msg){
+  var el=document.getElementById('lists-body'); if(!el) return;
+  if(window.RKF&&RKF.triState){ RKF.triState(el,state,msg); return; }
+  el.innerHTML='<div style="padding:14px;color:var(--muted)">'+String(msg||'')+'</div>';
+}
+
+async function mrmLoadLists(){
+  var el=document.getElementById('lists-body'); if(!el) return;
+  mrmListState('loading','Loading customization lists');
+  try{
+    var L=await supa.from('reference_lists').select('list_id,owner,header,name,active')
+            .eq('owner','X').eq('active',true).order('list_id');
+    if(L.error) throw L.error;
+    var ids=(L.data||[]).map(function(x){return x.list_id;});
+    var V={data:[]};
+    if(ids.length){
+      V=await supa.from('reference_values').select('list_id,code,label,active,sort_order')
+           .in('list_id',ids).order('sort_order');
+      if(V.error) throw V.error;
+    }
+    MRM.custLists=L.data||[];
+
+    MRM.custVals=RKF.sortedValues(V.data||[]);
+    if(!ids.length){ mrmListState('empty','No customization lists are set up yet.'); return; }
+    var h='';
+    (L.data||[]).forEach(function(l){
+
+      var vals=(MRM.custVals||[]).filter(function(v){return v.list_id===l.list_id;});
+
+      h+='<div class="grp"><div class="grp-hd"><span class="grp-name">'+l.list_id+'</span>'
+        +'<span class="grp-base">'+(l.name||l.header||'Customization list')+'</span>'
+        +'<span class="mrm-list-purpose">'+mrmListPurpose(l.list_id)+'</span>'
+        +'<span class="grp-count">'+vals.length+' value(s)</span>'
+        +'<button class="btn btn-p btn-sm rkf-write" style="margin-left:auto" onclick="openAddListValue(\''+l.list_id+'\')">+ Add value</button></div>';
+      h+='<table class="data-table solo"><thead><tr><th style="width:130px">Code</th><th>Label</th><th style="width:70px">Active</th><th style="width:90px"></th></tr></thead><tbody>';
+      h+= vals.length? vals.map(function(v){return '<tr class="'+(v.active?'':'row-off')+'">'
+              +'<td><span class="code">'+v.code+'</span></td>'
+              +'<td>'+(v.label||'')+(v.active?'':RKF.chip.html('Inactive','retired',{small:true}))+'</td>'
+              +'<td><span class="rkf-write">'+mrmTgl(v.active,"mrmToggleListValue(\'"+v.list_id+"\',\'"+v.code+"\',"+(!v.active)+")",v.code+' active')+'</span></td>'
+
+              +'<td><div class="act-btns rkf-write"><button type="button" class="iconbtn rkf-kbd-activatable" title="Edit label" aria-label="Edit label of '+v.code+'" onclick="openEditListValue(\''+v.list_id+'\',\''+v.code+'\')">&#9998;</button></div></td>'
+              +'</tr>';}).join('')
+              : '<tr><td colspan="4" data-empty-state="'+l.list_id+'" style="text-align:center;color:var(--muted);padding:16px">No values yet in '+l.list_id+'.</td></tr>';
+      h+='</tbody></table></div>';
+    });
+    el.innerHTML=h;
+
+  }catch(e){ mrmListState('error','The customization lists could not be loaded.'); }
+}
+var LV_LIST=null, LV_EDIT=null;
+function openAddListValue(list){
+  LV_LIST=list; LV_EDIT=null;
+
+  document.getElementById('lv-code').value=mrmNextCode(list); document.getElementById('lv-label').value='';
+  document.getElementById('lv-code').disabled=false;
+  document.getElementById('lv-title').textContent='Add value - '+list;
+  document.getElementById('btn-save-listval').textContent='Add value';
+  document.getElementById('lv-code').setAttribute('maxlength','4');
+  document.getElementById('lv-code').setAttribute('placeholder',list+'01');
+  document.getElementById('lv-err').classList.remove('show'); document.getElementById('lv-err').style.display='';
+  closeModals(); document.getElementById('ovl-listval').classList.add('show');
+  document.getElementById('lv-code').focus();
+}
+
+function openEditListValue(list,code){
+  var v=(MRM.custVals||[]).filter(function(x){return x.list_id===list&&x.code===code;})[0];
+  if(!v) return;
+  LV_LIST=list; LV_EDIT=code;
+  document.getElementById('lv-title').textContent='Edit value - '+code;
+  var c=document.getElementById('lv-code');
+  c.value=code; c.disabled=true;
+  document.getElementById('lv-label').value=v.label||'';
+  var e=document.getElementById('lv-err'); e.classList.remove('show'); e.style.display='';
+  document.getElementById('btn-save-listval').textContent='Save label';
+  closeModals(); document.getElementById('ovl-listval').classList.add('show');
+  document.getElementById('lv-label').focus();
+}
+
+async function saveListValue(){
+  var code=(document.getElementById('lv-code').value||'').trim();
+  var label=(document.getElementById('lv-label').value||'').trim();
+  var err=document.getElementById('lv-err');
+
+  function bad(m){ err.textContent=m; err.classList.add('show'); }
+  if(!code||!label){ bad('Code and label are both required.'); return; }
+  if(LV_EDIT){
+
+    var re=await mrmRefValue(LV_EDIT, LV_LIST, {label:label});
+    if(re.error){ bad(RKF.errText(re.error,{fallback:'The save was refused. Nothing was changed.'})); return; }
+    if(!(re.data||[]).length){ bad('Nothing was saved.'); return; }
+    toast('Label updated for '+LV_EDIT); closeModals(); mrmLoadLists(); return;
+  }
+  if(!/^[A-Z]{2}[0-9]{2}$/.test(code)){ bad('Code is two letters then two digits, e.g. '+LV_LIST+'01.'); return; }
+  if(code.slice(0,2)!==LV_LIST){ bad('Code must start with '+LV_LIST+' for this list.'); return; }
+  if((MRM.custVals||[]).some(function(v){return v.list_id===LV_LIST&&v.code===code;})){ bad('Duplicate code in '+LV_LIST+'.'); return; }
+  var r=await mrmRefValue(code, LV_LIST, {label:label, active:true, sort_order:999});
+
+  if(r.error){ bad(RKF.errText(r.error,{fallback:'The save was refused. Nothing was changed.'})); return; }
+  if(!(r.data||[]).length){ bad('Nothing was saved.'); return; }
+  toast('Value added to '+LV_LIST+': '+code); closeModals(); mrmLoadLists();
+}
+async function mrmToggleListValue(list,code,on){
+  var r=await mrmRefValue(code, list, {active:on});
+  if(r.error){ toast(RKF.errText(r.error,{fallback:'The change could not be saved.'})); return; }
+  toast(list+':'+code+' '+(on?'reactivated':'deactivated')); mrmLoadLists();
+}
+
+(function(){
+  var main=document.querySelector('.main'), pl=document.getElementById('pane-lists');
+  if(main&&pl&&pl.parentNode!==main) main.appendChild(pl);
+})();
+
+(function(){
+
+ document.addEventListener('mousedown',function(e){ window._mrmDown=(e.target&&e.target.classList&&e.target.classList.contains('ovl'))?e.target:null; },true);
+ var _cm=window.closeModals;
+ window.closeModals=function(ev){ ev=ev||window.event;
+   if(ev&&ev.type==='click'){ var onOvl=ev.target&&ev.target.classList&&ev.target.classList.contains('ovl');
+     if(!onOvl || window._mrmDown!==ev.target){ window._mrmDown=null; return; } }
+   window._mrmDown=null; _cm(); };
+})();
+
+(function(){
+ ['openAddUOM','openEditUOM','openAddHSN','openEditHSN','openRate','openFactor','openUpload'].forEach(function(n){
+  var f=window[n];if(typeof f!=='function')return;
+  window[n]=async function(){
+   var args=arguments;
+   try{await mrmReload();}
+   catch(e){toast('Lists could not be refreshed.');}
+   return f.apply(this,args);
+  };
+ });
+})();
+</script>
+<script>
+
+(function(){
+
+  var _loader=async function(){
+  await mrmReload();
+  var lp=document.getElementById('pane-lists');
+  if(lp&&!lp.classList.contains('hide'))await mrmLoadLists();
+};
+  var _opts={hold:function(){
+  return !!document.querySelector('.ovl.show');
+}};
+  if(window.RKF&&RKF.live)RKF.live(supa,['uom','hsn_gst','valid_gst_rates','reference_lists','reference_values'],_loader,_opts);
+  else if(window.RKF&&RKF.liveMasters)RKF.liveMasters(_loader,_opts);
+})();
+</script>
+</body>
+</html>

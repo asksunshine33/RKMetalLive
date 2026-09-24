@@ -1,0 +1,2193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>M03 Organization - RK Metal ERP</title>
+<link rel="stylesheet" href="rk-foundation.css?v=RKF-1.13.0"/>
+<style>
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--ink);font-size:var(--fs-body);height:100vh;overflow:hidden;display:flex;flex-direction:column}
+
+/* SHELL */
+
+.shell{display:flex;flex:1;overflow:hidden}
+
+/* WORK */
+.work{flex:1;display:flex;flex-direction:column;overflow:hidden}
+
+.mod-badge{font-size:var(--fs-caption);font-weight:800;color:var(--surface);background:var(--teal);padding:3px 8px;border-radius:5px}
+.mod-title{font-size:var(--fs-emphasis);font-weight:800;color:var(--navy)}
+.mod-role{font-size:var(--fs-caption);background:var(--tealbg);color:var(--teal);padding:2px 7px;border-radius:5px;font-weight:700}
+.mod-tabs{display:flex;gap:0;margin-left:12px}
+.mod-tab{padding:14px 16px;font-size:var(--fs-body);font-weight:500;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:all .12s;user-select:none}
+.mod-tab:hover{color:var(--navy)}
+.mod-tab.act{color:var(--navy);font-weight:700;border-bottom-color:var(--accent)}
+.mod-actions{margin-left:auto;display:flex;align-items:center;gap:7px}
+.content{flex:1;overflow-y:auto;padding:16px 18px}
+
+/* TREE */
+.tree-toolbar{display:flex;align-items:center;gap:8px;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--line)}
+.tree-search{flex:1;max-width:280px;min-width:280px;border:1.5px solid var(--line2);border-radius:7px;padding:7px 11px;font-size:var(--fs-body);color:var(--ink);outline:none;font-family:inherit}
+.tree-search:focus{border-color:var(--accent)}
+.tree-container{background:var(--surface);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.tree-node{user-select:none}
+.tree-row{display:flex;align-items:center;gap:8px;padding:9px 14px;cursor:pointer;transition:background .1s;border-bottom:1px solid var(--line)}
+.tree-row:last-child{border-bottom:none}
+.tree-row:hover{background:var(--surface2)}
+.tree-row.sel{background:var(--bluebg)}
+.tree-toggle{font-size:var(--fs-caption);color:var(--muted);width:14px;flex-shrink:0;text-align:center;transition:transform .15s;cursor:pointer}
+.tree-toggle.open{transform:rotate(90deg)}
+.tree-icon{font-size:15px;flex-shrink:0}
+.tree-label{font-size:var(--fs-body);font-weight:600;color:var(--ink);flex:1}
+.tree-sub{font-size:var(--fs-caption);color:var(--muted);margin-left:6px}
+.tree-chips{display:flex;align-items:center;gap:5px;margin-left:auto}
+.st-chip{font-size:var(--fs-caption);font-weight:700;padding:2px 7px;border-radius:5px;white-space:nowrap}
+.st-active{background:var(--greenbg);color:var(--green)}
+.st-maintenance{background:var(--warnbg);color:var(--warn)}
+.st-decommissioned{background:var(--surface2);color:var(--muted)}
+.type-chip{font-size:var(--fs-caption);font-weight:700;padding:2px 7px;border-radius:5px;background:var(--tealbg);color:var(--teal)}
+.type-office{background:var(--purplebg);color:var(--purple)}
+.resp-chip{font-size:var(--fs-caption);color:var(--muted);white-space:nowrap}
+.resp-chip.inherited{color:var(--line2);font-style:italic}
+.stats-chip{font-size:var(--fs-caption);color:var(--ink2);background:var(--surface2);border:1px solid var(--line2);border-radius:5px;padding:2px 7px;white-space:nowrap}
+.children{display:none;border-top:1px solid var(--line)}
+.children.open{display:block}
+.bay-row{padding-left:40px;background:var(--surface2)}
+.machine-row{padding-left:70px;background:color-mix(in srgb,var(--surface),var(--surface2))}
+
+/* TABS */
+.tab-panel{display:none}.tab-panel.act{display:block}
+
+/* TABLES */
+
+.data-table{width:100%;border-collapse:collapse;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-sm);--rk-th-pad:9px 14px;--rk-td-pad:10px 14px}
+.data-table thead th{background:var(--surface2);padding:var(--rk-th-pad);font-size:var(--fs-caption);font-weight:700;color:var(--ink2);text-transform:uppercase;letter-spacing:.35px;border-bottom:2px solid var(--line);text-align:left;white-space:nowrap;position:sticky;top:0;z-index:var(--z-sticky)}
+.data-table thead th:first-child{border-top-left-radius:var(--radius)}
+.data-table thead th:last-child{border-top-right-radius:var(--radius)}
+.data-table tbody tr:last-child td:first-child{border-bottom-left-radius:var(--radius)}
+.data-table tbody tr:last-child td:last-child{border-bottom-right-radius:var(--radius)}
+.data-table th.num,.data-table td.num{text-align:right}
+.data-table th.sortable{cursor:pointer;user-select:none}
+.data-table .sort-mark{margin-left:4px;font-size:9px;opacity:.55}
+.data-table tbody td{padding:var(--rk-td-pad);border-bottom:1px solid var(--line);font-size:var(--fs-body);vertical-align:middle}
+.data-table tbody tr:hover{background:var(--surface2);cursor:pointer}
+.data-table tbody tr:last-child td{border-bottom:none}
+.readonly{background:var(--surface2);color:var(--muted);cursor:not-allowed}
+
+body.m03-readonly .m03-write{display:none !important}
+
+.cap-filter{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:10px 14px;margin-bottom:14px;flex-wrap:wrap}
+.cap-filter label{font-size:var(--fs-body);font-weight:700;color:var(--ink2)}
+.cap-input{border:1.5px solid var(--line2);border-radius:6px;padding:5px 9px;font-size:var(--fs-body);width:90px;font-family:inherit;outline:none}
+.cap-input:focus{border-color:var(--accent)}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:5px;padding:7px 13px;border-radius:7px;font-size:var(--fs-body);font-weight:600;cursor:pointer;border:none;transition:all .15s;white-space:nowrap}
+.btn-p{background:var(--accent);color:var(--surface)}.btn-p:hover{background:color-mix(in srgb,var(--accent) 85%,black)}
+.btn-g{background:transparent;color:var(--ink2);border:1px solid var(--line2)}.btn-g:hover{background:var(--surface2)}
+.btn-t{background:var(--teal);color:var(--surface)}.btn-t:hover{background:color-mix(in srgb,var(--teal) 85%,black)}
+.btn-w{background:var(--warn);color:var(--surface)}.btn-w:hover{background:color-mix(in srgb,var(--warn) 85%,black)}
+.btn-sm{padding:5px 10px;font-size:var(--fs-body)}
+.btn-xs{padding:3px 8px;font-size:var(--fs-caption)}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+
+/* MODAL */
+.ovl{position:fixed;inset:0;background:rgba(10,25,45,.4);z-index:var(--z-modal);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s}
+.ovl.show{opacity:1;pointer-events:all}
+
+.modal{background:var(--surface);border-radius:12px;width:560px;max-height:88vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:var(--shadow-lg)}
+.modal-lg{width:680px}
+.modal-hd{background:var(--navy);padding:15px 20px;color:var(--surface);border-radius:12px 12px 0 0;display:flex;align-items:center;gap:10px;flex-shrink:0}
+.modal-hd h3{font-size:var(--fs-emphasis);font-weight:700;flex:1}
+.modal-hd p{font-size:var(--fs-caption);opacity:.7;margin-top:2px}
+.modal-body{padding:18px 20px;overflow-y:auto;flex:1;min-height:0}
+.modal-ft{padding:12px 20px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;align-items:center;gap:8px;background:var(--surface2);border-radius:0 0 12px 12px;flex-shrink:0}
+
+.modal-ft .ft-left{margin-right:auto;display:flex;gap:8px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:var(--fs-caption);font-weight:700;text-transform:uppercase;letter-spacing:.3px;color:var(--ink2);margin-bottom:5px}
+.field input,.field select,.field textarea{width:100%;border:1.5px solid var(--line2);border-radius:7px;padding:8px 11px;font-size:var(--fs-body);color:var(--ink);outline:none;font-family:inherit}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--accent)}
+.field input:focus-visible,.field select:focus-visible,.field textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.field input.readonly,.field input[readonly]{background:var(--surface2);color:var(--muted);cursor:not-allowed}
+.field .hint{font-size:var(--fs-caption);color:var(--muted);margin-top:4px}
+.field .auto-tag{font-size:var(--fs-caption);background:var(--greenbg);color:var(--green);padding:1px 6px;border-radius:4px;font-weight:700;margin-left:6px}
+.section-label{font-size:var(--fs-caption);font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin:14px 0 8px;padding-top:10px;border-top:1px solid var(--line)}
+textarea{resize:vertical}
+
+/* PILLS */
+.pill{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:9px;font-size:var(--fs-caption);font-weight:700}
+.pill.g{background:var(--greenbg);color:var(--green)}
+.pill.w{background:var(--warnbg);color:var(--warn)}
+.pill.r{background:var(--redbg);color:var(--accent)}
+.pill.b{background:var(--bluebg);color:var(--blue)}
+.pill.n{background:var(--surface2);color:var(--muted)}
+
+#kpi-strip{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 12px}
+.kpi-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-sm);padding:7px 10px;min-width:100px;cursor:pointer;transition:border-color .12s}
+.kpi-card:hover{border-color:var(--line2)}
+.kpi-card.act{border-color:var(--accent);background:var(--accentbg)}
+.kpi-val{font-size:var(--fs-emphasis);font-weight:800;color:var(--navy)}
+.kpi-card.act .kpi-val{color:var(--accent)}
+.kpi-lbl{font-size:var(--fs-tag);font-weight:700;text-transform:uppercase;letter-spacing:.35px;color:var(--ink2);margin-top:2px;line-height:1.25;white-space:normal;word-break:break-word}
+
+#filter-pills{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 10px}
+#filter-pills:empty{display:none}
+.fpill{display:inline-flex;align-items:center;gap:6px;background:var(--bluebg);color:var(--blue);border:1px solid color-mix(in srgb,var(--blue) 30%,var(--bluebg));border-radius:9px;padding:3px 9px;font-size:var(--fs-caption);font-weight:700}
+.fpill button{background:none;border:none;color:inherit;font:inherit;font-weight:800;cursor:pointer;padding:0;line-height:1}
+
+.tab-count{display:inline-block;margin-left:5px;background:var(--surface2);border:1px solid var(--line2);border-radius:8px;padding:0 6px;font-size:var(--fs-caption);font-weight:700;color:var(--ink2)}
+.tab-count:empty{display:none}
+.mod-tab.act .tab-count{background:var(--accentbg);border-color:var(--accentbg);color:var(--accent)}
+
+.list-search-wrap{position:relative;display:inline-flex;align-items:center}
+.list-search-wrap .ls-ico{position:absolute;left:9px;font-size:12px;opacity:.6;pointer-events:none}
+.list-search{border:1.5px solid var(--line2);border-radius:var(--radius-sm);padding:6px 10px 6px 28px;font-size:var(--fs-body);font-family:inherit;outline:none;width:230px;color:var(--ink);background:var(--surface)}
+.list-search:focus{border-color:var(--accent)}
+
+.rkf-empty .es-ico{font-size:16px;margin-right:7px;vertical-align:-2px}
+tr.row-inactive td,.tree-row.row-inactive{opacity:.55}
+
+.rkf-drawer{position:fixed;top:0;right:0;width:370px;max-width:92vw;height:100%;background:var(--surface);border-left:1px solid var(--line);box-shadow:var(--shadow-md);transform:translateX(105%);transition:transform .18s ease-out;z-index:var(--z-drawer);display:flex;flex-direction:column}
+.rkf-drawer.open{transform:translateX(0)}
+.drawer-hd{background:var(--navy);color:var(--surface);padding:13px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0}
+.drawer-hd h3{font-size:var(--fs-emphasis);font-weight:700;flex:1}
+.drawer-body{flex:1;overflow-y:auto;padding:10px 14px}
+.rkf-typeahead{position:relative}
+.rkf-typeahead .ta-input{width:100%;border:1.5px solid var(--line2);border-radius:var(--radius-sm);padding:8px 11px;font-size:var(--fs-body);color:var(--ink);outline:none;font-family:inherit;background:var(--surface)}
+.rkf-typeahead .ta-input:focus{border-color:var(--accent)}
+.rkf-typeahead .ta-list{position:absolute;left:0;right:0;top:calc(100% + 2px);background:var(--surface);border:1px solid var(--line2);border-radius:var(--radius-sm);box-shadow:var(--shadow-md);max-height:190px;overflow-y:auto;z-index:var(--z-popover)}
+.rkf-typeahead .ta-item{padding:7px 11px;font-size:var(--fs-body);cursor:pointer}
+.rkf-typeahead .ta-item:hover,.rkf-typeahead .ta-item.sel{background:var(--bluebg)}
+.rkf-typeahead .ta-none{padding:8px 11px;font-size:var(--fs-body);color:var(--muted)}
+
+.ctx-strip{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:0 0 14px;padding:8px 10px;background:var(--surface2);border:1px solid var(--line);border-radius:var(--radius-sm)}
+.ctx-strip:empty{display:none}
+::-webkit-scrollbar{width:4px;height:4px}::-webkit-scrollbar-thumb{background:var(--line2);border-radius:3px}
+</style>
+</head>
+<body>
+
+<div class="shell">
+<!-- WORK AREA -->
+<div class="work">
+  <!-- MODULE HEADER -->
+  <div class="mod-hdr rkf-halfbar">
+    <span class="mod-badge">M03</span>
+    <span class="mod-title">Organization</span>
+    <span class="mod-role" id="mod-access"></span>
+    <div class="mod-tabs">
+      <div class="mod-tab act" tabindex="0" data-key="tree" onclick="switchTab(this,'tree')">&#127795; Tree</div>
+      <div class="mod-tab" tabindex="0" data-key="units" onclick="switchTab(this,'units')">Units<span class="tab-count" id="tabcount-units"></span></div>
+      <div class="mod-tab" tabindex="0" data-key="bays" onclick="switchTab(this,'bays')">Bays<span class="tab-count" id="tabcount-bays"></span></div>
+      <div class="mod-tab" tabindex="0" data-key="machines" onclick="switchTab(this,'machines')">Machines<span class="tab-count" id="tabcount-machines"></span></div>
+      <div class="mod-tab" tabindex="0" data-key="bank" onclick="switchTab(this,'bank')">Bank Accounts</div>
+      <div class="mod-tab" tabindex="0" data-key="storage" onclick="switchTab(this,'storage')">Storage</div>
+    </div>
+    <div class="mod-actions">
+      <span id="alog-access-point"><button class="btn btn-g btn-sm" id="history-btn" title="Activity Log" onclick="openHistory()">&#128340; History</button></span>
+      <button class="btn btn-g btn-sm m03-write" onclick="openAddModal()">+ Add</button>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <div id="kpi-strip">
+      <div class="kpi-card" tabindex="0" data-kpi="noresp" onclick="kpiClick('noresp')"><div class="kpi-val" id="kpi-noresp">&ndash;</div><div class="kpi-lbl">Units without Responsible</div></div>
+      <div class="kpi-card" tabindex="0" data-kpi="inactive-units" onclick="kpiClick('inactive-units')"><div class="kpi-val" id="kpi-inactive-units">&ndash;</div><div class="kpi-lbl">Inactive Units</div></div>
+      <div class="kpi-card" tabindex="0" data-kpi="empty-bays" onclick="kpiClick('empty-bays')"><div class="kpi-val" id="kpi-empty-bays">&ndash;</div><div class="kpi-lbl">Bays without Machines</div></div>
+      <div class="kpi-card" tabindex="0" data-kpi="inactive-machines" onclick="kpiClick('inactive-machines')"><div class="kpi-val" id="kpi-inactive-machines">&ndash;</div><div class="kpi-lbl">Inactive Machines</div></div>
+    </div>
+
+    <div id="filter-pills"></div>
+
+    <!-- ===== TREE TAB ===== -->
+    <div class="tab-panel act" id="tab-tree">
+      <div class="tree-toolbar">
+        <input class="tree-search" id="ls-tree" placeholder="Search units, bays, machines" oninput="filterTree(this.value)"/>
+        <label style="display:flex;align-items:center;gap:6px;font-size:var(--fs-body);color:var(--ink2);cursor:pointer">
+          <input type="checkbox" id="show-inactive" onchange="applyTreeFilters()"/> Show inactive
+        </label>
+        <button class="btn btn-g btn-sm" onclick="expandAll()">Expand All</button>
+        <button class="btn btn-g btn-sm" onclick="collapseAll()">Collapse All</button>
+      </div>
+
+      <div class="tree-container" id="tree-root">
+        <div class="rkf-blocked">Loading live data&hellip;</div>
+      </div>
+    </div>
+
+    <!-- ===== UNITS TAB ===== -->
+    <div class="tab-panel" id="tab-units">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+        <div class="list-search-wrap"><span class="ls-ico">&#128269;</span><input class="list-search" id="ls-units" placeholder="Search units" oninput="listSearch('units',this.value)"/></div>
+        <button class="btn btn-p btn-sm m03-write" style="margin-left:auto" onclick="openUnitModal()">+ Add Unit</button>
+      </div>
+      <table class="data-table">
+        <thead id="units-head">
+          <tr><th>Code</th><th>Unit Name</th><th>Type</th><th>GSTIN</th><th>State</th><th>Pincode</th><th>Primary Responsible</th><th>Secondary</th><th>Status</th><th></th></tr>
+        </thead>
+        <tbody id="units-body">
+          <tr><td colspan="10" class="rkf-blocked">Loading live data&hellip;</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ===== BAYS TAB ===== -->
+    <div class="tab-panel" id="tab-bays">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+        <div class="list-search-wrap"><span class="ls-ico">&#128269;</span><input class="list-search" id="ls-bays" placeholder="Search bays" oninput="listSearch('bays',this.value)"/></div>
+        <select id="bay-unit-filter" onchange="filterBayRows(this.value)" style="border:1.5px solid var(--line2);border-radius:7px;padding:6px 10px;font-size:var(--fs-body);font-family:inherit">
+          <option value="">All Units</option>
+        </select>
+        <button class="btn btn-p btn-sm m03-write" style="margin-left:auto" onclick="openBayModal()">+ Add Bay</button>
+      </div>
+      <table class="data-table">
+        <thead id="bays-head"><tr><th>Unit</th><th>Bay Name</th><th>Type</th><th>Storage Type</th><th>Primary Responsible</th><th>Secondary</th><th class="num">Machines</th><th>Status</th><th></th></tr></thead>
+        <tbody id="bays-body">
+          <tr><td colspan="9" class="rkf-blocked">Loading live data&hellip;</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ===== MACHINES TAB ===== -->
+    <div class="tab-panel" id="tab-machines">
+      <div class="rkf-banner note info" style="margin-bottom:14px;line-height:1.5">
+        Machine identity, so a sales order can route to a machine.
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+        <div class="list-search-wrap"><span class="ls-ico">&#128269;</span><input class="list-search" id="ls-machines" placeholder="Search machines" oninput="listSearch('machines',this.value)"/></div>
+        <select id="mach-unit-filter" style="border:1.5px solid var(--line2);border-radius:7px;padding:6px 10px;font-size:var(--fs-body);font-family:inherit" onchange="filterMachineRows()">
+          <option value="">All Units</option>
+        </select>
+        <select id="mach-status-filter" style="border:1.5px solid var(--line2);border-radius:7px;padding:6px 10px;font-size:var(--fs-body);font-family:inherit" onchange="filterMachineRows()">
+          <option value="">All Statuses</option><option value="Active">Active</option><option value="Inactive">Inactive</option>
+        </select>
+        <button class="btn btn-p btn-sm m03-write" style="margin-left:auto" onclick="openMachineModal()">+ Add Machine</button>
+      </div>
+      <table class="data-table" id="machine-table">
+        <thead id="machine-head"><tr><th>Unit</th><th>Bay</th><th>Machine ID</th><th>Name</th><th>Form Type</th><th>Status</th><th>Responsible</th><th></th></tr></thead>
+        <tbody id="machine-body">
+          <tr><td colspan="8" class="rkf-blocked">Loading live data&hellip;</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ===== BANK ACCOUNTS TAB ===== -->
+    <div class="tab-panel" id="tab-bank">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+        <div class="list-search-wrap"><span class="ls-ico">&#128269;</span><input class="list-search" id="ls-bank" placeholder="Search accounts" oninput="listSearch('bank',this.value)"/></div>
+        <button class="btn btn-p btn-sm m03-write" style="margin-left:auto" onclick="openBankModal()">+ Add Account</button>
+      </div>
+      <table class="data-table">
+        <thead id="bank-head"><tr><th>Bank Name</th><th>Branch</th><th>Account Number</th><th>Type</th><th>Scope</th><th>IFSC</th><th>Tally Alias</th><th>Status</th><th></th></tr></thead>
+        <tbody id="bank-body">
+          <tr><td colspan="9" class="rkf-blocked">Loading live data&hellip;</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ===== STORAGE LOCATIONS TAB ===== -->
+    <div class="tab-panel" id="tab-storage">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+        <div class="list-search-wrap"><span class="ls-ico">&#128269;</span><input class="list-search" id="ls-storage" placeholder="Search storage" oninput="listSearch('storage',this.value)"/></div>
+        <button class="btn btn-p btn-sm m03-write" style="margin-left:auto" onclick="openStorageModal()">+ Add Storage Location</button>
+      </div>
+      <table class="data-table">
+        <thead id="storage-head"><tr><th>Unit</th><th>Storage Name</th><th>Type</th><th>Primary Responsible</th><th>Secondary</th><th>Status</th><th></th></tr></thead>
+        <tbody id="storage-body">
+          <tr><td colspan="7" class="rkf-blocked">Loading live data&hellip;</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<!-- UNIT MODAL -->
+<div class="ovl" id="unit-modal">
+<div class="modal modal-lg" onclick="event.stopPropagation()">
+  <div class="modal-hd">
+    <div><h3 id="unit-modal-title">Add Unit</h3></div>
+  </div>
+  <div class="modal-body">
+    <div class="ctx-strip"></div>
+    <div class="grid-3">
+      <div class="field"><label>Unit Code *</label><input id="u-code" placeholder="e.g. U5" oninput="var t=document.getElementById('u-tally'); if(t&&(!t.value||/^RKMR-/.test(t.value)))t.value='RKMR-'+this.value;"/><div class="hint">Locked after creation.</div></div>
+      <div class="field"><label>Unit Name *</label><input id="u-name" placeholder="e.g. Chennai Unit"/></div>
+      <div class="field"><label>Unit Type *</label>
+        <select id="u-type" onchange="updateUnitType()">
+          <option value="">Select...</option>
+        </select>
+      </div>
+    </div>
+    <div class="section-label">GST &amp; Address</div>
+    <div class="grid-2">
+      <div class="field"><label>GSTIN <span style="font-size:var(--fs-caption);color:var(--muted)">(optional for Office)</span></label>
+        <input id="u-gstin" placeholder="33XXXXX1234F1Z5" oninput="deriveState(this.value)" maxlength="15"/>
+
+      </div>
+      <div class="field"><label>State <span class="auto-tag">Auto</span></label><input id="u-state" readonly class="readonly" placeholder="From GSTIN"/><input type="hidden" id="u-state-code"/></div>
+    </div>
+    <div class="grid-3">
+      <div class="field"><label>Pincode *</label><input id="u-pin" placeholder="620001" maxlength="6" oninput="deriveAddress(this.value)"/></div>
+      <div class="field"><label>City <span class="auto-tag">Auto</span></label><input id="u-city" readonly class="readonly" placeholder="From pincode"/></div>
+      <div class="field"><label>District <span class="auto-tag">Auto</span></label><input id="u-dist" readonly class="readonly" placeholder="From pincode"/></div>
+    </div>
+    <div class="field"><label>Address Line 1 *</label><input id="u-addr1" placeholder="Door / Street / Area"/></div>
+    <div class="field"><label>Address Line 2</label><input id="u-addr2" placeholder="Landmark (optional)"/></div>
+
+    <div class="section-label">Contact (printed on documents)</div>
+    <div class="grid-3">
+      <div class="field"><label>Phone No</label><input id="u-phone" placeholder="one or more numbers, free text" autocapitalize="none"/></div>
+      <div class="field"><label>e-Mail</label><input id="u-email" placeholder="unit e-mail (optional)" autocapitalize="none"/></div>
+      <div class="field"><label>Website</label><input id="u-website" placeholder="website (optional)" autocapitalize="none"/></div>
+    </div>
+    <div class="section-label">Responsible Persons</div>
+    <div class="grid-2">
+      <div class="field"><label>Primary Responsible <span style="font-size:var(--fs-caption);color:var(--muted)">(optional until M04)</span></label>
+        <select id="u-resp1"><option value="">Select employee...</option></select>
+      </div>
+      <div class="field"><label>Secondary Responsible</label>
+        <select id="u-resp2"><option value="">(Optional)</option></select>
+      </div>
+    </div>
+    <div class="section-label">Tally</div>
+    <div class="field"><label>Tally Alias *</label><input id="u-tally" placeholder="e.g. RKMR-U1-TRICHY"/></div>
+    <div id="office-note" style="display:none" class="rkf-banner note info">Office unit: no bays, machines or work orders.</div>
+    <div id="u-activate-warn" class="rkf-banner note warn" style="display:none;margin-top:8px">
+      A unit should have a Primary Responsible person. Activate with an acknowledgment, or save it Inactive.</div>
+    </div>
+  </div>
+  <div class="modal-ft">
+    <div class="ft-left"><button class="btn btn-w m03-write" id="u-deact-btn" style="display:none" onclick="openDeact('unit')">Deactivate</button></div>
+    <button class="btn btn-g" onclick="closeModals()">Cancel</button>
+    <button class="btn btn-p m03-write" id="u-save-btn" data-label="Save Unit" onclick="saveUnit()">Save Unit<span class="rkf-hint">Ctrl+S</span></button>
+  </div>
+</div>
+</div>
+
+<!-- BAY MODAL -->
+<div class="ovl" id="bay-modal">
+<div class="modal" onclick="event.stopPropagation()">
+  <div class="modal-hd"><h3 id="bay-modal-title">Add Bay</h3><p>Bay within a unit</p></div>
+  <div class="modal-body">
+    <div class="ctx-strip"></div>
+    <div class="grid-2">
+      <div class="field"><label>Unit *</label>
+        <select id="b-unit"><option value="">Select unit...</option></select>
+      </div>
+      <div class="field"><label>Bay Name *</label><input id="b-name" placeholder="e.g. Production Bay B"/></div>
+    </div>
+    <div class="grid-2">
+      <div class="field"><label>Bay Type *</label>
+        <select id="b-type" onchange="updateBayType()">
+          <option value="">Select...</option>
+        </select>
+      </div>
+      <div class="field" id="storage-type-field" style="display:none">
+        <label>Storage Type *</label>
+        <select id="b-stype">
+          <option value="">Select...</option>
+        </select>
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="field"><label>Primary Responsible <span style="font-size:var(--fs-caption);color:var(--muted)">(optional until M04)</span></label>
+        <select id="b-resp1"><option value="">Select employee...</option></select>
+      </div>
+      <div class="field"><label>Secondary Responsible</label>
+        <select id="b-resp2"><option value="">(Optional)</option></select>
+      </div>
+    </div>
+  </div>
+  <div class="modal-ft">
+    <div class="ft-left"><button class="btn btn-w m03-write" id="b-deact-btn" style="display:none" onclick="openDeact('bay')">Deactivate</button></div>
+    <button class="btn btn-g" onclick="closeModals()">Cancel</button>
+    <button class="btn btn-p m03-write" id="b-save-btn" data-label="Save Bay" onclick="saveBay()">Save Bay<span class="rkf-hint">Ctrl+S</span></button>
+  </div>
+</div>
+</div>
+
+<!-- MACHINE MODAL -->
+<div class="ovl" id="machine-modal">
+<div class="modal modal-lg" onclick="event.stopPropagation()">
+  <div class="modal-hd"><h3 id="machine-modal-title">Add Machine</h3><p>Machine identity.</p></div>
+  <div class="modal-body">
+    <div class="ctx-strip"></div>
+    <div class="grid-3">
+      <div class="field"><label>Machine ID *</label><input id="m-id" placeholder="e.g. RF-003" oninput="updateMachineTally()"/></div>
+      <div class="field"><label>Machine Name *</label><input id="m-name" placeholder="e.g. Roll Former 3"/></div>
+      <div class="field"><label>Form Type *</label>
+        <select id="m-form"><option value="">Select...</option></select>
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="field"><label>Unit *</label>
+        <select id="m-unit" onchange="cascadeMachineBay()"><option value="">Select unit...</option></select>
+      </div>
+      <div class="field"><label>Bay *</label>
+        <select id="m-bay"><option value="">Select bay...</option></select>
+      </div>
+    </div>
+    <div class="field" style="width:260px"><label>Tally Alias <span class="auto-tag">System</span></label>
+      <div id="m-tally-view" class="readonly" style="border:1.5px solid var(--line2);border-radius:7px;padding:8px 11px;font-size:var(--fs-body);min-height:34px">&mdash;</div>
+      <div class="hint">Read-only.</div>
+    </div>
+    <div class="section-label">Responsible Persons</div>
+    <div class="grid-2">
+      <div class="field"><label>Primary Responsible</label>
+        <select id="m-resp1"><option value="">(Inherits from bay)</option></select>
+      </div>
+      <div class="field"><label>Secondary Responsible</label>
+        <select id="m-resp2"><option value="">(Optional)</option></select>
+      </div>
+    </div>
+    <div class="section-label">Status</div>
+    <div class="field" style="width:200px">
+      <label>Machine Status *</label>
+      <select id="m-status">
+        <option value="Active">Active</option>
+        <option value="Inactive">Inactive</option>
+      </select>
+    </div>
+  </div>
+  <div class="modal-ft">
+    <div class="ft-left"><button class="btn btn-w m03-write" id="m-deact-btn" style="display:none" onclick="openDeact('machine')">Deactivate</button></div>
+    <button class="btn btn-g" onclick="closeModals()">Cancel</button>
+    <button class="btn btn-p m03-write" id="machine-save-btn" data-label="Save Machine" onclick="saveMachine()">Save Machine<span class="rkf-hint">Ctrl+S</span></button>
+  </div>
+</div>
+</div>
+
+<!-- BANK MODAL -->
+<div class="ovl" id="bank-modal">
+<div class="modal" onclick="event.stopPropagation()">
+  <div class="modal-hd"><h3 id="bank-modal-title">Add Bank Account</h3></div>
+  <div class="modal-body">
+    <div class="ctx-strip"></div>
+    <div class="grid-2">
+      <div class="field"><label>IFSC *</label>
+        <input id="bk-ifsc" placeholder="HDFC0001234" maxlength="11" oninput="deriveBank(this.value)"/>
+
+        <div class="hint" id="bk-ifsc-note"></div>
+      </div>
+      <div class="field"><label>Account Number *</label><input id="bk-acno" placeholder="Account number"/></div>
+    </div>
+    <div class="grid-2">
+
+      <div class="field"><label>Bank Name</label><input id="bk-bank" placeholder="From IFSC"/></div>
+      <div class="field"><label>Branch</label><input id="bk-branch" placeholder="From IFSC"/></div>
+    </div>
+    <div class="grid-2">
+      <div class="field"><label>Account Type *</label>
+        <select id="bk-type"><option value="">Select...</option></select>
+      </div>
+      <div class="field"><label>Tally Alias *</label>
+        <input id="bk-tally" placeholder="e.g. RKMR-HDFC-01"/>
+
+      </div>
+    </div>
+
+    <div class="field"><label>Scope</label>
+      <div id="bk-scope" class="grid-2"></div>
+    </div>
+  </div>
+  <div class="modal-ft">
+    <div class="ft-left"><button class="btn btn-w m03-write" id="bk-deact-btn" style="display:none" onclick="openDeact('bank')">Deactivate</button></div>
+    <button class="btn btn-g" onclick="closeModals()">Cancel</button>
+    <button class="btn btn-p m03-write" id="bk-save-btn" data-label="Save Account" onclick="saveBank()">Save Account<span class="rkf-hint">Ctrl+S</span></button>
+  </div>
+</div>
+</div>
+
+<!-- STORAGE MODAL -->
+<div class="ovl" id="storage-modal">
+<div class="modal" onclick="event.stopPropagation()">
+  <div class="modal-hd"><div><h3>Add Storage Location</h3></div></div>
+  <div class="modal-body">
+    <div class="ctx-strip"></div>
+    <div class="grid-2">
+      <div class="field"><label>Unit *</label>
+        <select id="sl-unit"><option value="">Select...</option></select>
+      </div>
+      <div class="field"><label>Storage Name *</label><input id="sl-name" placeholder="e.g. Traded Goods Rack B"/></div>
+    </div>
+    <div class="field" style="width:240px"><label>Storage Type *</label>
+      <select id="sl-type"><option value="">Select...</option></select>
+    </div>
+    <div class="grid-2">
+      <div class="field"><label>Primary Responsible <span style="font-size:var(--fs-caption);color:var(--muted)">(optional until M04)</span></label>
+        <select id="sl-resp1"><option value="">Select...</option></select>
+      </div>
+      <div class="field"><label>Secondary Responsible</label>
+        <select id="sl-resp2"><option value="">(Optional)</option></select>
+      </div>
+    </div>
+  </div>
+  <div class="modal-ft">
+    <div class="ft-left"><button class="btn btn-w m03-write" id="sl-deact-btn" style="display:none" onclick="openDeact('storage')">Deactivate</button></div>
+    <button class="btn btn-g" onclick="closeModals()">Cancel</button>
+    <button class="btn btn-p m03-write" id="sl-save-btn" data-label="Save Location" onclick="saveStorage()">Save Location<span class="rkf-hint">Ctrl+S</span></button>
+  </div>
+</div>
+</div>
+
+<div class="ovl" id="deact-modal">
+<div class="modal" onclick="event.stopPropagation()">
+  <div class="modal-hd"><div><h3 id="deact-title">Deactivate</h3><p id="deact-entity"></p></div></div>
+  <div class="modal-body">
+    <div class="rkf-banner note danger" id="deact-warn">Deactivated, not deleted.</div>
+    <div class="field" style="margin-top:12px"><label>Reason *</label><textarea id="deact-reason" rows="3" placeholder="Reason for the change"></textarea></div>
+    <div class="hint" id="deact-usage"></div>
+  </div>
+  <div class="modal-ft">
+    <button class="btn btn-g" onclick="RKF.modal.close('deact-modal')">Cancel</button>
+    <button class="btn btn-w m03-write" id="deact-confirm-btn" onclick="doDeact()">Confirm Deactivation</button>
+  </div>
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="rk-foundation.js?v=RKF-1.13.0"></script>
+<script>
+'use strict';
+
+var SUPA_URL = 'https://ntymdsbezetobrnjqqvl.supabase.co';
+var SUPA_KEY = 'sb_publishable_nev1rE7tHlu-bOWOm1JpXw_jd40773y';
+var esc = window.RKF ? RKF.esc : function (s) { return String(s == null ? '' : s); };
+var supa = null;
+var LIVE = { units: [], bays: [], machines: [], banks: [], storages: [], employees: [], refs: [], states: [], bankScopes: [] };
+var LOADERR = {};
+
+var BIZ_NAME = { org_units: 'Units', bays: 'Bays', machines: 'Machines',
+                 bank_accounts: 'Bank accounts', bank_account_scopes: 'Bank account scope',
+                 storage_locations: 'Storage locations',
+                 employees: 'Employees', reference_values: 'Reference data',
+                 state_master: 'States', pincode_master: 'Pincodes', ifsc_master: 'Bank master' };
+function bizName(t) { return BIZ_NAME[t] || 'This section'; }
+function bizList(ts) { return ts.map(bizName).join(', '); }
+var CURRENT = { emp: null, email: 'uat-operator', authId: null };
+var EDIT = { unit: null, bay: null, machine: null, bank: null, storage: null };
+var TREE = { search: '' };
+
+var DEACT = { kind: null, row: null, usage: null };
+var GSTIN_RE = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z][0-9A-Z]Z[0-9A-Z]$/;
+
+/* ---------- helpers ---------- */
+function $id(i) { return document.getElementById(i); }
+function trimv(v) { return (v == null ? '' : String(v)).trim(); }
+
+function asPromise(x) { return (x && typeof x.then === 'function') ? x : Promise.resolve(x); }
+function newAppKey() {
+  try { if (window.crypto && window.crypto.randomUUID) return window.crypto.randomUUID(); } catch (e) {}
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+    var r = Math.random() * 16 | 0, v = (c === 'x') ? r : ((r & 0x3) | 0x8); return v.toString(16);
+  });
+}
+function byName() { return CURRENT.emp ? CURRENT.emp.full_name : CURRENT.email; }
+function actorId() { return CURRENT.emp ? CURRENT.emp.id : null; }
+function m3ReqId(){ return (window.crypto&&crypto.randomUUID)?crypto.randomUUID():(String(Date.now())+'-'+Math.random().toString(16).slice(2)); }
+
+async function m3Save(entity, key, data, extra) {
+  if (!actorId()) return { error: { message: 'Your login is not mapped to an employee. Saving is disabled.' } };
+  var d = Object.assign({}, data);
+  ['app_key', 'created_by', 'updated_by'].forEach(function (k) { delete d[k]; });
+  var p = Object.assign({ entity: entity, data: d }, extra || {});
+  if (key) p.key = key;
+  var r = await supa.rpc('rpc_m03_entity_save', { p_payload: p, p_request_id: m3ReqId(), p_by_emp: actorId() });
+  if (r.error) return { error: r.error };
+  var env = r.data || {};
+  if (env.ok !== true) { return { error: env.error || {} }; }
+  return { data: [Object.assign({}, d, env.data || {})] };
+}
+async function m3Flip(entity, key, toActive, reason) {
+  if (!actorId()) return { error: { message: 'Your login is not mapped to an employee. Saving is disabled.' } };
+  var r = await supa.rpc('rpc_m03_status_flip', { p_payload: { entity: entity, key: key, active: !!toActive, reason: reason || null }, p_request_id: m3ReqId(), p_by_emp: actorId() });
+  if (r.error) return { error: r.error };
+  var env = r.data || {};
+  if (env.ok !== true) { return { error: env.error || {} }; }
+  return { data: [{ ok: true }] };
+}
+function refList(listId) {
+  return LIVE.refs.filter(function (r) { return trimv(r.list_id) === listId && r.active !== false; })
+    .sort(function (a, b) { return (a.sort_order || 0) - (b.sort_order || 0); });
+}
+function refLabel(code) {
+  var c = trimv(code); if (!c) return '—';
+  var r = LIVE.refs.filter(function (x) { return trimv(x.code) === c; })[0];
+  return r ? r.label : c;
+}
+
+function scopeCodesOf(acctId) {
+  return (LIVE.bankScopes || []).filter(function (s) {
+    return trimv(s.bank_account_id) === trimv(acctId) && s.active !== false;
+  }).map(function (s) { return trimv(s.scope_code); });
+}
+function scopeLabels(acctId) {
+  var codes = scopeCodesOf(acctId);
+  if (!codes.length) return '';
+  return refList('OU').filter(function (r) { return codes.indexOf(trimv(r.code)) >= 0; })
+                      .map(function (r) { return r.label; }).join(', ');
+}
+function renderScopeChecks(acctId) {
+  var box = $id('bk-scope'); if (!box) return;
+  var have = acctId ? scopeCodesOf(acctId) : [];
+  var vals = refList('OU');
+  if (!vals.length) { box.innerHTML = ''; return; }   
+  box.innerHTML = vals.map(function (r) {
+    var c = trimv(r.code);
+    return '<label class="rkf-kbd-activatable" style="display:flex;align-items:center;gap:7px">'
+         + '<input type="checkbox" class="bk-scope-cb" value="' + esc(c) + '"'
+         + (have.indexOf(c) >= 0 ? ' checked' : '') + '/>' + esc(r.label) + '</label>';
+  }).join('');
+}
+function scopeChecked() {
+  return Array.prototype.slice.call(document.querySelectorAll('.bk-scope-cb'))
+    .filter(function (el) { return el.checked; }).map(function (el) { return el.value; });
+}
+async function m3ScopeSet(acctId, codes) {
+  if (!actorId()) return { error: { message: 'Your login is not mapped to an employee. Saving is disabled.' } };
+  var r = await supa.rpc('rpc_m03_bank_scope_set',
+    { p_payload: { bank_account_id: acctId, scopes: codes }, p_request_id: m3ReqId(), p_by_emp: actorId() });
+  if (r.error) return { error: r.error };
+  var env = r.data || {};
+  if (env.ok !== true) { return { error: env.error || {} }; }
+
+  LIVE.bankScopes = (LIVE.bankScopes || []).filter(function (s) { return trimv(s.bank_account_id) !== trimv(acctId); });
+  codes.forEach(function (c) { LIVE.bankScopes.push({ bank_account_id: acctId, scope_code: c, active: true }); });
+  return { data: [{ ok: true }] };
+}
+function empName(id) {
+  if (!id) return '';
+  var e = LIVE.employees.filter(function (x) { return x.id === id; })[0];
+  return e ? e.full_name : '(unknown employee)';
+}
+function activeEmps() { return LIVE.employees.filter(function (e) { return e.active; }); }
+function unitByCode(c) { return LIVE.units.filter(function (u) { return trimv(u.unit_code) === trimv(c); })[0] || null; }
+function bayById(id) { return LIVE.bays.filter(function (b) { return b.bay_id === id; })[0] || null; }
+function machineById(id) { return LIVE.machines.filter(function (m) { return trimv(m.machine_id) === trimv(id); })[0] || null; }
+function bankById(id) { return LIVE.banks.filter(function (b) { return b.bank_account_id === id; })[0] || null; }
+function storageById(id) { return LIVE.storages.filter(function (s) { return s.storage_id === id; })[0] || null; }
+function visibleUnits() { return LIVE.units.filter(function (u) { return !u.is_deleted; }); }
+function visibleBays() { return LIVE.bays.filter(function (b) { return !b.is_deleted; }); }
+function visibleMachines() { return LIVE.machines.filter(function (m) { return !m.is_deleted; }); }
+function visibleBanks() { return LIVE.banks.filter(function (b) { return !b.is_deleted; }); }
+function visibleStorages() { return LIVE.storages.filter(function (s) { return !s.is_deleted; }); }
+
+function clearHints(ids) { ids.forEach(function (i) { var el = $id(i); if (el && RKF.inputLaw) RKF.inputLaw.hint(el, null); }); }
+
+function optsEmployees(sel, includeInheritBlank) {
+  var none = activeEmps().length === 0;
+  var blank = includeInheritBlank ? '<option value="">(Inherits from bay)</option>'
+            : (none ? '<option value="">(M04 pending &mdash; optional)</option>' : '<option value="">Select employee...</option>');
+  return blank + activeEmps().map(function (e) {
+    return '<option value="' + esc(e.id) + '"' + (e.id === sel ? ' selected' : '') + '>' + esc(e.full_name) + '</option>';
+  }).join('');
+}
+function optsEmployeesOptional(sel) {
+  return '<option value="">(Optional)</option>' + activeEmps().map(function (e) {
+    return '<option value="' + esc(e.id) + '"' + (e.id === sel ? ' selected' : '') + '>' + esc(e.full_name) + '</option>';
+  }).join('');
+}
+function optsUnits(sel) {
+  return '<option value="">Select unit...</option>' + visibleUnits().filter(function (u) { return u.active; }).map(function (u) {
+    var c = trimv(u.unit_code);
+    return '<option value="' + esc(c) + '"' + (c === trimv(sel) ? ' selected' : '') + '>' + esc(c + ' - ' + u.unit_name) + '</option>';
+  }).join('');
+}
+function optsBaysForUnit(unitCode, selId) {
+  var list = visibleBays().filter(function (b) { return trimv(b.unit_code) === trimv(unitCode) && b.active; });
+  return '<option value="">' + (unitCode ? 'Select bay...' : 'Select a unit first') + '</option>' + list.map(function (b) {
+    return '<option value="' + esc(b.bay_id) + '"' + (b.bay_id === selId ? ' selected' : '') + '>' + esc(b.bay_name) + '</option>';
+  }).join('');
+}
+function optsCoded(listId, sel) {
+  return '<option value="">Select...</option>' + refList(listId).map(function (v) {
+    var c = trimv(v.code);
+    return '<option value="' + esc(c) + '"' + (c === trimv(sel) ? ' selected' : '') + '>' + esc(v.label) + '</option>';
+  }).join('');
+}
+function fill(id, html) { var el = $id(id); if (el) el.innerHTML = html; }
+
+function cascadeMachineBay() {
+  var u = $id('m-unit').value;
+  fill('m-bay', optsBaysForUnit(u, ''));
+}
+
+function updateMachineTally() {
+  var v = trimv($id('m-id').value);
+  $id('m-tally-view').textContent = v || '—';
+}
+
+/* TAB SWITCHING */
+var tabMap = {
+  tree: 'tab-tree', units: 'tab-units', bays: 'tab-bays',
+  machines: 'tab-machines', bank: 'tab-bank', storage: 'tab-storage'
+};
+function switchTab(el, key) {
+  document.querySelectorAll('.mod-tab').forEach(function (t) { t.classList.remove('act'); });
+  document.querySelectorAll('.tab-panel').forEach(function (p) { p.classList.remove('act'); });
+  el.classList.add('act');
+  var panel = $id(tabMap[key]);
+  if (panel) panel.classList.add('act');
+
+  try { if (window.history && history.replaceState) history.replaceState(null, '', '#tab=' + key); else location.hash = 'tab=' + key; } catch (e) {}
+}
+
+/* TREE NAVIGATION */
+
+var M3KEY = 'rk_m03_state';
+var M3RESTORING = false;
+function saveM3State() {
+  if (M3RESTORING) return;
+  try {
+    var open = [];
+    document.querySelectorAll('.tree-node[data-key]').forEach(function (n) {
+      var ch = n.querySelector(':scope > .children');
+      if (ch && ch.classList.contains('open')) open.push(n.getAttribute('data-key'));
+    });
+    var sort = {};
+    document.querySelectorAll('.data-table').forEach(function (tbl) {
+      var tb = tbl.tBodies[0]; if (!tb || !tb.id) return;
+      Array.prototype.forEach.call(tbl.querySelectorAll('thead th'), function (th, idx) {
+        if (th.dataset.dir) sort[tb.id] = { idx: idx, dir: th.dataset.dir };
+      });
+    });
+    sessionStorage.setItem(M3KEY, JSON.stringify({ open: open, sort: sort }));
+  } catch (e) {}
+}
+function loadM3State() {
+  try { return JSON.parse(sessionStorage.getItem(M3KEY) || 'null'); } catch (e) { return null; }
+}
+function restoreM3State() {
+  var st = loadM3State(); if (!st) return;
+  M3RESTORING = true;
+  try {
+    if (st.open && st.open.length) {
+      var want = {}; st.open.forEach(function (k) { want[k] = 1; });
+      document.querySelectorAll('.tree-node[data-key]').forEach(function (n) {
+        if (!want[n.getAttribute('data-key')]) return;
+        var ch = n.querySelector(':scope > .children'); if (ch) ch.classList.add('open');
+        var tg = n.querySelector(':scope > .tree-row > .tree-toggle'); if (tg) tg.classList.add('open');
+      });
+    }
+    if (st.sort) {
+      Object.keys(st.sort).forEach(function (k) {
+        var tb = $id(k); if (!tb) return;
+        var tbl = tb.parentNode; while (tbl && tbl.tagName !== 'TABLE') tbl = tbl.parentNode;
+        if (!tbl) return;
+        var th = tbl.querySelectorAll('thead th')[st.sort[k].idx]; if (!th) return;
+
+        th.dataset.dir = (st.sort[k].dir === 'asc') ? 'desc' : 'asc';
+        sortTableBy(tbl, th, st.sort[k].idx);
+      });
+    }
+  } catch (e) {}
+  M3RESTORING = false;
+}
+function toggleNode(row) {
+  var children = row.nextElementSibling;
+  var toggle = row.querySelector('.tree-toggle');
+  if (!children || !children.classList.contains('children')) return;
+  var isOpen = children.classList.contains('open');
+  children.classList.toggle('open', !isOpen);
+  if (toggle) toggle.classList.toggle('open', !isOpen);
+  saveM3State();
+}
+function expandAll() {
+  document.querySelectorAll('.children').forEach(function (c) { c.classList.add('open'); });
+  document.querySelectorAll('.tree-toggle').forEach(function (t) { t.classList.add('open'); });
+  saveM3State();
+}
+function collapseAll() {
+  document.querySelectorAll('.children').forEach(function (c) { c.classList.remove('open'); });
+  document.querySelectorAll('.tree-toggle').forEach(function (t) { t.classList.remove('open'); });
+  saveM3State();
+}
+function filterTree(val) { TREE.search = val || ''; applyTreeFilters(); }
+
+function applyTreeFilters() {
+  var showInactive = !!($id('show-inactive') && $id('show-inactive').checked);
+  var val = TREE.search.toLowerCase();
+  document.querySelectorAll('#tree-root [data-node]').forEach(function (n) {
+    var hideInactive = (!showInactive && n.getAttribute('data-inactive') === '1');
+    var hideSearch = (val && n.textContent.toLowerCase().indexOf(val) < 0);
+    n.style.display = (hideInactive || hideSearch) ? 'none' : '';
+  });
+}
+
+/* RENDERERS */
+function statusChip(active) {
+  return active ? '<span class="st-chip st-active">Active</span>' : '<span class="st-chip st-decommissioned">Inactive</span>';
+}
+function respChip(ownId, parentId) {
+  if (ownId) return '<span class="resp-chip">&#128100; ' + esc(empName(ownId)) + '</span>';
+  if (parentId) return '<span class="resp-chip inherited">&#128100; ' + esc(empName(parentId)) + ' (inherited)</span>';
+  return '<span class="resp-chip">&mdash;</span>';
+}
+function errRow(tbl, colspan) {
+
+  return '<tr><td colspan="' + colspan + '" class="rkf-blocked">Could not load ' + esc(bizName(tbl)) + '. <button type="button" class="rkf-empty-cta" onclick="retryLoad(\'' + tbl + '\')">Retry</button></td></tr>';
+}
+
+function esCell(colspan, icon, sentence, ctaLabel, ctaJs) {
+  return '<tr class="rkf-empty-row"><td colspan="' + colspan + '" class="rkf-blocked rkf-empty"><span class="es-ico">' + icon + '</span>' + sentence
+
+    + (ctaLabel ? ' <button type="button" class="rkf-empty-cta m03-write" onclick="' + ctaJs + '">' + ctaLabel + '</button>' : '') + '</td></tr>';
+}
+function renderAll() {
+  renderTree(); renderUnits(); renderBays(); renderMachines(); renderBanks(); renderStorage(); fillFilters();
+  updateKpis(); updateTabCounts(); resetSortMarks(); renderPills();          
+  restoreM3State();                                                          
+}
+function renderTree() {
+  var root = $id('tree-root'); if (!root) return;
+  if (LOADERR.org_units || LOADERR.bays || LOADERR.machines) {
+    var t = bizList(['org_units', 'bays', 'machines'].filter(function (x) { return LOADERR[x]; }));
+    root.innerHTML = '<div class="rkf-blocked">Could not load the organization tree. <button type="button" class="rkf-empty-cta" onclick="retryLoad(\'org_units\',\'bays\',\'machines\')">Retry</button></div>';
+    return;
+  }
+  var units = visibleUnits();
+  if (units.length === 0) {
+    root.innerHTML = '<div class="rkf-blocked rkf-empty"><span class="es-ico">&#127795;</span>No organization nodes yet. <button type="button" class="rkf-empty-cta m03-write" onclick="openUnitModal()">+ Add the first Unit</button></div>';
+    return;
+  }
+  var h = '';
+  units.forEach(function (u) {
+    var uc = trimv(u.unit_code);
+    var ubays = visibleBays().filter(function (b) { return trimv(b.unit_code) === uc; });
+    var umach = visibleMachines().filter(function (m) { return trimv(m.unit_code) === uc; });
+    var t = trimv(u.unit_type);
+    var typeCls = (t === 'OT02') ? 'type-chip type-office' : 'type-chip';
+    var icon = (t === 'OT02') ? '&#127970;' : '&#127981;';
+    h += '<div class="tree-node" data-node="unit" data-key="U:' + esc(uc) + '" data-inactive="' + (u.active ? '' : '1') + '">'
+      + '<div class="tree-row' + (u.active ? '' : ' row-inactive') + '" tabindex="0" onclick="toggleNode(this)">'
+      + '<span class="tree-toggle">&#9658;</span>'
+      + '<span class="tree-icon">' + icon + '</span>'
+      + '<span class="tree-label">' + esc(uc) + ' &mdash; ' + esc(u.unit_name) + '</span>'
+      + '<span class="tree-sub">' + esc(refLabel(u.unit_type)) + '</span>'
+      + '<div class="tree-chips">'
+      + '<span class="stats-chip">' + ubays.length + ' bay' + (ubays.length === 1 ? '' : 's') + ' &middot; ' + umach.length + ' machine' + (umach.length === 1 ? '' : 's') + '</span>'
+      + '<span class="' + typeCls + '">' + esc(refLabel(u.unit_type)) + '</span>'
+      + statusChip(u.active)
+      + respChip(u.responsible_primary, null)
+      + '<button class="btn btn-g btn-xs" onclick="event.stopPropagation();openUnitModal(\'' + esc(uc) + '\')">Edit</button>'
+      + '</div></div>'
+      + '<div class="children">';
+    ubays.forEach(function (b) {
+      var bmach = visibleMachines().filter(function (m) { return m.bay_id === b.bay_id; });
+      var icon2 = (trimv(b.bay_type) === 'OB02') ? '&#128204;' : '&#127959;';
+      h += '<div class="tree-node" data-node="bay" data-key="B:' + esc(b.bay_id) + '" data-inactive="' + (b.active ? '' : '1') + '">'
+        + '<div class="tree-row bay-row' + (b.active ? '' : ' row-inactive') + '" tabindex="0" onclick="toggleNode(this)">'
+        + '<span class="tree-toggle">&#9658;</span>'
+        + '<span class="tree-icon">' + icon2 + '</span>'
+        + '<span class="tree-label">' + esc(b.bay_name) + '</span>'
+        + '<span class="tree-sub">' + esc(refLabel(b.bay_type)) + (b.storage_type ? ' &mdash; ' + esc(refLabel(b.storage_type)) : '') + '</span>'
+        + '<div class="tree-chips">'
+        + '<span class="stats-chip">' + bmach.length + ' machine' + (bmach.length === 1 ? '' : 's') + '</span>'
+        + statusChip(b.active)
+        + respChip(b.responsible_primary, null)
+        + '<button class="btn btn-g btn-xs" onclick="event.stopPropagation();openBayModal(\'' + esc(b.bay_id) + '\')">Edit</button>'
+        + '</div></div>'
+        + '<div class="children">';
+      bmach.forEach(function (m) {
+        h += '<div class="tree-row machine-row' + (m.active ? '' : ' row-inactive') + '" tabindex="0" data-node="machine" data-inactive="' + (m.active ? '' : '1') + '">'
+          + '<span style="width:14px"></span>'
+          + '<span class="tree-icon">&#9881;</span>'
+          + '<span class="tree-label">' + esc(trimv(m.machine_id)) + ' &mdash; ' + esc(m.machine_name) + '</span>'
+          + '<div class="tree-chips">'
+          + statusChip(m.active)
+          + respChip(m.responsible_primary, b.responsible_primary)
+          + '<button class="btn btn-g btn-xs" onclick="event.stopPropagation();openMachineModal(\'' + esc(trimv(m.machine_id)) + '\')">Edit</button>'
+          + '</div></div>';
+      });
+      h += '</div></div>';
+    });
+    h += '</div></div>';
+  });
+  root.innerHTML = h;
+  applyTreeFilters();
+}
+var M3SORT = {
+  units: { st: RKF.sort.state('code', 1), cols: [['code', 'Code'], ['name', 'Unit Name'], ['type', 'Type'], ['gstin', 'GSTIN'], ['state', 'State'], ['pin', 'Pincode'], ['r1', 'Primary Responsible'], ['r2', 'Secondary'], ['status', 'Status']],
+    val: function (u, k) { switch (k) { case 'name': return String(u.unit_name || '').toLowerCase(); case 'type': return String(refLabel(u.unit_type) || '').toLowerCase(); case 'gstin': return trimv(u.gstin); case 'state': return String(u.state_name || '').toLowerCase(); case 'pin': return trimv(u.pincode); case 'r1': return String(u.responsible_primary ? empName(u.responsible_primary) : '').toLowerCase(); case 'r2': return String(u.responsible_secondary ? empName(u.responsible_secondary) : '').toLowerCase(); case 'status': return u.active ? 1 : 0; default: return trimv(u.unit_code); } } },
+  bays: { st: RKF.sort.state('unit', 1), cols: [['unit', 'Unit'], ['name', 'Bay Name'], ['type', 'Type'], ['stype', 'Storage Type'], ['r1', 'Primary Responsible'], ['r2', 'Secondary'], ['mc', 'Machines', 'num'], ['status', 'Status']],
+    val: function (b, k) { switch (k) { case 'name': return String(b.bay_name || '').toLowerCase(); case 'type': return String(refLabel(b.bay_type) || '').toLowerCase(); case 'stype': return String(b.storage_type ? refLabel(b.storage_type) : '').toLowerCase(); case 'r1': return String(empName(b.responsible_primary) || '').toLowerCase(); case 'r2': return String(b.responsible_secondary ? empName(b.responsible_secondary) : '').toLowerCase(); case 'mc': return visibleMachines().filter(function (m) { return m.bay_id === b.bay_id; }).length; case 'status': return b.active ? 1 : 0; default: return trimv(b.unit_code); } } },
+  machines: { st: RKF.sort.state('unit', 1), cols: [['unit', 'Unit'], ['bay', 'Bay'], ['mid', 'Machine ID'], ['name', 'Name'], ['form', 'Form Type'], ['status', 'Status'], ['r1', 'Responsible']],
+    val: function (m, k) { var b; switch (k) { case 'bay': b = bayById(m.bay_id); return String(b ? b.bay_name : '').toLowerCase(); case 'mid': return trimv(m.machine_id); case 'name': return String(m.machine_name || '').toLowerCase(); case 'form': return String(refLabel(m.form_type) || '').toLowerCase(); case 'status': return m.active ? 1 : 0; case 'r1': return String(m.responsible_primary ? empName(m.responsible_primary) : '').toLowerCase(); default: return trimv(m.unit_code); } } },
+  bank: { st: RKF.sort.state('bank', 1), cols: [['bank', 'Bank Name'], ['branch', 'Branch'], ['acno', 'Account Number'], ['type', 'Type'], ['scope', 'Scope'], ['ifsc', 'IFSC'], ['tally', 'Tally Alias'], ['status', 'Status']],
+    val: function (b, k) { switch (k) { case 'branch': return String(b.branch_name || '').toLowerCase(); case 'acno': return trimv(b.account_number); case 'type': return String(refLabel(b.account_type) || '').toLowerCase(); case 'scope': return String(scopeLabels(b.bank_account_id) || '').toLowerCase(); case 'ifsc': return trimv(b.ifsc); case 'tally': return String(b.tally_alias || ''); case 'status': return b.active ? 1 : 0; default: return String(b.bank_name || '').toLowerCase(); } } },
+  storage: { st: RKF.sort.state('unit', 1), cols: [['unit', 'Unit'], ['name', 'Storage Name'], ['type', 'Type'], ['r1', 'Primary Responsible'], ['r2', 'Secondary'], ['status', 'Status']],
+    val: function (x, k) { switch (k) { case 'name': return String(x.storage_name || '').toLowerCase(); case 'type': return String(refLabel(x.storage_type) || '').toLowerCase(); case 'r1': return String(empName(x.responsible_primary) || '').toLowerCase(); case 'r2': return String(x.responsible_secondary ? empName(x.responsible_secondary) : '').toLowerCase(); case 'status': return x.active ? 1 : 0; default: return trimv(x.unit_code); } } }
+};
+var M3HEAD = { units: 'units-head', bays: 'bays-head', machines: 'machine-head', bank: 'bank-head', storage: 'storage-head' };
+var M3RENDER = { units: function () { renderUnits(); }, bays: function () { renderBays(); }, machines: function () { renderMachines(); }, bank: function () { renderBanks(); }, storage: function () { renderStorage(); } };
+function m3Sorted(tab, rows) {
+  var t = M3SORT[tab], h = $id(M3HEAD[tab]);
+  if (h) h.innerHTML = '<tr>' + t.cols.map(function (c) { return RKF.sort.th(t.st, c[0], c[1], "m3SortBy('" + tab + "','" + c[0] + "')", c[2], null, tab + '-th-'); }).join('') + '<th></th></tr>';
+  return RKF.sort.rows(rows.slice(), t.st, t.val);
+}
+function m3SortBy(tab, k) { RKF.sort.toggle(M3SORT[tab].st, k); M3RENDER[tab](); }
+function renderUnits() {
+  var tb = $id('units-body'); if (!tb) return;
+  if (LOADERR.org_units) { tb.innerHTML = errRow('org_units', 10); return; }
+  var rows = m3Sorted('units', visibleUnits());
+  if (!rows.length) { tb.innerHTML = esCell(10, '&#127981;', 'No units yet.', '+ Add Unit', 'openUnitModal()'); return; }
+  tb.innerHTML = rows.map(function (u) {
+    var uc = trimv(u.unit_code);
+    var typeCls = (trimv(u.unit_type) === 'OT02') ? 'type-chip type-office' : 'type-chip';
+    return '<tr class="' + (u.active ? '' : 'row-inactive') + '" data-active="' + (u.active ? '1' : '0') + '" data-noresp="' + (u.responsible_primary ? '0' : '1') + '" onclick="openUnitModal(\'' + esc(uc) + '\')">'
+      + '<td><code>' + esc(uc) + '</code></td>'
+      + '<td><b>' + esc(u.unit_name) + '</b></td>'
+      + '<td><span class="' + typeCls + '">' + esc(refLabel(u.unit_type)) + '</span></td>'
+      + '<td>' + (trimv(u.gstin) ? '<code>' + esc(trimv(u.gstin)) + '</code>' : '&mdash;') + '</td>'
+      + '<td>' + esc(u.state_name || '') + ' <span style="color:var(--muted);font-size:var(--fs-caption)">(auto)</span></td>'
+      + '<td>' + esc(trimv(u.pincode)) + '</td>'
+      + '<td>' + (u.responsible_primary ? esc(empName(u.responsible_primary)) : '&mdash;') + '</td>'
+      + '<td>' + (u.responsible_secondary ? esc(empName(u.responsible_secondary)) : '&mdash;') + '</td>'
+      + '<td>' + statusChip(u.active) + '</td>'
+      + '<td><button class="btn btn-g btn-xs" onclick="event.stopPropagation();openUnitModal(\'' + esc(uc) + '\')">Edit</button></td></tr>';
+  }).join('');
+  applyListFilters('units');
+}
+function renderBays() {
+  var tb = $id('bays-body'); if (!tb) return;
+  if (LOADERR.bays) { tb.innerHTML = errRow('bays', 9); return; }
+  var rows = m3Sorted('bays', visibleBays());
+  if (!rows.length) { tb.innerHTML = esCell(9, '&#127959;', 'No bays yet.', '+ Add Bay', 'openBayModal()'); return; }
+  tb.innerHTML = rows.map(function (b) {
+    var mc = visibleMachines().filter(function (m) { return m.bay_id === b.bay_id; }).length;
+    return '<tr class="' + (b.active ? '' : 'row-inactive') + '" data-empty="' + (mc ? '0' : '1') + '" data-unit="' + esc(trimv(b.unit_code)) + '" onclick="openBayModal(\'' + esc(b.bay_id) + '\')">'
+      + '<td><code>' + esc(trimv(b.unit_code)) + '</code></td>'
+      + '<td><b>' + esc(b.bay_name) + '</b></td>'
+      + '<td>' + esc(refLabel(b.bay_type)) + '</td>'
+      + '<td>' + (b.storage_type ? '<span class="pill b">' + esc(refLabel(b.storage_type)) + '</span>' : '&mdash;') + '</td>'
+      + '<td>' + esc(empName(b.responsible_primary)) + '</td>'
+      + '<td>' + (b.responsible_secondary ? esc(empName(b.responsible_secondary)) : '&mdash;') + '</td>'
+      + '<td class="num">' + (mc || '&mdash;') + '</td>'
+      + '<td>' + statusChip(b.active) + '</td>'
+      + '<td><button class="btn btn-g btn-xs" onclick="event.stopPropagation();openBayModal(\'' + esc(b.bay_id) + '\')">Edit</button></td></tr>';
+  }).join('');
+  applyListFilters('bays');
+}
+function renderMachines() {
+  var tb = $id('machine-body'); if (!tb) return;
+  if (LOADERR.machines) { tb.innerHTML = errRow('machines', 8); return; }
+  var rows = m3Sorted('machines', visibleMachines());
+  if (!rows.length) { tb.innerHTML = esCell(8, '&#9881;', 'No machines yet.', '+ Add Machine', 'openMachineModal()'); return; }
+  tb.innerHTML = rows.map(function (m) {
+    var b = bayById(m.bay_id);
+    var mid = trimv(m.machine_id);
+    return '<tr class="' + (m.active ? '' : 'row-inactive') + '" data-unit="' + esc(trimv(m.unit_code)) + '" data-status="' + (m.active ? 'Active' : 'Inactive') + '" onclick="openMachineModal(\'' + esc(mid) + '\')">'
+      + '<td><code>' + esc(trimv(m.unit_code)) + '</code></td>'
+      + '<td>' + esc(b ? b.bay_name : '(unknown bay)') + '</td>'
+      + '<td><code>' + esc(mid) + '</code></td>'
+      + '<td>' + esc(m.machine_name) + '</td>'
+      + '<td>' + esc(refLabel(m.form_type)) + '</td>'
+      + '<td>' + statusChip(m.active) + '</td>'
+      + (m.responsible_primary ? '<td>' + esc(empName(m.responsible_primary)) + '</td>' : '<td style="color:var(--muted);font-style:italic">inherited</td>')
+      + '<td><button class="btn btn-g btn-xs" onclick="event.stopPropagation();openMachineModal(\'' + esc(mid) + '\')">Edit</button></td></tr>';
+  }).join('');
+  applyListFilters('machines');
+}
+function renderBanks() {
+  var tb = $id('bank-body'); if (!tb) return;
+  if (LOADERR.bank_accounts) { tb.innerHTML = errRow('bank_accounts', 9); return; }
+  var rows = m3Sorted('bank', visibleBanks());
+  if (!rows.length) { tb.innerHTML = esCell(9, '&#127974;', 'No bank accounts yet.', '+ Add Account', 'openBankModal()'); return; }
+  tb.innerHTML = rows.map(function (b) {
+    return '<tr class="' + (b.active ? '' : 'row-inactive') + '" onclick="openBankModal(\'' + esc(b.bank_account_id) + '\')">'
+
+      + '<td><b>' + esc(b.bank_name || '') + '</b></td>'
+      + '<td>' + esc(b.branch_name || '') + '</td>'
+      + '<td><code>' + esc(trimv(b.account_number)) + '</code></td>'
+      + '<td>' + esc(refLabel(b.account_type)) + '</td>'
+      + '<td>' + esc(scopeLabels(b.bank_account_id) || '—') + '</td>'   
+      + '<td><code>' + esc(trimv(b.ifsc)) + '</code></td>'
+      + '<td><code>' + esc(b.tally_alias) + '</code></td>'
+      + '<td>' + statusChip(b.active) + '</td>'
+      + '<td><button class="btn btn-g btn-xs" onclick="event.stopPropagation();openBankModal(\'' + esc(b.bank_account_id) + '\')">Edit</button></td></tr>';
+  }).join('');
+  applyListFilters('bank');
+}
+function renderStorage() {
+  var tb = $id('storage-body'); if (!tb) return;
+  if (LOADERR.storage_locations) { tb.innerHTML = errRow('storage_locations', 7); return; }
+  var rows = m3Sorted('storage', visibleStorages());
+  if (!rows.length) { tb.innerHTML = esCell(7, '&#128230;', 'No storage locations yet.', '+ Add Storage Location', 'openStorageModal()'); return; }
+  tb.innerHTML = rows.map(function (s) {
+    return '<tr class="' + (s.active ? '' : 'row-inactive') + '" onclick="openStorageModal(\'' + esc(s.storage_id) + '\')">'
+      + '<td><code>' + esc(trimv(s.unit_code)) + '</code></td>'
+      + '<td><b>' + esc(s.storage_name) + '</b></td>'
+      + '<td><span class="pill b">' + esc(refLabel(s.storage_type)) + '</span></td>'
+      + '<td>' + esc(empName(s.responsible_primary)) + '</td>'
+      + '<td>' + (s.responsible_secondary ? esc(empName(s.responsible_secondary)) : '&mdash;') + '</td>'
+      + '<td>' + statusChip(s.active) + '</td>'
+      + '<td><button class="btn btn-g btn-xs" onclick="event.stopPropagation();openStorageModal(\'' + esc(s.storage_id) + '\')">Edit</button></td></tr>';
+  }).join('');
+  applyListFilters('storage');
+}
+function fillFilters() {
+  ['bay-unit-filter', 'mach-unit-filter'].forEach(function (id) {
+    var el = $id(id); if (!el) return;
+    var cur = el.value;
+    el.innerHTML = '<option value="">All Units</option>' + visibleUnits().map(function (u) {
+      var c = trimv(u.unit_code);
+      return '<option value="' + esc(c) + '">' + esc(c + ' - ' + u.unit_name) + '</option>';
+    }).join('');
+    el.value = cur || '';
+  });
+}
+
+var SEARCHQ = { units: '', bays: '', machines: '', bank: '', storage: '' };
+var KPIFILTER = null; 
+function rowMatchesSearch(row, q) { return !q || row.textContent.toLowerCase().indexOf(q) >= 0; }
+function updateFilterEmptyRow(tb, colspan) {
+  var old = tb.querySelector('tr.filter-empty'); if (old) old.parentNode.removeChild(old);
+  var data = Array.prototype.filter.call(tb.rows, function (r) { return !r.classList.contains('rkf-empty-row') && r.cells.length > 1; });
+  if (!data.length) return;
+  if (data.filter(function (r) { return r.style.display !== 'none'; }).length) return;
+  var tr = document.createElement('tr'); tr.className = 'filter-empty';
+  tr.innerHTML = '<td colspan="' + colspan + '" class="rkf-blocked rkf-empty"><span class="es-ico">&#128269;</span>No rows match the current filters. <button type="button" class="rkf-empty-cta" onclick="clearFilters()">Clear filters</button></td>';
+  tb.appendChild(tr);
+}
+function applyListFilters(tab) {
+  var tb, q = SEARCHQ[tab] || '';
+  if (tab === 'units') {
+    tb = $id('units-body'); if (!tb) return;
+    Array.prototype.forEach.call(tb.rows, function (row) {
+      if (row.classList.contains('filter-empty') || row.cells.length <= 1) return;
+      var ok = rowMatchesSearch(row, q);
+      if (ok && KPIFILTER && KPIFILTER.tab === 'units') {
+        if (KPIFILTER.key === 'noresp') ok = row.dataset.noresp === '1';
+        else if (KPIFILTER.key === 'inactive-units') ok = row.dataset.active === '0';
+      }
+      row.style.display = ok ? '' : 'none';
+    });
+    updateFilterEmptyRow(tb, 10);
+  } else if (tab === 'bays') {
+    tb = $id('bays-body'); if (!tb) return;
+    var unit = $id('bay-unit-filter') ? $id('bay-unit-filter').value : '';
+    Array.prototype.forEach.call(tb.rows, function (row) {
+      if (row.classList.contains('filter-empty') || row.cells.length <= 1 || !row.dataset.unit) return;
+      var ok = (!unit || row.dataset.unit === unit) && rowMatchesSearch(row, q);
+      if (ok && KPIFILTER && KPIFILTER.tab === 'bays' && KPIFILTER.key === 'empty-bays') ok = row.dataset.empty === '1';
+      row.style.display = ok ? '' : 'none';
+    });
+    updateFilterEmptyRow(tb, 9);
+  } else if (tab === 'machines') {
+    tb = $id('machine-body'); if (!tb) return;
+    var mu = $id('mach-unit-filter') ? $id('mach-unit-filter').value : '';
+    var ms = $id('mach-status-filter') ? $id('mach-status-filter').value : '';
+    Array.prototype.forEach.call(tb.rows, function (row) {
+      if (row.classList.contains('filter-empty') || row.cells.length <= 1 || !row.dataset.unit) return;
+      var ok = (!mu || row.dataset.unit === mu) && (!ms || row.dataset.status === ms) && rowMatchesSearch(row, q);
+      row.style.display = ok ? '' : 'none';
+    });
+    updateFilterEmptyRow(tb, 8);
+  } else if (tab === 'bank') {
+    tb = $id('bank-body'); if (!tb) return;
+    Array.prototype.forEach.call(tb.rows, function (row) {
+      if (row.classList.contains('filter-empty') || row.cells.length <= 1) return;
+      row.style.display = rowMatchesSearch(row, q) ? '' : 'none';
+    });
+    updateFilterEmptyRow(tb, 8);
+  } else if (tab === 'storage') {
+    tb = $id('storage-body'); if (!tb) return;
+    Array.prototype.forEach.call(tb.rows, function (row) {
+      if (row.classList.contains('filter-empty') || row.cells.length <= 1) return;
+      row.style.display = rowMatchesSearch(row, q) ? '' : 'none';
+    });
+    updateFilterEmptyRow(tb, 7);
+  }
+  renderPills();
+}
+
+function filterBayRows(unit) { applyListFilters('bays'); }
+
+function filterMachineRows() { applyListFilters('machines'); }
+
+function listSearch(tab, v) { SEARCHQ[tab] = trimv(v).toLowerCase(); applyListFilters(tab); }
+function clearSearch(tab) { SEARCHQ[tab] = ''; var i = $id('ls-' + tab); if (i) i.value = ''; applyListFilters(tab); }
+function clearControl(id, tab) {
+  var el = $id(id); if (el) el.value = '';
+  if (id === 'mach-status-filter' && KPIFILTER && KPIFILTER.key === 'inactive-machines') { KPIFILTER = null; updateKpiActive(); }
+  applyListFilters(tab);
+}
+function clearFilters() {
+  KPIFILTER = null; updateKpiActive();
+  ['units', 'bays', 'machines', 'bank', 'storage'].forEach(function (t) { SEARCHQ[t] = ''; var i = $id('ls-' + t); if (i) i.value = ''; });
+  ['bay-unit-filter', 'mach-unit-filter', 'mach-status-filter'].forEach(function (id) { var el = $id(id); if (el) el.value = ''; });
+  ['units', 'bays', 'machines', 'bank', 'storage'].forEach(applyListFilters);
+}
+
+/* AUTO-FILL / DERIVATION */
+function setState(code) {
+  var st = $id('u-state'), stc = $id('u-state-code');
+  var row = LIVE.states.filter(function (s) { return trimv(s.state_code) === code; })[0];
+  if (stc) stc.value = row ? code : '';
+  if (st) st.value = row ? row.state_name : '';
+  if (code && !row) RKF.inputLaw.hint($id('u-gstin'), 'State code ' + code + ' is not recognised.');
+  else RKF.inputLaw.hint($id('u-gstin'), null);
+}
+function deriveState(gstin) {
+  gstin = trimv(gstin).toUpperCase();
+  if (gstin.length >= 2 && /^[0-9]{2}/.test(gstin)) setState(gstin.substring(0, 2));
+}
+function deriveAddress(pin) {
+  pin = trimv(pin);
+  if (pin.length !== 6 || !/^[0-9]{6}$/.test(pin)) { $id('u-city').value = ''; $id('u-dist').value = ''; return; }
+  asPromise(RKF.load('pincode_master', 'pincode,city,taluk,district,state_name,state_code', { eq: { pincode: pin } })).then(function (rows) {
+    var d = (rows || []).filter(function (r) { return trimv(r.pincode) === pin; })[0];
+    if (!d) { RKF.inputLaw.hint($id('u-pin'), 'Pincode not found.'); return; }
+    RKF.inputLaw.hint($id('u-pin'), null);
+    $id('u-city').value = d.city || '';
+    $id('u-dist').value = d.district || '';
+    if (!$id('u-state-code').value && trimv(d.state_code)) setState(trimv(d.state_code));   
+  }, function (e) {
+    RKF.inputLaw.hint($id('u-pin'), 'Pincode lookup failed.');
+  });
+}
+
+var BK_IFSC_NOTE_DEFAULT = '';
+
+var BK_AUTOFILL = { bank: '', branch: '' };
+function bkIfscNote(msg) {
+  var el = $id('bk-ifsc-note'); if (!el) return;
+  el.textContent = msg || BK_IFSC_NOTE_DEFAULT;
+}
+function deriveBank(v) {
+  var ifsc = trimv(v).toUpperCase();
+
+  if (ifsc.length !== 11) { bkIfscNote(null); return; }
+  asPromise(RKF.load('ifsc_master', 'ifsc,bank_name,branch_name', { eq: { ifsc: ifsc } })).then(function (rows) {
+    var d = (rows || []).filter(function (r) { return trimv(r.ifsc) === ifsc; })[0];
+    RKF.inputLaw.hint($id('bk-ifsc'), null);
+    var bk = $id('bk-bank'), br = $id('bk-branch');
+    if (!d) {
+
+      if (BK_AUTOFILL.bank && bk.value === BK_AUTOFILL.bank) bk.value = '';
+      if (BK_AUTOFILL.branch && br.value === BK_AUTOFILL.branch) br.value = '';
+      BK_AUTOFILL = { bank: '', branch: '' };
+      bkIfscNote('Not in the bank master.');
+      return;
+    }
+    bk.value = d.bank_name || '';
+    br.value = d.branch_name || '';
+    BK_AUTOFILL = { bank: bk.value, branch: br.value };
+    bkIfscNote('Filled from the bank master.');
+
+    var tl = $id('bk-tally');
+    if (tl && !tl.value) tl.value = 'RKMR-' + ifsc.substring(0, 4);
+  }, function (e) {
+    RKF.inputLaw.hint($id('bk-ifsc'), 'Bank lookup failed.');
+  });
+}
+
+/* MODAL LOGIC */
+function openAddModal() {
+  var activeTab = document.querySelector('.mod-tab.act');
+  var label = activeTab ? activeTab.textContent.trim() : '';
+  if (label.includes('Unit') || label.includes('Tree')) openUnitModal();
+  else if (label.includes('Bay')) openBayModal();
+  else if (label.includes('Machine')) openMachineModal();
+  else if (label.includes('Bank')) openBankModal();
+  else if (label.includes('Storage')) openStorageModal();
+  else toast('Select a tab first.');
+}
+function openUnitModal(code) {
+  var u = code ? unitByCode(code) : null;
+  EDIT.unit = u;
+  if (u) RKF.recents.push('Unit', trimv(u.unit_code), u.unit_name);            
+  setActivityRecord(u ? trimv(u.unit_code) : null, 'unit');                    
+  fillCtx('unit-modal', u ? ctxUnit(u) : ctxNew('unit'));                      
+  $id('unit-modal-title').textContent = u ? ('Edit Unit - ' + trimv(u.unit_code)) : 'Add Unit';
+  fill('u-type', optsCoded('OT', u ? u.unit_type : ''));                 
+  fill('u-resp1', optsEmployees(u ? u.responsible_primary : '', false)); 
+  fill('u-resp2', optsEmployeesOptional(u ? u.responsible_secondary : ''));
+  $id('u-code').value = u ? trimv(u.unit_code) : '';
+  $id('u-code').readOnly = !!u;                                          
+  $id('u-name').value = u ? u.unit_name : '';
+  $id('u-gstin').value = u ? trimv(u.gstin) : '';
+  $id('u-state').value = u ? (u.state_name || '') : '';
+  $id('u-state-code').value = u ? trimv(u.state_code) : '';
+  $id('u-pin').value = u ? trimv(u.pincode) : '';
+  $id('u-city').value = u ? (u.city || '') : '';
+  $id('u-dist').value = u ? (u.district || '') : '';
+  $id('u-addr1').value = u ? u.address_line_1 : '';
+  $id('u-addr2').value = u ? (u.address_line_2 || '') : '';
+  $id('u-tally').value = u ? u.tally_alias : '';                         
+  $id('u-phone').value = u ? (u.phone || '') : '';                       
+  $id('u-email').value = u ? (u.email || '') : '';
+  $id('u-website').value = u ? (u.website || '') : '';
+  $id('office-note').style.display = (u && trimv(u.unit_type) === 'OT02') ? 'block' : 'none';
+  $id('u-activate-warn').style.display = 'none';
+  var d = $id('u-deact-btn');
+  d.style.display = u ? '' : 'none';
+  d.textContent = (u && !u.active) ? 'Reactivate' : 'Deactivate';
+  clearHints(['u-code', 'u-name', 'u-gstin', 'u-pin', 'u-addr1', 'u-tally']);
+  taSyncAll(['u-resp1', 'u-resp2']);                                           
+  RKF.modal.open('unit-modal');
+}
+function updateUnitType() {
+  $id('office-note').style.display = ($id('u-type').value === 'OT02') ? 'block' : 'none';
+}
+function openBayModal(bayId) {
+  var b = bayId ? bayById(bayId) : null;
+  EDIT.bay = b;
+  if (b) RKF.recents.push('Bay', String(b.bay_id), b.bay_name);                
+  clearActivityRecord();                                                       
+  fillCtx('bay-modal', b ? ctxBay(b) : ctxNew('bay'));                         
+  $id('bay-modal-title').textContent = b ? ('Edit Bay - ' + b.bay_name) : 'Add Bay';
+  fill('b-unit', optsUnits(b ? b.unit_code : ''));                       
+  fill('b-type', optsCoded('OB', b ? b.bay_type : ''));
+  fill('b-stype', optsCoded('OS', b ? b.storage_type : ''));
+  fill('b-resp1', optsEmployees(b ? b.responsible_primary : '', false));
+  fill('b-resp2', optsEmployeesOptional(b ? b.responsible_secondary : ''));
+  $id('b-name').value = b ? b.bay_name : '';
+  updateBayType();
+  var d = $id('b-deact-btn');
+  d.style.display = b ? '' : 'none';
+  d.textContent = (b && !b.active) ? 'Reactivate' : 'Deactivate';
+  clearHints(['b-name']);
+  taSyncAll(['b-resp1', 'b-resp2']);                                           
+  RKF.modal.open('bay-modal');
+}
+
+function updateBayType() {
+  $id('storage-type-field').style.display = ($id('b-type').value === 'OB02') ? 'block' : 'none';
+}
+function openMachineModal(id) {
+  var m = id ? machineById(id) : null;
+  EDIT.machine = m;
+  if (m) RKF.recents.push('Machine', trimv(m.machine_id), m.machine_name);     
+  clearActivityRecord();                                                       
+  fillCtx('machine-modal', m ? ctxMachine(m) : ctxNew('machine'));             
+  $id('machine-modal-title').textContent = m ? ('Edit Machine - ' + trimv(m.machine_id)) : 'Add Machine';
+  fill('m-form', optsCoded('OF', m ? m.form_type : ''));                 
+  fill('m-unit', optsUnits(m ? m.unit_code : ''));
+  fill('m-bay', optsBaysForUnit(m ? trimv(m.unit_code) : '', m ? m.bay_id : ''));
+  fill('m-resp1', optsEmployees(m ? m.responsible_primary : '', true));  
+  fill('m-resp2', optsEmployeesOptional(m ? m.responsible_secondary : ''));
+  $id('m-id').value = m ? trimv(m.machine_id) : '';
+  $id('m-id').readOnly = !!m;                                            
+  $id('m-name').value = m ? m.machine_name : '';
+  $id('m-status').value = (m && !m.active) ? 'Inactive' : 'Active';      
+  updateMachineTally();
+  var d = $id('m-deact-btn');
+  d.style.display = m ? '' : 'none';
+  d.textContent = (m && !m.active) ? 'Reactivate' : 'Deactivate';
+  clearHints(['m-id', 'm-name']);
+  taSyncAll(['m-resp1', 'm-resp2']);                                           
+  RKF.modal.open('machine-modal');
+}
+function openBankModal(bankId) {
+  var b = bankId ? bankById(bankId) : null;
+  EDIT.bank = b;
+  if (b) RKF.recents.push('Bank A/c', String(b.bank_account_id), trimv(b.bank_name || 'Bank') + ' ' + trimv(b.account_number));  
+  clearActivityRecord();                                                       
+  fillCtx('bank-modal', b ? ctxBank(b) : ctxNew('bank account'));              
+
+  $id('bank-modal-title').textContent = b ? 'Edit Bank Account' : 'Add Bank Account';
+  fill('bk-type', optsCoded('OA', b ? b.account_type : ''));             
+  $id('bk-ifsc').value = b ? trimv(b.ifsc) : '';
+  $id('bk-acno').value = b ? trimv(b.account_number) : '';
+  $id('bk-bank').value = b ? (b.bank_name || '') : '';
+  $id('bk-branch').value = b ? (b.branch_name || '') : '';
+  $id('bk-tally').value = b ? b.tally_alias : '';                        
+  renderScopeChecks(b ? b.bank_account_id : null);                       
+
+  bkIfscNote(null);
+  BK_AUTOFILL = { bank: '', branch: '' };   
+  var d = $id('bk-deact-btn');
+  d.style.display = b ? '' : 'none';
+  d.textContent = (b && !b.active) ? 'Reactivate' : 'Deactivate';
+  clearHints(['bk-ifsc', 'bk-acno', 'bk-tally']);
+  RKF.modal.open('bank-modal');
+}
+function openStorageModal(storageId) {
+  var s = storageId ? storageById(storageId) : null;
+  EDIT.storage = s;
+  if (s) RKF.recents.push('Storage', String(s.storage_id), s.storage_name);    
+  clearActivityRecord();                                                       
+  fillCtx('storage-modal', s ? ctxStorage(s) : ctxNew('storage location'));    
+  fill('sl-unit', optsUnits(s ? s.unit_code : ''));
+  fill('sl-type', optsCoded('OS', s ? s.storage_type : ''));             
+  fill('sl-resp1', optsEmployees(s ? s.responsible_primary : '', false));
+  fill('sl-resp2', optsEmployeesOptional(s ? s.responsible_secondary : ''));
+  $id('sl-name').value = s ? s.storage_name : '';
+  var d = $id('sl-deact-btn');
+  d.style.display = s ? '' : 'none';
+  d.textContent = (s && !s.active) ? 'Reactivate' : 'Deactivate';
+  clearHints(['sl-name']);
+  taSyncAll(['sl-resp1', 'sl-resp2']);                                         
+  RKF.modal.open('storage-modal');
+}
+
+function closeModals(e) {
+  if (!e) { RKF.modal.close(); return; }
+  if (e.target && e.target.classList && e.target.classList.contains('ovl')) RKF.modal.close();
+}
+
+var KPI_DEFS = {
+  'noresp':            { tab: 'units',    label: 'Units without responsible', errT: 'org_units',
+                         calc: function () { return visibleUnits().filter(function (u) { return !u.responsible_primary; }).length; } },
+  'inactive-units':    { tab: 'units',    label: 'Inactive units', errT: 'org_units',
+                         calc: function () { return visibleUnits().filter(function (u) { return !u.active; }).length; } },
+  'empty-bays':        { tab: 'bays',     label: 'Bays without machines', errT: 'bays',
+                         calc: function () { return visibleBays().filter(function (b) { return visibleMachines().filter(function (m) { return m.bay_id === b.bay_id; }).length === 0; }).length; } },
+  'inactive-machines': { tab: 'machines', label: 'Inactive machines', errT: 'machines',
+                         calc: function () { return visibleMachines().filter(function (m) { return !m.active; }).length; } }
+};
+function updateKpis() {
+  Object.keys(KPI_DEFS).forEach(function (k) {
+    var el = $id('kpi-' + k); if (!el) return;
+    el.textContent = LOADERR[KPI_DEFS[k].errT] ? '\u2014' : String(KPI_DEFS[k].calc());
+  });
+}
+function updateKpiActive() {
+  document.querySelectorAll('#kpi-strip .kpi-card').forEach(function (c) {
+    c.classList.toggle('act', !!(KPIFILTER && KPIFILTER.key === c.dataset.kpi));
+  });
+}
+function kpiClick(k) {
+  var def = KPI_DEFS[k]; if (!def) return;
+  if (KPIFILTER && KPIFILTER.key === k) { clearKpi(); return; }               /* toggle off */
+  KPIFILTER = { key: k, tab: def.tab, label: def.label };
+  if (k === 'inactive-machines') { var ms = $id('mach-status-filter'); if (ms) ms.value = 'Inactive'; }
+  var tabEl = document.querySelector('.mod-tab[data-key="' + def.tab + '"]');
+  if (tabEl) switchTab(tabEl, def.tab);
+  updateKpiActive();
+  applyListFilters(def.tab);
+}
+function clearKpi() {
+  if (KPIFILTER && KPIFILTER.key === 'inactive-machines') { var ms = $id('mach-status-filter'); if (ms && ms.value === 'Inactive') ms.value = ''; }
+  var t = KPIFILTER ? KPIFILTER.tab : null; KPIFILTER = null; updateKpiActive();
+  if (t) applyListFilters(t); else renderPills();
+}
+
+function fpill(label, js) { return '<span class="fpill">' + label + '<button type="button" aria-label="Clear this filter" onclick="' + js + '">&#215;</button></span>'; }
+function renderPills() {
+  var el = $id('filter-pills'); if (!el) return;
+  var h = '';
+  if (KPIFILTER) h += fpill('Filtered: ' + esc(KPIFILTER.label), 'clearKpi()');
+  var bu = $id('bay-unit-filter'); if (bu && bu.value) h += fpill('Bays \u00b7 Unit: ' + esc(bu.value), "clearControl('bay-unit-filter','bays')");
+  var mu = $id('mach-unit-filter'); if (mu && mu.value) h += fpill('Machines \u00b7 Unit: ' + esc(mu.value), "clearControl('mach-unit-filter','machines')");
+  var ms = $id('mach-status-filter');
+  if (ms && ms.value && !(KPIFILTER && KPIFILTER.key === 'inactive-machines')) h += fpill('Machines \u00b7 ' + esc(ms.value), "clearControl('mach-status-filter','machines')");
+  var TL = { units: 'Units', bays: 'Bays', machines: 'Machines', bank: 'Bank A/c', storage: 'Storage' };
+  Object.keys(TL).forEach(function (t) {
+    if (SEARCHQ[t]) h += fpill(TL[t] + ' search: \u201c' + esc(SEARCHQ[t]) + '\u201d', "clearSearch('" + t + "')");
+  });
+  el.innerHTML = h;
+}
+
+function updateTabCounts() {
+  var m = { units: LOADERR.org_units ? null : visibleUnits().length,
+            bays: LOADERR.bays ? null : visibleBays().length,
+            machines: LOADERR.machines ? null : visibleMachines().length };
+  Object.keys(m).forEach(function (k) { var el = $id('tabcount-' + k); if (el) el.textContent = (m[k] == null ? '' : String(m[k])); });
+}
+
+function initTableSort() {
+  document.querySelectorAll('.data-table').forEach(function (tbl) {
+    Array.prototype.forEach.call(tbl.querySelectorAll('thead th'), function (th, idx) {
+      if (!trimv(th.textContent)) return;
+      th.classList.add('sortable'); th.tabIndex = 0;
+      var mk = document.createElement('span'); mk.className = 'sort-mark'; mk.textContent = '\u2195'; th.appendChild(mk);
+      function go() { sortTableBy(tbl, th, idx); }
+      th.addEventListener('click', go);
+      th.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); } });
+    });
+  });
+}
+function resetSortMarks() {
+  document.querySelectorAll('.data-table thead th').forEach(function (h) {
+    delete h.dataset.dir; var m = h.querySelector('.sort-mark'); if (m) m.textContent = '\u2195';
+  });
+}
+function sortTableBy(tbl, th, idx) {
+  var tb = tbl.tBodies[0]; if (!tb) return;
+  var rows = Array.prototype.filter.call(tb.rows, function (r) { return r.cells.length > 1 && !r.classList.contains('filter-empty'); });
+  if (rows.length < 2) return;
+  var dir = th.dataset.dir === 'asc' ? 'desc' : 'asc';
+  resetSortMarks();
+  th.dataset.dir = dir; var mk = th.querySelector('.sort-mark'); if (mk) mk.textContent = dir === 'asc' ? '\u25b2' : '\u25bc';
+  var num = th.classList.contains('num'), sgn = dir === 'asc' ? 1 : -1;
+  rows.sort(function (a, b) {
+    var av = trimv(a.cells[idx] ? a.cells[idx].textContent : ''), bv = trimv(b.cells[idx] ? b.cells[idx].textContent : '');
+    if (num) return sgn * ((parseFloat(av) || 0) - (parseFloat(bv) || 0));
+    return sgn * av.localeCompare(bv, undefined, { numeric: true, sensitivity: 'base' });
+  });
+  rows.forEach(function (r) { tb.appendChild(r); });
+  var fe = tb.querySelector('tr.filter-empty'); if (fe) tb.appendChild(fe);
+  saveM3State();                                                             
+}
+
+var ALOG_ACCESS = null;      
+
+function applyServedPermissions() {
+  if (ALOG_ACCESS === null) return;                 
+
+  document.body.classList.toggle('m03-readonly', ALOG_ACCESS !== 'Full');
+}
+var ALOG_BTN = null;         
+var CURRENT_RECORD_KEY = null, CURRENT_RECORD_ENTITY = null;
+function syncActivityAccessPoint() {
+  var ap = $id('alog-access-point'); if (!ap) return;
+
+  if (ALOG_ACCESS !== null && ALOG_ACCESS !== 'Read' && ALOG_ACCESS !== 'Full') {
+    if (ap.parentNode) ap.parentNode.removeChild(ap);   
+    return;
+  }
+  var btn = $id('history-btn');
+  if (ALOG_ACCESS && CURRENT_RECORD_KEY) {
+    if (!btn && ALOG_BTN) { ap.appendChild(ALOG_BTN); ALOG_BTN = null; }
+  } else if (btn) {
+    ALOG_BTN = btn; ap.removeChild(btn);                
+  }
+}
+function setActivityRecord(key, entity) {
+  CURRENT_RECORD_KEY = key || null;
+  CURRENT_RECORD_ENTITY = key ? (entity || null) : null;
+  syncActivityAccessPoint();
+}
+function clearActivityRecord() { setActivityRecord(null, null); }
+
+function openHistory() {
+  if (!CURRENT_RECORD_KEY) return;
+  RKF.history.open({ client: supa, module_code: 'M03',
+    record_entity: CURRENT_RECORD_ENTITY, record_key: CURRENT_RECORD_KEY,
+    title: CURRENT_RECORD_KEY, focus: 'history-btn',
+    emptyMessage: 'No changes recorded' });
+}
+function closeHistory() { RKF.history.close(); }
+
+var MSTACK = [];
+(function () {
+  var _open = RKF.modal.open, _close = RKF.modal.close;
+  RKF.modal.open = function (id) {
+    var r = _open.call(RKF.modal, id);
+    if (r) { MSTACK = MSTACK.filter(function (x) { return x !== id; }); MSTACK.push(id); }
+    return r;
+  };
+  RKF.modal.close = function (id) {
+    if (id) MSTACK = MSTACK.filter(function (x) { return x !== id; }); else MSTACK = [];
+    return _close.call(RKF.modal, id);
+  };
+})();
+function topOverlay() {
+  var d = $id('rkf-history-drawer');   
+  if (d && d.classList.contains('open')) return d;
+  while (MSTACK.length) {
+    var o = $id(MSTACK[MSTACK.length - 1]);
+    if (o && o.classList.contains('show')) return o;
+    MSTACK.pop();
+  }
+  return null;
+}
+
+if (window.RKF && RKF.registerSurface) {
+
+  RKF.registerSurface('m03.modals', { depth: 10,
+    isOpen: function () { var t = topOverlay(); return !!t && t.id !== 'rkf-history-drawer'; },
+    close: function () { var t = topOverlay(); if (t) RKF.modal.close(t.id); } });
+}
+document.addEventListener('keydown', function (e) {
+  if (e.key === 'Tab') {
+    var t = topOverlay(); if (!t) return;
+    var scope = t.classList.contains('ovl') ? t.querySelector('.modal') : t;
+    if (!scope) return;
+    var f = Array.prototype.filter.call(
+      scope.querySelectorAll('button,input:not([type=hidden]),select,textarea,[tabindex="0"]'),
+      function (el) {
+        if (el.disabled || el.tabIndex < 0) return false;
+        for (var n = el; n && n !== scope; n = n.parentElement) { if (n.style && n.style.display === 'none') return false; }
+        return true;
+      });
+    if (!f.length) return;
+    var i = f.indexOf(document.activeElement);
+    if (e.shiftKey) { if (i <= 0) { e.preventDefault(); f[f.length - 1].focus(); } }
+    else if (i === -1 || i === f.length - 1) { e.preventDefault(); f[0].focus(); }
+  }
+});
+
+document.addEventListener('keydown', function (e) {
+  if (e.key !== 'Enter' && e.key !== ' ') return;
+  var t = e.target;
+  if (!t || !t.classList) return;
+  if (t.classList.contains('tree-row') || t.classList.contains('mod-tab') || t.classList.contains('kpi-card')) {
+    e.preventDefault(); t.click();
+  }
+});
+
+var HINT_BTNS = ['u-save-btn', 'b-save-btn', 'machine-save-btn', 'bk-save-btn', 'sl-save-btn'];
+function ensureHints() {
+  HINT_BTNS.forEach(function (id) {
+    var b = $id(id); if (!b) return;
+    var label = b.dataset.label || trimv(b.textContent).replace(/\s*Ctrl\+S$/, '');
+    b.dataset.label = label;
+    if (!b.querySelector('.rkf-hint')) b.innerHTML = esc(label) + '<span class="rkf-hint">Ctrl+S</span>';
+  });
+}
+function hintSafe(fn) {
+  return function () {
+    var r = fn.apply(this, arguments);
+    if (r && typeof r.then === 'function') return r.then(function (v) { ensureHints(); return v; }, function (e) { ensureHints(); throw e; });
+    ensureHints(); return r;
+  };
+}
+
+var TA_SELECTS = ['u-resp1', 'u-resp2', 'b-resp1', 'b-resp2', 'm-resp1', 'm-resp2', 'sl-resp1', 'sl-resp2'];
+function taInit(id) {
+  var sel = $id(id); if (!sel || sel.dataset.ta) return; sel.dataset.ta = '1';
+  var wrap = document.createElement('div'); wrap.className = 'rkf-typeahead';
+  sel.parentNode.insertBefore(wrap, sel); wrap.appendChild(sel);
+  sel.style.display = 'none'; sel.tabIndex = -1;
+  var inp = document.createElement('input');
+  inp.type = 'text'; inp.className = 'ta-input'; inp.id = id + '-ta'; inp.autocomplete = 'off';
+  inp.setAttribute('role', 'combobox'); inp.setAttribute('aria-expanded', 'false');
+  var list = document.createElement('div'); list.className = 'ta-list'; list.style.display = 'none';
+  wrap.appendChild(inp); wrap.appendChild(list);
+  var SEL = -1;
+  function options() { return Array.prototype.slice.call(sel.options); }
+  function close() { list.style.display = 'none'; list.innerHTML = ''; SEL = -1; inp.setAttribute('aria-expanded', 'false'); }
+  function paintSel(items) { Array.prototype.forEach.call(items, function (it, i) { it.classList.toggle('sel', i === SEL); }); }
+  function openList(q) {
+    q = trimv(q).toLowerCase();
+    var opts = options().filter(function (o) { return !q || o.text.toLowerCase().indexOf(q) >= 0; });
+    list.innerHTML = opts.length
+      ? opts.map(function (o) { return '<div class="ta-item" data-v="' + esc(o.value) + '">' + esc(o.text) + '</div>'; }).join('')
+      : '<div class="ta-none">No matching active employee</div>';
+    list.style.display = 'block'; SEL = -1; inp.setAttribute('aria-expanded', 'true');
+  }
+  function pick(v) {
+    sel.value = v;
+    var o = options().filter(function (x) { return x.value === v; })[0];
+    inp.value = (o && v) ? o.text : '';
+    close();
+    try { sel.dispatchEvent(new Event('change', { bubbles: true })); } catch (e) {}
+  }
+  inp.addEventListener('input', function () { openList(inp.value); });
+  inp.addEventListener('focus', function () { openList(''); });
+  inp.addEventListener('keydown', function (e) {
+    var items = list.querySelectorAll('.ta-item');
+    if (e.key === 'Escape') { if (list.style.display !== 'none') { e.stopPropagation(); e.preventDefault(); close(); } return; }
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      if (list.style.display === 'none') { openList(inp.value); return; }
+      if (!items.length) return;
+      SEL = e.key === 'ArrowDown' ? Math.min(SEL + 1, items.length - 1) : Math.max(SEL - 1, 0);
+      paintSel(items);
+      if (items[SEL] && items[SEL].scrollIntoView) items[SEL].scrollIntoView({ block: 'nearest' });
+      return;
+    }
+    if (e.key === 'Enter') {
+      if (list.style.display !== 'none' && items.length) {
+        e.preventDefault(); e.stopPropagation();
+        var it = items[SEL >= 0 ? SEL : 0]; pick(it.getAttribute('data-v'));
+      }
+      return;
+    }
+    if (e.key === 'Tab') close();
+  });
+  list.addEventListener('mousedown', function (e) {
+    var it = e.target && e.target.closest ? e.target.closest('.ta-item') : null;
+    if (it) { e.preventDefault(); pick(it.getAttribute('data-v')); }
+  });
+  inp.addEventListener('blur', function () { setTimeout(function () { taSync(id); close(); }, 120); });
+}
+function taSync(id) {
+  var sel = $id(id), inp = $id(id + '-ta'); if (!sel || !inp) return;
+  if (!activeEmps().length) {
+
+    var msg = LOADERR.employees ? 'Could not load Employees.' : 'No employees yet';
+    RKF.blocked(sel, msg);
+    inp.value = ''; inp.placeholder = msg;
+    return;
+  }
+  var o = sel.options[sel.selectedIndex];
+  inp.value = (o && sel.value) ? o.text : '';
+  inp.placeholder = (o && !sel.value) ? o.text : 'Type to search employees\u2026';
+}
+function taSyncAll(ids) { (ids || TA_SELECTS).forEach(taSync); }
+
+function ctxChips(list) {
+  return list.filter(Boolean).map(function (c) { return '<span class="pill ' + c[1] + '">' + c[0] + '</span>'; }).join('');
+}
+function fillCtx(modalId, html) { var el = document.querySelector('#' + modalId + ' .ctx-strip'); if (el) el.innerHTML = html; }
+function ctxNew(what) { return ctxChips([['New ' + what + ' \u2014 not saved yet', 'n']]); }
+function ctxUnit(u) {
+  var uc = trimv(u.unit_code);
+  var nb = visibleBays().filter(function (b) { return trimv(b.unit_code) === uc; }).length;
+  var nm = visibleMachines().filter(function (m) { return trimv(m.unit_code) === uc; }).length;
+  var ns = visibleStorages().filter(function (x) { return trimv(x.unit_code) === uc; }).length;
+  return ctxChips([
+    [u.active ? 'Active' : 'Inactive', u.active ? 'g' : 'n'],
+    u.responsible_primary ? ['Responsible set', 'g'] : ['Missing: Primary Responsible', 'w'],
+    ['Referenced by: ' + nb + ' bay' + (nb === 1 ? '' : 's') + ' \u00b7 ' + nm + ' machine' + (nm === 1 ? '' : 's') + ' \u00b7 ' + ns + ' storage', 'b']
+  ]);
+}
+function ctxBay(b) {
+  var nm = visibleMachines().filter(function (m) { return m.bay_id === b.bay_id; }).length;
+  return ctxChips([
+    [b.active ? 'Active' : 'Inactive', b.active ? 'g' : 'n'],
+    ['Referenced by: ' + nm + ' machine' + (nm === 1 ? '' : 's'), 'b'],
+    (trimv(b.bay_type) === 'OB02' && !b.storage_type) ? ['Missing: Storage Type', 'w'] : null
+  ]);
+}
+function ctxMachine(m) {
+  var bay = bayById(m.bay_id);
+  return ctxChips([
+    [m.active ? 'Active' : 'Inactive', m.active ? 'g' : 'n'],
+    m.responsible_primary ? ['Responsible: own', 'g'] : ['Responsible: inherited from ' + (bay ? bay.bay_name : 'bay'), 'n'],
+    ['Referenced by: none loaded', 'n']
+  ]);
+}
+function ctxBank(b) {
+  return ctxChips([
+    [b.active ? 'Active' : 'Inactive', b.active ? 'g' : 'n'],
+    ['Usage: none loaded', 'n']
+  ]);
+}
+function ctxStorage(x) {
+  return ctxChips([
+    [x.active ? 'Active' : 'Inactive', x.active ? 'g' : 'n'],
+    ['Usage: none loaded', 'n']
+  ]);
+}
+
+/* SAVES */
+function saveUnitCore(forceInactive) {
+  var u = EDIT.unit;
+  var code = trimv($id('u-code').value);
+  var name = trimv($id('u-name').value);
+  var type = $id('u-type').value;
+  var gst = trimv($id('u-gstin').value);
+  var sc = trimv($id('u-state-code').value);
+  var sn = trimv($id('u-state').value);
+  var pin = trimv($id('u-pin').value);
+  var a1 = trimv($id('u-addr1').value);
+  var a2 = trimv($id('u-addr2').value);
+  var r1 = $id('u-resp1').value || null;
+  var r2 = $id('u-resp2').value || null;
+  var tally = $id('u-tally').value;                         
+  if (!code || !name) { toast('Unit Code and Name are required'); return; }
+  if (!/^[A-Z0-9]{1,10}$/.test(code)) { toast('Unit Code must be 1-10 uppercase letters or digits.'); return; }
+  if (!type) { toast('Unit Type is required'); return; }
+  if (gst && !GSTIN_RE.test(gst)) { toast('GSTIN format is invalid.'); return; }
+  if (!/^[0-9]{6}$/.test(pin)) { toast('Pincode must be exactly 6 digits.'); return; }
+  if (!a1) { toast('Address Line 1 is required'); return; }
+  if (!sc) { toast('State could not be derived.'); return; }
+  if (!trimv(tally)) { toast('Tally Alias is required.'); return; }
+  var wantActive = forceInactive ? false : (u ? !!u.active : true);
+
+  if (wantActive && !r1 && !window.__m03AckActivate) {
+    $id('u-activate-warn').style.display = 'block';
+    var awBtn = $id('u-activate-ack-btn');
+    if (!awBtn) { var host = $id('u-activate-warn').querySelector('div[style]'); var b = document.createElement('button'); b.className='btn btn-w btn-sm'; b.id='u-activate-ack-btn'; b.style.marginLeft='8px'; b.textContent='Activate anyway (acknowledged)'; b.onclick=function(){ window.__m03AckActivate=true; saveUnit(); }; host.appendChild(b); }
+    toast('No responsible person. Acknowledge to activate.');
+    return;
+  }
+  var _bootstrapAck = (wantActive && !r1 && window.__m03AckActivate) ? ' [activated without responsible]' : '';
+  window.__m03AckActivate = false;
+  $id('u-activate-warn').style.display = 'none';
+  var common = {
+    unit_name: name, unit_type: type, gstin: gst || null, state_code: sc, state_name: sn,
+    pincode: pin, city: trimv($id('u-city').value) || null, district: trimv($id('u-dist').value) || null,
+    address_line_1: a1, address_line_2: a2 || null,
+    responsible_primary: r1, responsible_secondary: r2,
+    tally_alias: tally,
+
+    phone: trimv($id('u-phone').value) || null,
+
+    email: trimv($id('u-email').value) || null,
+    website: trimv($id('u-website').value) || null
+  };
+  if (!u) {
+    var payload = Object.assign({ unit_code: code, active: wantActive }, common);
+    return m3Save('unit',null,payload,{ack_activate:!!_bootstrapAck||!!window.__m03AckActivateSent}).then(function (r) {
+      if (r.error) { toast(RKF.errText(r.error, { fallback: 'Unit not saved.' })); return; }  
+      if (RKF.zeroRow(r)) { toast('Nothing was saved.'); return; }
+      LIVE.units.push((r.data && r.data[0]) || payload);
+      RKF.recents.push('Unit', code, name);
+      RKF.modal.close('unit-modal');
+      renderAll();
+      toast(code + ' created \u00b7 ' + (wantActive ? 'Active' : 'Inactive'), [        
+        { label: 'Open', fn: function () { openUnitModal(code); } },
+        { label: 'Add another', fn: function () { openUnitModal(); } }
+      ]);
+    });
+  }
+  var key = trimv(u.unit_code);
+  return m3Save('unit',key,common,{ack_activate:!!_bootstrapAck}).then(function (r) {
+    if (r.error) { toast(RKF.errText(r.error, { fallback: 'Unit not saved.' })); return; }  
+    if (RKF.zeroRow(r)) { toast('Nothing was saved.'); return; }
+    Object.assign(u, common, (r.data && r.data[0]) || {});
+    RKF.modal.close('unit-modal');
+    renderAll();
+    toast(key + ' updated \u00b7 ' + (wantActive ? 'Active' : 'Inactive'), [           
+      { label: 'Open', fn: function () { openUnitModal(key); } }
+    ]);
+  });
+}
+var saveUnit = RKF.guard('saveUnit', function () { return saveUnitCore(false); });
+var saveUnitInactive = RKF.guard('saveUnitInactive', function () { return saveUnitCore(true); });
+
+var saveBay = RKF.guard('saveBay', function () {
+  var b = EDIT.bay;
+  var unit = $id('b-unit').value;
+  var name = trimv($id('b-name').value);
+  var type = $id('b-type').value;
+  var stype = ($id('b-type').value === 'OB02') ? $id('b-stype').value : null;
+  var r1 = $id('b-resp1').value || null;
+  var r2 = $id('b-resp2').value || null;
+  if (!name || !unit) { toast('Unit and Bay Name are required'); return; }
+  if (!type) { toast('Bay Type is required'); return; }
+  if (type === 'OB02' && !stype) { toast('Storage Type is required for Storage bays.'); return; }
+  var _bayAck = (!r1) ? ' [no responsible - M04 pending, SA-1/E-50]' : '';
+  var common = {
+    unit_code: unit, bay_name: name, bay_type: type, storage_type: stype,
+    responsible_primary: r1, responsible_secondary: r2
+  };
+  if (!b) {
+    var payload = Object.assign({}, common);
+    return m3Save('bay',null,payload).then(function (r) {
+      if (r.error) { toast(RKF.errText(r.error, { fallback: 'Bay not saved.' })); return; }
+      if (RKF.zeroRow(r)) { toast('Nothing was saved.'); return; }
+      var nbRow = (r.data && r.data[0]) || payload;
+      LIVE.bays.push(nbRow);
+      RKF.modal.close('bay-modal');
+      renderAll();
+      toast('Bay "' + name + '" created \u00b7 ' + unit + ' \u00b7 Active', [       
+        { label: 'Open', fn: function () { openBayModal(nbRow.bay_id); } },
+        { label: 'Add another', fn: function () { openBayModal(); } }
+      ]);
+    });
+  }
+  return m3Save('bay',b.bay_id,common).then(function (r) {
+    if (r.error) { toast(RKF.errText(r.error, { fallback: 'Bay not saved.' })); return; }
+    if (RKF.zeroRow(r)) { toast('Nothing was saved.'); return; }
+    Object.assign(b, common, (r.data && r.data[0]) || {});
+    RKF.modal.close('bay-modal');
+    renderAll();
+    toast('Bay "' + name + '" updated \u00b7 ' + unit, [                             
+      { label: 'Open', fn: function () { openBayModal(b.bay_id); } }
+    ]);
+  });
+});
+
+var saveMachine = RKF.guard('saveMachine', function () {
+  var m = EDIT.machine;
+  var id = trimv($id('m-id').value);
+  var name = trimv($id('m-name').value);
+  var form = $id('m-form').value;
+  var unit = $id('m-unit').value;
+  var bay = $id('m-bay').value;
+  var r1 = $id('m-resp1').value || null;                    
+  var r2 = $id('m-resp2').value || null;
+  var isActive = $id('m-status').value === 'Active';        
+  if (!id || !name || !form || !bay) { toast('Machine ID, Name, Form Type and Bay are required'); return; }
+  if (!/^[A-Z0-9\-]{1,20}$/.test(id)) { toast('Machine ID must be 1-20 uppercase letters, digits or hyphens.'); return; }
+  if (!unit) { toast('Unit is required'); return; }
+
+  var tally = id;
+  var common = {
+    unit_code: unit, bay_id: bay, machine_name: name, form_type: form,
+    responsible_primary: r1, responsible_secondary: r2,
+    tally_alias: tally
+  };
+  if (!m) {
+    var payload = Object.assign({ machine_id: id, active: isActive }, common);
+    return m3Save('machine',null,payload).then(function (r) {
+      if (r.error) { toast(RKF.errText(r.error, { fallback: 'Machine not saved.' })); return; }
+      if (RKF.zeroRow(r)) { toast('Nothing was saved.'); return; }
+      LIVE.machines.push((r.data && r.data[0]) || payload);
+      RKF.modal.close('machine-modal');
+      renderAll();
+      toast(id + ' created \u00b7 ' + (isActive ? 'Active' : 'Inactive'), [            
+        { label: 'Open', fn: function () { openMachineModal(id); } },
+        { label: 'Add another', fn: function () { openMachineModal(); } }
+      ]);
+    });
+  }
+  return m3Save('machine',trimv(m.machine_id),common).then(function (r) {
+    if (r.error) { toast(RKF.errText(r.error, { fallback: 'Machine not saved.' })); return; }
+    if (RKF.zeroRow(r)) { toast('Nothing was saved.'); return; }
+    Object.assign(m, common, (r.data && r.data[0]) || {});
+    RKF.modal.close('machine-modal');
+    renderAll();
+    toast(trimv(m.machine_id) + ' updated \u00b7 ' + (isActive ? 'Active' : 'Inactive'), [  
+      { label: 'Open', fn: function () { openMachineModal(trimv(m.machine_id)); } }
+    ]);
+  });
+});
+
+var saveBank = RKF.guard('saveBank', function () {
+  var b = EDIT.bank;
+  var ifsc = trimv($id('bk-ifsc').value);
+  var acno = trimv($id('bk-acno').value);
+  var type = $id('bk-type').value;
+  var tally = $id('bk-tally').value;                        
+
+  if (!ifsc || !acno || !trimv(tally)) { toast('IFSC, Account Number, and Tally Alias are required'); return; }
+  if (!/^[0-9]{9,18}$/.test(acno)) { toast('Account number must be 9-18 digits, numeric only'); return; }
+  if (!type) { toast('Account Type is required'); return; }
+  var common = {
+    ifsc: ifsc, bank_name: $id('bk-bank').value || null, branch_name: $id('bk-branch').value || null,
+    account_number: acno, account_type: type, tally_alias: tally
+  };
+  if (!b) {
+    var payload = Object.assign({}, common);
+    return m3Save('bank',null,payload).then(function (r) {
+      if (r.error) { toast(RKF.errText(r.error, { fallback: 'Bank account not saved.' })); return; }
+      if (RKF.zeroRow(r)) { toast('Nothing was saved.'); return; }
+      var nkRow = (r.data && r.data[0]) || payload;
+      LIVE.banks.push(nkRow);
+      var scopes = scopeChecked();                                        
+      return m3ScopeSet(nkRow.bank_account_id, scopes).then(function (sr) {
+        RKF.modal.close('bank-modal');
+        renderAll();
+        if (sr.error) { toast('A/c ' + acno + ' created; scope not saved.'); return; }
+        toast('A/c ' + acno + ' created \u00b7 ' + ifsc + ' \u00b7 Active', [           
+          { label: 'Open', fn: function () { openBankModal(nkRow.bank_account_id); } },
+          { label: 'Add another', fn: function () { openBankModal(); } }
+        ]);
+      });
+    });
+  }
+  return m3Save('bank',b.bank_account_id,common).then(function (r) {
+    if (r.error) { toast(RKF.errText(r.error, { fallback: 'Bank account not saved.' })); return; }
+    if (RKF.zeroRow(r)) { toast('Nothing was saved.'); return; }
+    Object.assign(b, common, (r.data && r.data[0]) || {});
+    var scopes = scopeChecked();                                          
+    return m3ScopeSet(b.bank_account_id, scopes).then(function (sr) {
+      RKF.modal.close('bank-modal');
+      renderAll();
+      if (sr.error) { toast('A/c ' + acno + ' updated; scope not saved.'); return; }
+      toast('A/c ' + acno + ' updated \u00b7 ' + ifsc, [                                 
+        { label: 'Open', fn: function () { openBankModal(b.bank_account_id); } }
+      ]);
+    });
+  });
+});
+
+var saveStorage = RKF.guard('saveStorage', function () {
+  var s = EDIT.storage;
+  var unit = $id('sl-unit').value;
+  var name = trimv($id('sl-name').value);
+  var type = $id('sl-type').value;
+  var r1 = $id('sl-resp1').value || null;
+  var r2 = $id('sl-resp2').value || null;
+  if (!unit || !name) { toast('Unit and Storage Name are required'); return; }
+  if (!type) { toast('Storage Type is required'); return; }
+  var _slAck = (!r1) ? ' [no responsible - M04 pending, SA-1/E-50]' : '';
+  var common = {
+    unit_code: unit, storage_name: name, storage_type: type,
+    responsible_primary: r1, responsible_secondary: r2
+  };
+  if (!s) {
+    var payload = Object.assign({}, common);
+    return m3Save('storage',null,payload).then(function (r) {
+      if (r.error) { toast(RKF.errText(r.error, { fallback: 'Storage location not saved.' })); return; }
+      if (RKF.zeroRow(r)) { toast('Nothing was saved.'); return; }
+      var nsRow = (r.data && r.data[0]) || payload;
+      LIVE.storages.push(nsRow);
+      RKF.modal.close('storage-modal');
+      renderAll();
+      toast('"' + name + '" created \u00b7 ' + refLabel(type) + ' \u00b7 ' + unit, [ 
+        { label: 'Open', fn: function () { openStorageModal(nsRow.storage_id); } },
+        { label: 'Add another', fn: function () { openStorageModal(); } }
+      ]);
+    });
+  }
+  return m3Save('storage',s.storage_id,common).then(function (r) {
+    if (r.error) { toast(RKF.errText(r.error, { fallback: 'Storage location not saved.' })); return; }
+    if (RKF.zeroRow(r)) { toast('Nothing was saved.'); return; }
+    Object.assign(s, common, (r.data && r.data[0]) || {});
+    RKF.modal.close('storage-modal');
+    renderAll();
+    toast('"' + name + '" updated \u00b7 ' + refLabel(type), [                       
+      { label: 'Open', fn: function () { openStorageModal(s.storage_id); } }
+    ]);
+  });
+});
+
+/* DEACTIVATION / REACTIVATION */
+function openDeact(kind) {
+  var map = { unit: EDIT.unit, bay: EDIT.bay, machine: EDIT.machine, bank: EDIT.bank, storage: EDIT.storage };
+  var row = map[kind];
+  if (!row) return;
+  DEACT = { kind: kind, row: row, usage: null };
+  var name = kind === 'unit' ? (trimv(row.unit_code) + ' - ' + row.unit_name)
+    : kind === 'bay' ? row.bay_name
+    : kind === 'machine' ? (trimv(row.machine_id) + ' - ' + row.machine_name)
+    : kind === 'bank' ? (trimv(row.ifsc) + ' / ' + trimv(row.account_number))
+    : row.storage_name;
+  var toInactive = !!row.active;
+  $id('deact-title').textContent = (toInactive ? 'Deactivate ' : 'Reactivate ') + kind;
+  $id('deact-entity').textContent = name;
+  $id('deact-reason').value = '';
+  $id('deact-usage').textContent = '';
+  $id('deact-confirm-btn').textContent = toInactive ? 'Confirm Deactivation' : 'Confirm Reactivation';
+  if (kind === 'unit' && toInactive) unitUsageCheck(trimv(row.unit_code));
+  RKF.modal.open('deact-modal');
+}
+
+function unitUsageCheck(code) {
+  var el = $id('deact-usage');
+  el.textContent = 'Checking linked documents';
+  function q(t) {
+    return supa.from(t).select('unit_code', { count: 'exact', head: true }).eq('unit_code', code)
+      .then(function (r) { return r; }, function (e) { return { error: e }; });
+  }
+  Promise.all([q('sales_orders'), q('work_orders')]).then(function (rs) {
+    var so = rs[0], wo = rs[1];
+    if (so.error || wo.error) {
+      DEACT.usage = null;
+      el.textContent = 'Usage check unavailable.';
+      return;
+    }
+    var n = (so.count || 0) + (wo.count || 0);
+    DEACT.usage = n;
+    el.textContent = n > 0
+      ? ('Referenced by ' + (so.count || 0) + ' sales order(s) and ' + (wo.count || 0) + ' work order(s).')
+      : 'No linked sales orders or work orders.';
+  });
+}
+
+function statusFlip(k, row, toActive, reason, label, offerUndo) {
+  var t = { unit: 'org_units', bay: 'bays', machine: 'machines', bank: 'bank_accounts', storage: 'storage_locations' }[k];
+  var keyCol = { unit: 'unit_code', bay: 'bay_id', machine: 'machine_id', bank: 'bank_account_id', storage: 'storage_id' }[k];
+  var keyVal = (k === 'unit') ? trimv(row.unit_code) : (k === 'machine') ? trimv(row.machine_id) : row[keyCol];
+
+  var _ENT = { unit: 'unit', bay: 'bay', machine: 'machine', bank: 'bank', storage: 'storage' }[k];
+  return m3Flip(_ENT, keyVal, toActive, reason).then(function (r) {
+    if (r.error) { toast(RKF.errText(r.error, { fallback: 'Status not changed.' })); return false; }
+    if (RKF.zeroRow(r)) { toast('Nothing was saved.'); return false; }
+    row.active = toActive;
+    renderAll();
+    toast((toActive ? 'Reactivated' : 'Deactivated') + ' \u00b7 ' + label, offerUndo ? [
+      { label: 'Undo', fn: function () { undoStatus(k, row, label); } }                 
+    ] : null);
+    return true;
+  });
+}
+var undoStatus = RKF.guard('undoStatus', function (k, row, label) {
+  var back = !row.active;
+  var undoReason = 'Undo' + ((back && k === 'unit' && !row.responsible_primary) ? ' [no responsible]' : '');
+  return statusFlip(k, row, back, undoReason, label, false);
+});
+var doDeact = RKF.guard('doDeact', function () {
+  var k = DEACT.kind, row = DEACT.row;
+  if (!row) return;
+  var reason = trimv($id('deact-reason').value);
+  if (!reason) { toast('Reason is mandatory'); return; }
+  var toActive = !row.active;
+  if (!toActive && k === 'unit' && DEACT.usage > 0) { toast('Cannot deactivate: the unit has ' + DEACT.usage + ' linked sales or work order(s).'); return; }
+  if (toActive && k === 'unit' && !row.responsible_primary && !DEACT.ack) {
+    DEACT.ack = true;
+    var ub = $id('deact-usage');
+    ub.innerHTML = '<div class="rkf-banner note warn" style="margin-top:8px">No Primary Responsible. Acknowledge to reactivate.</div>';
+    var cb = $id('deact-confirm-btn'); cb.textContent = 'Reactivate (acknowledged)'; cb.style.background = 'var(--warn, #b07a12)';
+    toast('Press "Reactivate (acknowledged)" to proceed.');
+    return;
+  }
+  if (toActive && k === 'unit' && !row.responsible_primary && DEACT.ack) { reason = reason + ' [reactivated without responsible - bootstrap acknowledgment, SA-1/E-50]'; DEACT.ack = false; }
+  var label = $id('deact-entity').textContent;
+  return asPromise(statusFlip(k, row, toActive, reason, label, true)).then(function (ok) {
+    if (ok) RKF.modal.close();
+  });
+});
+
+saveUnit = hintSafe(saveUnit);
+saveBay = hintSafe(saveBay);
+saveMachine = hintSafe(saveMachine);
+saveBank = hintSafe(saveBank);
+saveStorage = hintSafe(saveStorage);
+
+/* INLINE VALIDATION ON BLUR */
+function attachBlurValidators() {
+  var V = {
+    'u-code': function (v) { return (!v || /^[A-Z0-9]{1,10}$/.test(v)) ? null : '1-10 uppercase letters or digits.'; },
+    'u-gstin': function (v) { return (!v || GSTIN_RE.test(v)) ? null : 'GSTIN must be 15 characters in the standard format.'; },
+    'u-pin': function (v) { return (!v || /^[0-9]{6}$/.test(v)) ? null : 'Pincode must be exactly 6 digits.'; },
+    'm-id': function (v) { return (!v || /^[A-Z0-9\-]{1,20}$/.test(v)) ? null : '1-20 uppercase letters, digits or hyphens.'; },
+
+    'bk-acno': function (v) { return (!v || /^[0-9]{9,18}$/.test(v)) ? null : 'Account number must be 9-18 digits, numeric only'; }
+  };
+  document.addEventListener('blur', function (e) {
+    var t = e.target, id = t && t.id;
+    if (!id || !V[id]) return;
+    var msg = V[id](trimv(t.value));
+    if (msg) { RKF.inputLaw.hint(t, msg); return; }
+
+    if (id === 'u-code' || id === 'm-id' || id === 'bk-acno') RKF.inputLaw.hint(t, null);
+  }, true);
+}
+
+/* BOOT */
+function ld(table, cols, filters) {
+  var r;
+  try { r = RKF.load(table, cols, filters); }
+  catch (e) { LOADERR[table] = (e && e.message) ? e.message : String(e); return Promise.resolve({ table: table, rows: null }); }
+  return asPromise(r).then(
+    function (rows) { return { table: table, rows: rows }; },
+    function (e) { LOADERR[table] = (e && e.message) ? e.message : String(e); return { table: table, rows: null }; }
+  );
+}
+
+var LOADSPEC = {
+  org_units:         { cols: '*', filters: { order: 'unit_code' },    assign: function (rows) { LIVE.units = rows; } },
+  bays:              { cols: '*', filters: { order: 'bay_name' },     assign: function (rows) { LIVE.bays = rows; } },
+  machines:          { cols: '*', filters: { order: 'machine_id' },   assign: function (rows) { LIVE.machines = rows; } },
+  bank_accounts:     { cols: '*', filters: undefined,                 assign: function (rows) { LIVE.banks = rows; } },
+
+  bank_account_scopes: { cols: 'bank_account_id,scope_code,active', filters: undefined, assign: function (rows) { LIVE.bankScopes = rows; } },
+  storage_locations: { cols: '*', filters: { order: 'storage_name' }, assign: function (rows) { LIVE.storages = rows; } },
+  employees:         { cols: 'id,full_name,active,auth_user_id,email,employee_code', filters: { order: 'full_name' }, assign: function (rows) { LIVE.employees = rows; } },
+  reference_values:  { cols: 'code,list_id,label,sort_order,active', filters: undefined, assign: function (rows) { LIVE.refs = rows; } },
+  state_master:      { cols: 'state_code,state_name', filters: undefined, assign: function (rows) { LIVE.states = rows; } }
+};
+function retryLoad() {
+  var tables = Array.prototype.slice.call(arguments);
+  RKF.loading(true, 'Retrying ' + bizList(tables) + '\u2026');
+  Promise.all(tables.map(function (t) { delete LOADERR[t]; return ld(t, LOADSPEC[t].cols, LOADSPEC[t].filters); }))
+    .then(function (res) {
+      res.forEach(function (r) { if (r && r.rows !== null) LOADSPEC[r.table].assign(r.rows); });
+      RKF.loading(false);
+      renderAll();
+      var still = tables.filter(function (t) { return LOADERR[t]; });
+      toast(still.length ? ('Still could not load ' + bizList(still) + '.') : ('Reloaded ' + bizList(tables) + '.'));
+    });
+}
+function loadAll(quiet) {
+  LOADERR = {};
+  if (!quiet) RKF.loading(true, 'Loading live data\u2026');
+  return Promise.all(Object.keys(LOADSPEC).map(function (t) { return ld(t, LOADSPEC[t].cols, LOADSPEC[t].filters); }))
+    .then(function (res) {
+      res.forEach(function (r) { if (r && r.rows !== null) LOADSPEC[r.table].assign(r.rows); });
+
+      if (CURRENT.authId) {
+        var me = LIVE.employees.filter(function (e) { return e.auth_user_id === CURRENT.authId; })[0];
+        if (me) CURRENT.emp = me;
+      }
+      if (!CURRENT.emp && CURRENT.email) {
+        var meByMail = LIVE.employees.filter(function (e) {
+          return e.email && String(e.email).toLowerCase() === String(CURRENT.email).toLowerCase();
+        })[0];
+        if (meByMail) CURRENT.emp = meByMail;
+      }
+      renderAll();
+      if (!quiet) RKF.loading(false);
+    }).catch(function (e) {
+      if (!quiet) RKF.loading(false);
+      var msg = (e && e.message) ? e.message : String(e);
+      ['org_units', 'bays', 'machines', 'bank_accounts', 'storage_locations'].forEach(function (t) { if (!LOADERR[t]) LOADERR[t] = msg; });
+      renderAll();
+      toast(RKF.errText(e, { fallback: 'Could not load.' }), [{ label: 'Retry', fn: function () { loadAll(); } }]);   
+    });
+}
+function boot() {
+  RKF.theme.apply();
+  clearActivityRecord();                               
+
+  RKF.modal.armBackdropGuard();                        
+  RKF.modal.a11y();
+  RKF.inputLaw.attach(document, {
+    dupWarnRules: [                                                            
+      { id: 'u-code',
+        existing: function (v) { v = trimv(v).toUpperCase(); if (!v) return null; return visibleUnits().filter(function (u) { return trimv(u.unit_code) === v && u !== EDIT.unit; })[0] || null; },
+        msg: function (o) { return 'Unit code ' + trimv(o.unit_code) + ' already exists \u2014 ' + o.unit_name + ''; } },
+      { id: 'm-id',
+        existing: function (v) { v = trimv(v).toUpperCase(); if (!v) return null; return visibleMachines().filter(function (m) { return trimv(m.machine_id) === v && m !== EDIT.machine; })[0] || null; },
+        msg: function (o) { return 'Machine ID ' + trimv(o.machine_id) + ' already exists \u2014 ' + o.machine_name + ''; } },
+      { id: 'bk-acno',
+        existing: function (v) { v = trimv(v); if (!v) return null; return visibleBanks().filter(function (b) { return trimv(b.account_number) === v && b !== EDIT.bank; })[0] || null; },
+        msg: function (o) { return 'Account number already exists \u2014 ' + (o.bank_name || trimv(o.ifsc)) + ''; } }
+    ]
+  });
+  attachBlurValidators();
+  RKF.keys.register({
+    ctrlS: { 'unit-modal': function(){saveUnit();}, 'bay-modal': function(){saveBay();}, 'machine-modal': function(){saveMachine();}, 'bank-modal': function(){saveBank();}, 'storage-modal': function(){saveStorage();}, 'deact-modal': function(){doDeact();} },
+    enterSave: true,
+    escCloses: false            
+  });
+  TA_SELECTS.forEach(taInit);   
+  initTableSort();              
+  ensureHints();                
+
+  try {
+    var hm = /(?:^|[#&])tab=([a-z]+)/.exec(location.hash || '');
+    if (hm && tabMap[hm[1]]) { var tEl = document.querySelector('.mod-tab[data-key="' + hm[1] + '"]'); if (tEl) switchTab(tEl, hm[1]); }
+  } catch (e) {}
+  try { supa = RKF.client(SUPA_URL, SUPA_KEY); }
+  catch (e) {
+    var msg = 'Cannot reach the server.';
+    ['org_units', 'bays', 'machines', 'bank_accounts', 'storage_locations'].forEach(function (t) { LOADERR[t] = msg; });
+    renderAll();
+    RKF.toast(msg);
+    return;
+  }
+
+  RKF.accessGate('M03', { client: supa }).then(function (lvl) {
+    ALOG_ACCESS = lvl;
+    syncActivityAccessPoint();
+    applyServedPermissions();            
+
+    var ma = $id('mod-access');
+    if (ma) { ma.textContent = (lvl === 'Full' || lvl === 'Read') ? lvl.toUpperCase() : ''; }
+    if (lvl !== 'Read' && lvl !== 'Full') return;   /* blocked page loads nothing */
+    RKF.loading(true, 'Loading live data…');
+    asPromise(supa.auth.getSession()).then(function (r) {
+      var s = r && r.data && r.data.session;
+      if (s && s.user) { CURRENT.email = s.user.email || 'uat-operator'; CURRENT.authId = s.user.id || null; }
+    }, function () {}).then(function () {
+      return loadAll();      
+    });
+  });
+}
+
+(function () {
+  var SUPPLIERS = {
+    openUnitModal:    ['employees', 'reference_values', 'state_master'],
+    openBayModal:     ['org_units', 'employees', 'reference_values'],
+    openMachineModal: ['org_units', 'bays', 'employees', 'reference_values'],
+    openBankModal:    ['reference_values', 'bank_account_scopes'],
+    openStorageModal: ['org_units', 'employees', 'reference_values']
+  };
+  Object.keys(SUPPLIERS).forEach(function (fn) {
+    var orig = window[fn];
+    if (typeof orig !== 'function') return;
+    window[fn] = function () {
+      var args = arguments;
+      return Promise.all(SUPPLIERS[fn].map(function (t) { return ld(t, LOADSPEC[t].cols, LOADSPEC[t].filters); }))
+        .then(function (res) { res.forEach(function (r) { if (r && r.rows !== null) LOADSPEC[r.table].assign(r.rows); }); })
+        .then(function () { return orig.apply(null, args); });
+    };
+  });
+})();
+
+boot();
+
+(function(){
+
+  var _loader=function () { return loadAll(true); };
+  var _opts={hold: function () {
+
+  if (ALOG_ACCESS === null) return true;
+  return topOverlay() !== null;
+}};
+  if(window.RKF&&RKF.live)RKF.live(supa,['org_units','bays','machines','storage_locations','employees','reference_values'],_loader,_opts);
+  else if(window.RKF&&RKF.liveMasters)RKF.liveMasters(_loader,_opts);
+})();
+</script>
+</body>
+</html>

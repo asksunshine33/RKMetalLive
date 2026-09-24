@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en" data-rkf-palette="shell">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>RK Metal ERP</title>
+<link rel="stylesheet" href="rk-foundation.css?v=RKF-1.13.0"/>
+<script src="rk-foundation.js?v=RKF-1.13.0"></script>
+<style>
+
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);display:flex;flex-direction:column;overflow:hidden}
+
+.logo{background:var(--accent);color:var(--surface);font-weight:800;font-size:12px;border-radius:6px;padding:4px 7px}
+.tb-title{font-weight:700;font-size:var(--fs-emphasis)}
+.tb-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+.tb-chip{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);border-radius:14px;font-size:var(--fs-body);padding:3px 11px}
+.tb-avatar{background:#3d5a77;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700}
+
+.gsearch{position:relative;width:260px;margin-left:8px}
+.gsearch input{width:100%;padding:6px 10px 6px 28px;border-radius:14px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.12);color:var(--surface);font-size:var(--fs-body);outline:none;font-family:inherit}
+.gsearch input::placeholder{color:rgba(255,255,255,.55)}
+.gsearch input:focus{background:var(--surface);color:var(--ink);border-color:var(--surface)}
+.gs-ico{position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:12px;opacity:.75;pointer-events:none}
+.gs-drop{position:absolute;top:calc(100% + 6px);left:0;width:340px;background:var(--surface);border:1px solid var(--line);border-radius:10px;box-shadow:0 10px 30px rgba(22,50,76,.28);z-index:var(--z-dropdown);display:none;overflow:hidden}
+.gs-drop.open{display:block}
+.gs-row{display:flex;align-items:center;gap:8px;padding:8px 12px;font-size:var(--fs-body);color:var(--ink);cursor:pointer}
+.gs-row.sel,.gs-row:hover{background:var(--accentbg)}
+.gs-chip{font-size:var(--fs-caption);font-weight:700;border-radius:4px;padding:2px 6px;background:var(--bg);color:var(--ink2);border:1px solid var(--line);flex-shrink:0;text-transform:uppercase;letter-spacing:.4px}
+.gs-code{margin-left:auto;color:var(--muted);font-size:var(--fs-caption)}
+.gs-empty{padding:12px;font-size:var(--fs-body);color:var(--muted)}
+.gs-foot{padding:5px 12px;font-size:var(--fs-caption);color:var(--muted);border-top:1px solid var(--line);background:var(--bg)}
+
+.rc-wrap{position:relative}
+.rc-drop{position:absolute;top:calc(100% + 8px);right:0;width:330px;background:var(--surface);border:1px solid var(--line);border-radius:10px;box-shadow:0 10px 30px rgba(22,50,76,.28);z-index:var(--z-dropdown);display:none;overflow:hidden}
+.rc-drop.open{display:block}
+.rc-row{display:flex;align-items:center;gap:8px;padding:8px 12px;font-size:var(--fs-body);color:var(--ink);cursor:pointer}
+.rc-row:hover{background:var(--accentbg)}
+.rc-chip{font-size:var(--fs-caption);font-weight:700;border-radius:4px;padding:2px 6px;background:var(--bg);color:var(--ink2);border:1px solid var(--line);flex-shrink:0;text-transform:uppercase;letter-spacing:.4px}
+.rc-lbl{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rc-code{margin-left:auto;color:var(--muted);font-size:var(--fs-caption);flex-shrink:0}
+.rc-when{color:var(--muted);font-size:var(--fs-caption);flex-shrink:0;min-width:52px;text-align:right}
+.rc-empty{padding:12px;font-size:var(--fs-body);color:var(--muted)}
+.ri{width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--muted);position:relative;cursor:pointer;transition:all .12s;border:none;background:none}
+.ri:hover{background:var(--bg);color:var(--navy)}
+.ri.act{background:var(--accentbg);color:var(--accent)}
+.ri .tt{position:absolute;left:46px;top:50%;transform:translateY(-50%);background:var(--ink);color:var(--surface);font-size:11px;font-weight:600;padding:4px 9px;border-radius:6px;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .12s;z-index:var(--z-dropdown)}
+.ri:hover .tt{opacity:1}
+
+.tb-chip:focus-visible{outline:2px solid var(--surface);outline-offset:1px}
+.rsep{width:26px;height:1px;background:var(--line);margin:4px 0}
+
+.rkf-rail.drawer{width:180px;align-items:stretch;padding:0;overflow-y:auto;overflow-x:hidden;transition:width .15s}
+.rkf-rail.drawer.collapsed{width:46px}
+.dw-hd{display:flex;align-items:center;justify-content:space-between;padding:6px 8px;border-bottom:1px solid var(--line);flex-shrink:0}
+.dw-hd .lbl{font-size:var(--fs-caption);font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--muted)}
+.collapsed .dw-hd{justify-content:center}
+.collapsed .dw-hd .lbl{display:none}
+.dw-tg{border:1px solid var(--line);background:var(--surface);border-radius:6px;width:24px;height:22px;cursor:pointer;color:var(--navy);font-weight:700;font-family:inherit}
+.dw-grp{padding:4px 0}
+.dw-gh{display:flex;align-items:center;gap:5px;padding:6px 10px 3px;font-size:var(--fs-caption);font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--muted);cursor:pointer;user-select:none;border:none;background:none;width:100%;text-align:left;font-family:inherit}
+.dw-gh .car{font-size:9px;display:inline-block;transition:transform .12s}
+.dw-grp.closed .dw-gh .car{transform:rotate(-90deg)}
+.dw-grp.closed .dw-items{display:none}
+.collapsed .dw-gh{justify-content:center;padding:6px 0 2px}
+.collapsed .dw-gh .t{display:none}
+.dw-it{display:flex;align-items:center;gap:8px;padding:6px 10px;margin:0 5px;border-radius:7px;cursor:pointer;color:var(--ink);border:none;background:none;width:calc(100% - 10px);text-align:left;font-family:inherit;font-size:var(--fs-body)}
+.dw-it:hover{background:var(--bg);color:var(--navy)}
+.dw-it.act{background:var(--accentbg);color:var(--accent);font-weight:700}
+.dw-it:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.dw-it .ic{width:18px;text-align:center;font-size:14px;flex-shrink:0}
+.dw-it .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dw-it .sub{margin-left:auto;font-size:var(--fs-tag);color:var(--teal);font-weight:700;white-space:nowrap}
+.collapsed .dw-it{justify-content:center;padding:7px 0;margin:0 3px;width:calc(100% - 6px)}
+.collapsed .dw-it .nm,.collapsed .dw-it .sub{display:none}
+.dw-tab{display:block;margin:0 0 2px 34px;padding:3px 8px;font-size:var(--fs-caption);color:var(--ink2);border:none;border-left:2px solid var(--line);background:none;cursor:pointer;text-align:left;font-family:inherit;width:calc(100% - 40px)}
+.dw-tab.act{color:var(--accent);border-left-color:var(--accent);font-weight:700}
+.collapsed .dw-tab{display:none}
+.dw-ft{margin-top:auto;border-top:1px solid var(--line);padding:8px 10px;font-size:var(--fs-caption);color:var(--muted);flex-shrink:0}
+.collapsed .dw-ft{display:none}
+.dw-note{padding:10px;font-size:var(--fs-caption);color:var(--muted);line-height:1.5}
+.rkf-work{position:relative;background:var(--bg)}
+.rkf-work iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+
+#pm-host{position:absolute;inset:0;display:flex;flex-direction:column}
+#pm-host .rkf-subtabs{margin:0;padding:0 14px;background:var(--surface);flex-shrink:0}
+#pm-host .rkf-subtab{background:none;border:none;border-bottom:2px solid transparent;font-family:inherit}
+#pm-host .rkf-subtab:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+#pm-views{position:relative;flex:1 1 auto;min-height:0}
+#pm-host .rkf-view{position:absolute;inset:0}
+#mod-frame[hidden],#pm-host[hidden]{display:none}
+.railbadge{margin-left:6px;background:var(--accent);color:var(--surface);border-radius:9px;padding:0 6px;font-size:var(--fs-caption);font-weight:800;vertical-align:middle}
+</style>
+</head>
+<body>
+
+<div id="shell-login" style="position:fixed;inset:0;background:var(--navy);display:flex;align-items:center;justify-content:center;z-index:9999">
+  <div style="background:#fff;border-radius:12px;padding:28px 30px;width:340px;font-size:var(--fs-body)">
+    <div style="font-weight:800;font-size:17px;color:#16324c">RK Metal ERP</div>
+    <div style="margin-bottom:8px"><label style="font-size:var(--fs-caption);color:#4a5868;display:block;margin-bottom:3px">Email</label><input id="sh-email" type="email" style="width:100%;padding:7px 9px;border:1px solid #e4e9ef;border-radius:7px"/></div>
+    <div style="margin-bottom:8px"><label style="font-size:var(--fs-caption);color:#4a5868;display:block;margin-bottom:3px">Password</label><input id="sh-pass" type="password" style="width:100%;padding:7px 9px;border:1px solid #e4e9ef;border-radius:7px"/></div>
+    <div id="sh-err" style="color:#b8341f;font-size:var(--fs-body);min-height:16px"></div>
+    <button onclick="shLogin()" style="width:100%;background:#16324c;color:#fff;border:none;border-radius:7px;padding:9px;font-weight:700;cursor:pointer">Sign in</button>
+  </div>
+</div>
+<div class="rkf-topbar rkf-tb-half" id="shell-top" style="visibility:hidden">
+  <span class="logo">RK</span><span class="tb-title">RK Metal ERP</span>
+  <div class="gsearch" id="gsearch">
+    <span class="gs-ico" aria-hidden="true">&#128269;</span>
+    <input id="gs-input" type="text" placeholder="Search (Ctrl+K)" autocomplete="off" aria-label="Global search"/>
+    <div class="gs-drop" id="gs-drop" role="listbox" aria-label="Search results"></div>
+  </div>
+  <div class="tb-right">
+
+    <span id="tb-profile"></span>
+    <div class="rc-wrap" id="rc-wrap">
+      <button class="tb-chip" id="tb-recent" style="cursor:pointer" title="Recent (Alt+R)" aria-haspopup="listbox">&#128337; Recent</button>
+      <div class="rc-drop" id="rc-drop" role="listbox" aria-label="Recently opened objects"></div>
+    </div>
+    <button class="tb-chip" id="tb-theme" onclick="shTheme()" style="cursor:pointer" title="Switch light or dark" aria-label="Switch light or dark theme">&#127769;</button>
+    <button class="tb-chip" id="tb-logoff" onclick="shLogoff()" style="cursor:pointer;background:rgba(192,57,43,.25);border-color:rgba(255,255,255,.4)" title="Sign out of the ERP">Log off</button>
+  </div>
+</div>
+<div class="rkf-shellbody" id="shell-body" style="visibility:hidden">
+<nav class="rkf-rail" id="shell-rail"></nav>
+<div class="rkf-work"><iframe id="mod-frame" title="module"></iframe>
+
+ <div id="pm-host" hidden>
+  <div class="rkf-subtabs" id="pm-tabs" role="tablist" aria-label="Product Masters"></div>
+  <div id="pm-views"></div>
+ </div></div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+
+var SB_URL='https://ntymdsbezetobrnjqqvl.supabase.co', SB_KEY='sb_publishable_nev1rE7tHlu-bOWOm1JpXw_jd40773y';
+var SB_CDN='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+var shSupa=null;
+function shClient(){
+  if(shSupa)return shSupa;
+  if(!window.supabase||!window.supabase.createClient)return null;
+
+  shSupa=(window.RKF&&RKF.client)?RKF.client(SB_URL,SB_KEY):window.supabase.createClient(SB_URL,SB_KEY);
+  return shSupa;
+}
+function shLoadSb(){ return new Promise(function(res){
+  var s=document.createElement('script'); s.src=SB_CDN;
+  s.onload=function(){res(true);}; s.onerror=function(){res(false);};
+  document.head.appendChild(s);
+}); }
+
+function shShow(u){document.getElementById('shell-login').style.display='none';
+ document.getElementById('shell-top').style.visibility='visible';document.getElementById('shell-body').style.visibility='visible';
+ shSetUnitBadge(u);
+ window.__shShown=true;                                       
+ shIdleMinutes();                                             
+ if(window.shRailBuild)shRailBuild(); 
+ var f=document.getElementById('mod-frame');if(f&&f.src)f.src=f.src; 
+
+ [].slice.call(document.querySelectorAll('#pm-host iframe')).forEach(function(x){if(x.getAttribute('src'))x.src=x.src;});}
+
+async function shSetUnitBadge(u){var el=document.getElementById('tb-profile');if(!el||!shSupa)return;
+ function mountProfile(id){el.innerHTML='';RKF.profile(el,id,{client:shSupa});}
+ try{
+   var emp=null;
+   if(u&&u.id){var a=await shSupa.from('employees').select('employee_code,full_name,posting_unit').eq('auth_user_id',u.id).eq('is_deleted',false).limit(1);if(!a.error&&a.data&&a.data.length)emp=a.data[0];}
+   if(!emp&&u&&u.email){var b=await shSupa.from('employees').select('employee_code,full_name,posting_unit').eq('email',u.email).eq('is_deleted',false).limit(1);if(!b.error&&b.data&&b.data.length)emp=b.data[0];}
+   if(!emp){mountProfile({email:(u&&u.email)||'',full_name:'Identity not resolved',role_label:'Not resolved',unit_label:'Not resolved'});
+     el.title='Your login is not mapped to an employee.';return;}
+   var roleLbl='';
+   var rm=await shSupa.from('employee_role_map').select('role_code').eq('employee_code',emp.employee_code).eq('active',true);
+   if(!rm.error&&rm.data&&rm.data.length){
+     var codes=rm.data.map(function(x){return x.role_code;});
+     var rn=await shSupa.from('roles').select('role_code,role_name').in('role_code',codes);
+     roleLbl=(!rn.error&&rn.data&&rn.data.length)?rn.data.map(function(x){return x.role_name;}).join(' / '):codes.join(' / ');
+   } else { roleLbl='No active role'; }
+   var unitLbl=emp.posting_unit||'(no posting unit)';
+   if(emp.posting_unit){var ou=await shSupa.from('org_units').select('unit_code,unit_name').eq('unit_code',emp.posting_unit).limit(1);
+     if(!ou.error&&ou.data&&ou.data.length)unitLbl=ou.data[0].unit_code+' '+ou.data[0].unit_name;}
+   mountProfile({employee_code:emp.employee_code,full_name:emp.full_name,
+                 role_label:roleLbl,unit_label:unitLbl,email:(u&&u.email)||''});
+   el.title=emp.full_name+' ('+emp.employee_code+') — from the employee master and active roles.';
+ }catch(e){mountProfile({email:(u&&u.email)||'',full_name:'Identity lookup failed',role_label:'Not resolved',unit_label:'Not resolved'});el.title='Identity lookup failed.';}}
+
+async function shIdleMinutes(){
+ try{
+  if(!shSupa||!(window.RKF&&RKF.idleGuard&&RKF.idleGuard.setMinutes))return;
+  var l=await shSupa.from('reference_lists').select('list_id').eq('name','Session').eq('active',true).limit(1);
+  if(l.error||!l.data||!l.data.length)return;
+  var v=await shSupa.from('reference_values').select('code,label,metadata,active').eq('list_id',l.data[0].list_id).eq('active',true).order('sort_order').limit(1);
+  if(v.error||!v.data||!v.data.length)return;
+  var m=(v.data[0].metadata||{}).minutes;
+  RKF.idleGuard.setMinutes(m);
+ }catch(e){}
+}
+async function shLogin(){if(!shSupa)return;var r=await shSupa.auth.signInWithPassword({email:document.getElementById('sh-email').value.trim(),password:document.getElementById('sh-pass').value});
+ if(r.error){document.getElementById('sh-err').textContent='Sign-in failed. Check the email and password.';return;}shShow(r.data.user);}
+async function shLogoff(){if(shSupa)await shSupa.auth.signOut();location.reload();}
+(async function(){
+ var er=document.getElementById('sh-err');
+ if(!shClient()){
+
+   if(er)er.textContent='Starting…';
+   for(var i=0;i<2&&!shClient();i++){
+     await new Promise(function(r){setTimeout(r,400*(i+1));});
+     await shLoadSb();
+   }
+ }
+ if(!shClient()){ if(er)er.textContent='The ERP could not start.'; return; }
+ if(er)er.textContent='';
+ var s=await shSupa.auth.getSession();if(s.data.session)shShow(s.data.session.user);
+ var p=document.getElementById('sh-pass');if(p)p.addEventListener('keydown',function(e){if(e.key==='Enter')shLogin();});})();
+</script>
+<script>
+
+(function(){
+ var MODULES=[
+  {key:'dashboard',code:'DASH',label:'Dashboard',icon:'\u{1F3E0}',src:null},
+  {sep:true},
+  {key:'m03',code:'M03',label:'Organization',icon:'\u{1F3ED}',src:'m03.html?embed=1'}, 
+  {key:'m04',code:'M04',label:'Employees',icon:'\u{1F465}',src:'m04.html?embed=1'}, 
+  {sep:true},
+
+  {key:'products',label:'Product Masters',icon:'\u{1F4D0}',tabs:[
+    {t:'mrm', code:'M-RM', label:'Reference Master',     src:'mrm.html?embed=1'},  
+    {t:'m02a',code:'M02a',label:'Dimensions',           src:'m02a.html?embed=1'}, 
+    {t:'m02b',code:'M02b',label:'Product Configurator', src:'m02b.html?embed=1'}  
+  ]},
+  {key:'m02c',code:'M02c',label:'Item Master',icon:'\u{1F4E6}',src:'m02c.html?embed=1'}, 
+  {key:'m02d',code:'M02d',label:'Price List',icon:'₹',src:'m02d.html?embed=1'}, 
+
+  {key:'m02',label:'Products',icon:'\u{1F4E6}',src:null},
+
+  {key:'m01',code:'M01',label:'Customers',icon:'\u{1F91D}',src:'m01.html?embed=1'}, 
+  {key:'mref',code:'M-REF',label:'Referrers',icon:'\u{1F517}',src:'mref.html?embed=1'}, 
+  {sep:true},
+  {key:'m05',code:'M05',label:'Leads',icon:'\u{1F3AF}',src:'m05.html?embed=1'}, 
+  {key:'m06',code:'M06',label:'Quotes',icon:'\u{1F4C4}',src:'m06.html?embed=1'}, 
+
+  {key:'m08',code:'M08',label:'Sales Orders',icon:'\u{1F6D2}',src:'m08.html?embed=1'}, 
+  {key:'m10',code:'M10',label:'Production',icon:'\u{1F6E0}',src:'m10.html?embed=1'}, 
+  {sep:true},
+  {key:'wfqueue',code:'WFQ',label:'Approval Queue',icon:'\u{1F5C2}',src:'wfqueue.html?embed=1'}, 
+  {sep:true},
+  {key:'mpay',code:'M-PAY',label:'Payments',icon:'₹',src:null},
+  {sep:true,grow:true},
+  {key:'config',code:'M-CONFIG',label:'Settings',icon:'⚙',src:'mconfig.html?embed=1'} 
+ ];
+
+ var rail=document.getElementById('shell-rail'),frame=document.getElementById('mod-frame');
+ var pmHost=document.getElementById('pm-host'),pmTabs=document.getElementById('pm-tabs'),pmViews=document.getElementById('pm-views');
+ var current=null;
+
+ function shFrameFile(){try{var p=frame.contentWindow.location.pathname;return p.slice(p.lastIndexOf('/')+1);}catch(e){return null;}}
+
+ function railMark(baseKey){
+  [].slice.call(rail.querySelectorAll('.ri,.dw-it[data-key]')).forEach(function(r){r.classList.toggle('act',r.dataset.key===baseKey);});
+
+  var tab=(current&&current.indexOf('/')>0)?current.split('/')[1]:'';
+  [].slice.call(rail.querySelectorAll('.dw-tab[data-tab]')).forEach(function(t){t.classList.toggle('act',baseKey==='products'&&t.dataset.tab===tab);});
+ }
+
+ function pmBuild(m){
+  if(pmTabs.childElementCount)return;
+  m.tabs.forEach(function(x){
+   var b=document.createElement('button');
+   b.type='button';b.className='rkf-subtab';b.id='pm-t-'+x.t;b.textContent=x.label;
+   b.setAttribute('role','tab');b.setAttribute('aria-selected','false');
+   b.setAttribute('aria-controls','pm-v-'+x.t);b.tabIndex=-1;
+   b.onclick=function(){window.shellOpen(m.key+'/'+x.t);};
+   pmTabs.appendChild(b);
+   var v=document.createElement('div');
+   v.className='rkf-view';v.id='pm-v-'+x.t;
+   v.setAttribute('role','tabpanel');v.setAttribute('aria-labelledby','pm-t-'+x.t);
+   var fr=document.createElement('iframe');fr.title=x.label;
+   v.appendChild(fr);pmViews.appendChild(v);
+  });
+
+  pmTabs.addEventListener('keydown',function(e){
+   if(e.key!=='ArrowRight'&&e.key!=='ArrowLeft')return;
+   var ids=m.tabs.map(function(x){return 'pm-t-'+x.t;});
+   var i=ids.indexOf(document.activeElement&&document.activeElement.id);
+   if(i<0)return;e.preventDefault();
+   var n=(e.key==='ArrowRight')?((i+1)%ids.length):(i?i-1:ids.length-1);
+   window.shellOpen(m.key+'/'+m.tabs[n].t);
+   var nb=document.getElementById(ids[n]);if(nb)nb.focus();
+  });
+ }
+ function pmOpen(m,want,push){
+  pmBuild(m);
+  var t=m.tabs.filter(function(x){return x.t===want;})[0]||m.tabs[0];
+  frame.hidden=true;pmHost.hidden=false;
+  m.tabs.forEach(function(x){
+   var on=(x.t===t.t),v=document.getElementById('pm-v-'+x.t),b=document.getElementById('pm-t-'+x.t);
+   v.classList.toggle('act',on);b.classList.toggle('act',on);
+   b.setAttribute('aria-selected',on?'true':'false');b.tabIndex=on?0:-1;
+   if(on){var fr=v.querySelector('iframe');
+    if(!fr.getAttribute('src'))fr.setAttribute('src',x.src+'&v='+Date.now());} 
+  });
+  current=m.key+'/'+t.t;
+  railMark(m.key);
+  if(push!==false)location.hash=current;
+  document.title='RK Metal ERP - '+t.label;
+  return true;
+ }
+ window.shellOpen=function(key,push,qs){
+
+  var parts=String(key||'').split('/'),base=parts[0],want=parts[1]||'';
+  var m=MODULES.filter(function(x){return x.key===base&&(x.src||x.tabs);})[0];if(!m)return false;
+  if(m.tabs)return pmOpen(m,want,push);
+
+  if(!qs&&current===key&&!frame.hidden){var ff=shFrameFile();if(ff===null||ff===m.src.split('?')[0])return true;}
+  pmHost.hidden=true;frame.hidden=false; 
+  current=key;frame.src=m.src+(qs?'&'+qs:'')+'&v='+Date.now(); 
+  railMark(key);
+  if(push!==false)location.hash=key;
+  document.title='RK Metal ERP - '+m.label;
+  return true;};
+
+ var GROUP_ORDER=['Master','Transaction','Approvals','Configuration'];
+ var GROUP_LABEL={Master:'Masters',Transaction:'Transactions',Approvals:'Approvals',Configuration:'Configuration'};
+ function railNote(t){rail.innerHTML='<div class="dw-note">'+RKF.esc(t)+'</div>';}
+ function railState(){try{return localStorage.getItem('rk_rail')||'open';}catch(e){return 'open';}}
+ function railGroupsClosed(){try{var a=JSON.parse(localStorage.getItem('rk_rail_groups')||'[]');return Array.isArray(a)?a:[];}catch(e){return [];}}
+ function railRemember(k,v){try{localStorage.setItem(k,v);}catch(e){}}
+ async function railBuild(){
+  rail.classList.add('drawer'); rail.classList.toggle('collapsed',railState()==='collapsed');
+  if(!shSupa){railNote('The menu could not be read.');return;}
+  var r;
+  try{ r=await Promise.all([
+        shSupa.from('modules').select('module_code,module_name,active').eq('active',true),
+        shSupa.from('module_catalog').select('module_code,entity_group,list_order'),
+        shSupa.rpc('get_effective_permissions')]); }
+  catch(e){railNote('The menu could not be read.');return;}
+  if(r[2].error){railNote('Your sign-in carries no module access.');return;}
+  if(r[0].error||r[1].error){railNote('The menu could not be read.');return;}
+  var acc={};(r[2].data||[]).forEach(function(x){acc[x.module_code]=x.access_level;});
+  var openMods=(window.RKF&&RKF.railModules)?RKF.railModules(r[0].data||[],acc):[];
+  var name={},ok={};openMods.forEach(function(m){ok[m.module_code]=1;name[m.module_code]=m.module_name;});
+  var cat={};(r[1].data||[]).forEach(function(c){cat[c.module_code]=c;});
+
+  var entries=[];
+  MODULES.forEach(function(m){
+   if(m.sep)return;
+   if(!m.src&&!m.tabs)return;                                   
+   var codes=m.tabs?m.tabs.map(function(t){return t.code;}):[m.code];
+   var reach=codes.filter(function(c){return ok[c];});
+   if(!reach.length)return;                                     
+   var first=reach[0], c0=cat[first]||{};
+   var grp=c0.entity_group||null, ord=(c0.list_order===null||c0.list_order===undefined)?9999:c0.list_order;
+   if(m.tabs){ reach.forEach(function(c){var cc=cat[c]||{};if(cc.list_order!==null&&cc.list_order!==undefined&&cc.list_order<ord){ord=cc.list_order;grp=cc.entity_group||grp;}}); }
+   var lvl=m.tabs?(reach.some(function(c){return acc[c]==='Full';})?'Full':'Read'):acc[first];
+   entries.push({m:m,grp:grp,ord:ord,lvl:lvl,label:m.tabs?m.label:(name[first]||m.label),tabs:m.tabs?m.tabs.filter(function(t){return ok[t.code];}):null});
+  });
+  var groups={};entries.forEach(function(e){var g=e.grp||'Other';(groups[g]=groups[g]||[]).push(e);});
+  var order=GROUP_ORDER.filter(function(g){return groups[g];}).concat(Object.keys(groups).filter(function(g){return GROUP_ORDER.indexOf(g)<0;}).sort());
+  var closed=railGroupsClosed();
+  var h='<div class="dw-hd"><span class="lbl">Menu</span><button type="button" class="dw-tg" id="dw-tg" aria-label="Open or close the menu" title="Open or close the menu">'+(railState()==='collapsed'?'&#8250;':'&#8249;')+'</button></div>';
+  order.forEach(function(g){
+   var items=groups[g].slice().sort(function(a,b){return a.ord-b.ord;});
+   h+='<div class="dw-grp'+(closed.indexOf(g)>=0?' closed':'')+'" data-grp="'+RKF.esc(g)+'"><button type="button" class="dw-gh" aria-expanded="'+(closed.indexOf(g)>=0?'false':'true')+'"><span class="car">&#9660;</span><span class="t">'+RKF.esc(GROUP_LABEL[g]||g)+'</span></button><div class="dw-items">';
+   items.forEach(function(e){
+    h+='<button type="button" class="dw-it" data-key="'+RKF.esc(e.m.key)+'" title="'+RKF.esc(e.label)+'"><span class="ic">'+e.m.icon+'</span><span class="nm">'+RKF.esc(e.label)+'</span>'+(e.lvl==='Read'?'<span class="sub">read only</span>':'')+'</button>';
+    if(e.tabs){ e.tabs.forEach(function(t){ h+='<button type="button" class="dw-tab" data-tab="'+RKF.esc(t.t)+'" data-key="'+RKF.esc(e.m.key+'/'+t.t)+'">'+RKF.esc(t.label)+'</button>'; }); }
+   });
+   h+='</div></div>';
+  });
+  h+='<div class="dw-ft">'+entries.length+' of '+(r[0].data||[]).length+' modules open to you</div>';
+  rail.innerHTML=h;
+  document.getElementById('dw-tg').onclick=function(){
+   var c=!rail.classList.contains('collapsed'); rail.classList.toggle('collapsed',c);
+   this.innerHTML=c?'&#8250;':'&#8249;'; railRemember('rk_rail',c?'collapsed':'open');
+  };
+  [].slice.call(rail.querySelectorAll('.dw-gh')).forEach(function(b){ b.onclick=function(){
+   var g=b.parentNode, cl=!g.classList.contains('closed'); g.classList.toggle('closed',cl); b.setAttribute('aria-expanded',cl?'false':'true');
+   var a=railGroupsClosed().filter(function(x){return x!==g.dataset.grp;}); if(cl)a.push(g.dataset.grp); railRemember('rk_rail_groups',JSON.stringify(a));
+  };});
+  [].slice.call(rail.querySelectorAll('.dw-it,.dw-tab')).forEach(function(b){ b.onclick=function(){shellOpen(b.dataset.key);}; });
+  railMark(current?String(current).split('/')[0]:null);
+ }
+ window.shRailBuild=railBuild;
+
+ if(window.__shShown)railBuild();
+
+ var FILEKEY={mrm:'products/mrm',m02a:'products/m02a',m02b:'products/m02b',mconfig:'config',index:'config'};
+ function openOrClean(k){k=FILEKEY[k]||k;if(!shellOpen(k,false)){history.replaceState(null,'',location.pathname);shellOpen('config',false);}}
+ window.addEventListener('hashchange',function(){var k=location.hash.replace('#','');if(k!==current)openOrClean(k);});
+ openOrClean(location.hash.replace('#','')); 
+})();
+</script>
+<script>
+
+(function(){
+ var btn=document.getElementById('tb-recent'),drop=document.getElementById('rc-drop'),wrap=document.getElementById('rc-wrap');
+ if(!btn||!drop)return;
+ var MOD={Unit:'m03',Employee:'m04',Settings:'config'};
+ function esc(s){return RKF.esc(s);} 
+ function rcRead(){return RKF.recents.read();} 
+ function rcWhen(at){var s=Math.floor((Date.now()-(+at||0))/1000);if(s<60)return 'just now';if(s<3600)return Math.floor(s/60)+'m ago';if(s<86400)return Math.floor(s/3600)+'h ago';var d=new Date(+at);return String(d.getDate()).padStart(2,'0')+'-'+String(d.getMonth()+1).padStart(2,'0');}
+ function rcClose(){drop.classList.remove('open');drop.innerHTML='';}
+ function rcPick(it){if(!it)return;rcClose();window.shellOpen(MOD[it.t]||'config');}
+ function rcRender(){
+  var a=rcRead(),h='';
+  if(!a.length){h='<div class="rc-empty">Nothing opened yet.</div>';}
+  else{a.forEach(function(it,i){h+='<div class="rc-row" role="option" data-i="'+i+'"><span class="rc-chip">'+esc(it.t)+'</span><span class="rc-lbl">'+esc(it.l)+'</span><span class="rc-code">'+esc(it.c)+'</span><span class="rc-when">'+rcWhen(it.at)+'</span></div>';});}
+  drop.innerHTML=h;drop.classList.add('open');
+  var rows=drop.querySelectorAll('.rc-row');
+  for(var i=0;i<rows.length;i++)(function(r){r.addEventListener('click',function(){rcPick(a[+r.getAttribute('data-i')]);});})(rows[i]);
+ }
+ btn.addEventListener('click',function(){if(drop.classList.contains('open'))rcClose();else rcRender();});
+ if(window.RKF&&RKF.registerSurface)RKF.registerSurface('shell.recents',{depth:30,
+   isOpen:function(){return drop.classList.contains('open');},close:rcClose});
+
+ RKF.keys.register({ctrlS:{},escCloses:'any',altR:function(){if(drop.classList.contains('open'))rcClose();else rcRender();}});
+ document.addEventListener('mousedown',function(e){if(!wrap.contains(e.target))rcClose();});
+})();
+</script>
+<script>
+
+(function(){
+ var inp=document.getElementById('gs-input'),drop=document.getElementById('gs-drop'),box=document.getElementById('gsearch');
+ if(window.RKF&&RKF.registerSurface)RKF.registerSurface('shell.search',{depth:40,
+  isOpen:function(){return drop.classList.contains('open');},close:function(){gsClose();}});
+ if(!inp||!drop)return;
+ var cache=null,loading=null,loadedAt=null,items=[],sel=-1,q='';
+ var TARGET={unit:'m03',employee:'m04',list:'config',value:'config',series:'config',pincode:'config',workflow:'config',flag:'config'};
+
+ var MODKEY={'DASH':'dashboard','M-CONFIG':'config','M-PAY':'mpay','M-REF':'mref',
+             'M-RM':'products/mrm','M02A':'products/m02a','M02B':'products/m02b'};
+ var CHIP={unit:'Unit',employee:'Employee',list:'List',value:'Value',series:'Series',pincode:'Pincode',module:'Module',workflow:'Workflow',flag:'Feature Flag'};
+ function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+ function gsLoad(){ 
+  if(cache)return Promise.resolve(cache);
+  if(loading)return loading;
+  if(!shSupa){cache=[];loadedAt=new Date();return Promise.resolve(cache);}
+  loading=Promise.all([
+   shSupa.from('org_units').select('unit_code,unit_name').limit(3000),
+   shSupa.from('employees').select('employee_code,full_name,mobile_number').limit(3000),
+   shSupa.from('reference_lists').select('list_id,name').limit(3000),
+   shSupa.from('reference_values').select('code,label,list_id').limit(3000),
+   shSupa.from('number_series').select('code').limit(3000),
+   shSupa.from('pincode_master').select('pincode,city,district').limit(3000),
+   shSupa.from('modules').select('module_code,module_name').limit(3000),
+   shSupa.from('workflow_definitions').select('wf_code,name').limit(3000),
+   shSupa.from('feature_flags').select('flag_code,label,module_code').limit(3000)
+  ]).then(function(r){
+   var c=[];
+   (r[0].data||[]).forEach(function(x){c.push({t:'unit',label:x.unit_name,code:x.unit_code,hay:(x.unit_code+' '+x.unit_name).toLowerCase()});});
+   (r[1].data||[]).forEach(function(x){c.push({t:'employee',label:x.full_name,code:x.employee_code,hay:(x.employee_code+' '+x.full_name+' '+(x.mobile_number||'')).toLowerCase()});});
+   (r[2].data||[]).forEach(function(x){c.push({t:'list',label:x.name,code:x.list_id,hay:(x.list_id+' '+x.name).toLowerCase()});});
+   (r[3].data||[]).forEach(function(x){c.push({t:'value',label:x.label,code:x.code,hay:(x.code+' '+x.label+' '+(x.list_id||'')).toLowerCase()});});
+   (r[4].data||[]).forEach(function(x){c.push({t:'series',label:x.code,code:x.code,hay:String(x.code).toLowerCase()});});
+   (r[5].data||[]).forEach(function(x){c.push({t:'pincode',label:x.city+(x.district?' - '+x.district:''),code:x.pincode,hay:(x.pincode+' '+x.city+' '+(x.district||'')).toLowerCase()});});
+   ((r[6]&&r[6].data)||[]).forEach(function(x){c.push({t:'module',label:x.module_name,code:x.module_code,hay:((x.module_code||'')+' '+(x.module_name||'')).toLowerCase()});});
+   ((r[7]&&r[7].data)||[]).forEach(function(x){c.push({t:'workflow',label:x.name,code:x.wf_code,hay:((x.wf_code||'')+' '+(x.name||'')).toLowerCase()});});
+   ((r[8]&&r[8].data)||[]).forEach(function(x){c.push({t:'flag',label:x.label,code:x.flag_code,hay:((x.flag_code||'')+' '+(x.label||'')+' '+(x.module_code||'')).toLowerCase()});});
+   cache=c;loadedAt=new Date();loading=null;return cache;
+  }).catch(function(){loading=null;cache=[];loadedAt=new Date();return cache;});
+  return loading;
+ }
+ function gsSearch(qq){ 
+  var order=['unit','employee','list','value','series','pincode','module','workflow','flag'],out=[];
+  order.forEach(function(t){(cache||[]).forEach(function(it){if(out.length<8&&it.t===t&&it.hay.indexOf(qq)>=0)out.push(it);});});
+  return out;
+ }
+ function gsClose(){drop.classList.remove('open');drop.innerHTML='';items=[];sel=-1;}
+ function gsMark(){var rows=drop.querySelectorAll('.gs-row');for(var i=0;i<rows.length;i++)rows[i].classList.toggle('sel',i===sel);}
+ function gsPick(it){if(!it)return;gsClose();inp.blur();
+  if(it.t==='module'){ 
+   var k=MODKEY[String(it.code||'').toUpperCase()]||String(it.code||'').toLowerCase();
+   if(window.shellOpen(k))return;
+   if(window.RKF&&RKF.toast)RKF.toast(it.label+' does not have a screen yet.'); 
+   return;}
+  window.shellOpen(TARGET[it.t]);}
+ function gsRender(list){
+  items=list;sel=-1;
+  var h='';
+  if(!list.length){h='<div class="gs-empty">No match in Units, Employees, Settings, Pincodes</div>';}
+  else{list.forEach(function(it,i){h+='<div class="gs-row" role="option" data-i="'+i+'"><span class="gs-chip">'+CHIP[it.t]+'</span><span>'+esc(it.label)+'</span><span class="gs-code">'+esc(it.code)+'</span></div>';});}
+  h+='<div class="gs-foot">searched live data as of '+(loadedAt?loadedAt.toLocaleTimeString():'-')+'</div>';
+  drop.innerHTML=h;drop.classList.add('open');
+  var rows=drop.querySelectorAll('.gs-row');
+  for(var i=0;i<rows.length;i++)(function(r){r.addEventListener('click',function(){gsPick(items[+r.getAttribute('data-i')]);});})(rows[i]);
+ }
+ inp.addEventListener('focus',function(){gsLoad();});
+ inp.addEventListener('input',function(){
+  q=inp.value.trim().toLowerCase();
+  if(q.length<2){gsClose();return;}
+  var mine=q;
+  gsLoad().then(function(){if(mine===q)gsRender(gsSearch(mine));});
+ });
+ inp.addEventListener('keydown',function(e){
+  if(!drop.classList.contains('open'))return;
+  if(e.key==='ArrowDown'){e.preventDefault();if(items.length){sel=(sel+1)%items.length;gsMark();}}
+  else if(e.key==='ArrowUp'){e.preventDefault();if(items.length){sel=(sel<=0?items.length-1:sel-1);gsMark();}}
+  else if(e.key==='Enter'){e.preventDefault();if(items.length)gsPick(items[sel>=0?sel:0]);}
+ });
+ document.addEventListener('keydown',function(e){
+  if((e.ctrlKey||e.metaKey)&&(e.key==='k'||e.key==='K')){e.preventDefault();inp.focus();gsLoad();}
+ });
+ document.addEventListener('mousedown',function(e){if(!box.contains(e.target))gsClose();});
+
+ window.shSearchStale=function(){cache=null;loading=null;};
+})();
+</script>
+<script>
+
+RKF.theme.apply(); 
+window.shTheme=function(){RKF.theme.toggle();}; 
+</script>
+<script>
+
+(function(){var EXP='RKF-1.13.0';
+ if(!window.RKF||!RKF.versionCheck||!RKF.versionCheck(EXP)){
+  var got=(window.RKF&&RKF.version)||'none loaded';
+  if(window.RKF&&RKF.toast)RKF.toast('Foundation version mismatch. Hard-refresh (Ctrl+F5).');
+ }})();
+</script>
+
+<script>
+
+window.addEventListener('message', function(ev){
+  try{
+    return; 
+    var n = parseInt(ev.data.count,10)||0;
+    var el = document.querySelector('[data-railkey="m07"] .railbadge');
+    if(!el){
+      var host = document.querySelector('[data-railkey="m07"]');
+      if(!host){ 
+        var items=[].slice.call(document.querySelectorAll('.ri,[class*="rail"] a,[class*="rail"] div'));
+        host=items.filter(function(x){return /Approvals/.test(x.textContent||'');})[0];
+      }
+      if(!host) return;
+      el=document.createElement('span'); el.className='railbadge';
+      host.appendChild(el);
+    }
+    el.textContent = n>0 ? String(n) : '';
+    el.style.display = n>0 ? '' : 'none';
+  }catch(e){}
+});
+</script>
+<script>
+
+(function(){
+
+  var _loader=async function(){
+  if(window.shSearchStale)shSearchStale();
+  if(window.shRailBuild)await shRailBuild();
+};
+  var _opts={hold:function(){
+  return !window.__shShown || !!document.querySelector('#gs-drop.open,#rc-drop.open');
+}};
+  if(window.RKF&&RKF.live)RKF.live(shSupa,['modules','module_catalog','role_module_access','employee_module_override','employees','employee_role_map','org_units','reference_lists','reference_values','number_series'],_loader,_opts);
+  else if(window.RKF&&RKF.liveMasters)RKF.liveMasters(_loader,_opts);
+})();
+</script>
+</body>
+</html>

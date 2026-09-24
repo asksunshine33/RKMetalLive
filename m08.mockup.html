@@ -1,0 +1,571 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>M08 Sales Orders - mockup</title>
+<link rel="stylesheet" href="rk-foundation.css?v=RKF-1.1.0">
+<style>
+/* MOCKUP - not served, not wired, sample rows.
+   COPIED FROM M06's OWN GRID LAW, not re-invented. Every rule below carries the correction he
+   made on m06.html and the reason he made it:
+     N-23   table-layout:fixed + ONE colgroup from ONE width source
+     OF6-02 fixed label box, so one-line and two-line labels hand off at the same y (no zig-zag)
+     F-034a label and read-only value take the input's own 11.5px text inset
+     2026-08-11 "Horizontal scrolling is ok" - columns are PIXELS sized to his field capacities
+     OF6-26 item description is ONE row with an ellipsis, the whole text in title
+     zig-zag fix vertical-align:top + a reserved .lgsub band, so a missing sub-line moves nothing
+     OF-26  a customisation is a CONNECTED SUB-LINE at half size, never a separate entry
+     OF-12  create is a BAND in the workspace, never a drawer or modal (DDR-228, GT-001) */
+:root{--m08:var(--orange);--m08bg:var(--orangebg);--label:var(--ink2)}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--ff-sans);font-size:var(--fs-body);display:flex;flex-direction:column;overflow:hidden}
+.mockbar{background:var(--warnbg);color:var(--warn);font-size:var(--fs-tag);font-weight:var(--fw-bold);text-align:center;padding:3px}
+.modhdr{display:flex;align-items:center;gap:var(--sp-3);padding:6px var(--sp-4);background:var(--surface);border-bottom:1px solid var(--line)}
+.badge{background:var(--m08);color:#fff;font-size:var(--fs-tag);font-weight:var(--fw-bold);letter-spacing:.4px;padding:3px 7px;border-radius:var(--radius-sm)}
+.mtitle{font-size:var(--fs-title);font-weight:var(--fw-semi)}
+.crumb{font-size:var(--fs-caption);color:var(--muted)}
+.right{margin-left:auto;display:flex;align-items:center;gap:var(--sp-2)}
+.chip{display:inline-flex;align-items:center;gap:5px;font-size:var(--fs-tag);background:var(--surface2);border:1px solid var(--line);border-radius:999px;padding:2px 9px;color:var(--ink2)}
+.tabs{display:flex;gap:2px;padding:0 var(--sp-4);background:var(--surface);border-bottom:1px solid var(--line)}
+.tab{appearance:none;border:none;background:none;font-family:inherit;font-size:var(--fs-emphasis);font-weight:var(--fw-med);color:var(--ink2);padding:6px var(--sp-3);border-bottom:2px solid transparent;cursor:pointer}
+.tab[aria-selected=true]{color:var(--m08);border-bottom-color:var(--m08);font-weight:var(--fw-semi)}
+.center{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.zone{flex:1;display:none;flex-direction:column;overflow:hidden;min-width:0}.zone.on{display:flex}
+.kstrip{display:flex;gap:var(--sp-2);padding:6px var(--sp-4);flex-wrap:wrap}
+.kcard{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:4px var(--sp-3);min-width:112px;cursor:pointer}
+.kcard[aria-pressed=true]{border-color:var(--m08);background:var(--m08bg)}
+.kcard .v{font-size:var(--fs-display);font-weight:var(--fw-semi);line-height:1.1}
+.kcard .l{font-size:var(--fs-caption);color:var(--label);text-transform:uppercase;letter-spacing:.45px;font-weight:var(--fw-bold)}
+.subbar{display:flex;align-items:center;gap:var(--sp-2);padding:6px var(--sp-4);background:var(--surface);border-bottom:1px solid var(--line);flex-wrap:wrap}
+.srch{position:relative;min-width:280px}
+.srch input{width:100%;padding:5px 8px 5px 24px;border:1px solid var(--line2);border-radius:var(--radius-sm);font-family:inherit;font-size:var(--fs-body)}
+.srch .ico{position:absolute;left:6px;top:50%;transform:translateY(-50%);color:var(--muted)}
+.srch .kb{position:absolute;right:6px;top:50%;transform:translateY(-50%);font-size:var(--fs-tag);color:var(--muted);border:1px solid var(--line);border-radius:4px;padding:0 4px}
+select.f{padding:4px 6px;border:1px solid var(--line2);border-radius:var(--radius-sm);font-family:inherit;font-size:var(--fs-caption);background:var(--surface);color:var(--ink)}
+.pills{display:flex;gap:6px;flex-wrap:wrap;padding:6px var(--sp-4) 0}
+.pill{display:inline-flex;gap:6px;align-items:center;font-size:var(--fs-tag);background:var(--surface2);border:1px solid var(--line);border-radius:999px;padding:2px 9px;color:var(--ink2)}
+.listrow{display:flex;flex:1;overflow:hidden;min-width:0}
+.tblwrap{flex:1;overflow:auto;padding:6px var(--sp-4) var(--sp-4)}
+table.reg{width:100%;border-collapse:collapse;background:var(--surface)}
+table.reg th{position:sticky;top:0;background:var(--surface2);padding:var(--rk-th-pad);text-align:left;font-size:var(--fs-caption);text-transform:uppercase;letter-spacing:.45px;font-weight:var(--fw-bold);color:var(--label);border-bottom:1px solid var(--line2);white-space:nowrap}
+table.reg td{padding:var(--rk-td-pad);border-bottom:1px solid var(--line);white-space:nowrap}
+table.reg tr:hover td{background:var(--surface2)}
+table.reg tr.sel td{background:var(--m08bg)}
+.num{text-align:right}
+td.num,.lgnum{font-family:'Consolas',monospace;font-variant-numeric:tabular-nums;white-space:nowrap}
+.mono{font-family:'Consolas',monospace}
+.st{font-size:var(--fs-tag);padding:2px 8px;border-radius:999px;white-space:nowrap}
+.st.draft,.st.pend{background:var(--warnbg);color:var(--warn)}
+.st.appr,.st.conf{background:var(--greenbg);color:var(--green)}
+.st.hold,.st.rej{background:var(--accentbg);color:var(--accent)}
+.p360{width:320px;border-left:1px solid var(--line);background:var(--surface);overflow:auto;padding:var(--sp-3)}
+.p360 h4{margin:0 0 var(--sp-2);font-size:var(--fs-caption);text-transform:uppercase;letter-spacing:.45px;color:var(--label)}
+.kv{display:flex;justify-content:space-between;gap:var(--sp-2);padding:4px 0;border-bottom:1px solid var(--line);font-size:var(--fs-caption)}
+.kv .k{color:var(--muted)}
+
+/* ---- workspace ---- */
+.wsscroll{flex:1;overflow:auto;padding:8px var(--sp-4) 8px}
+.idbar{position:sticky;top:0;z-index:var(--z-sticky);background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:5px var(--sp-3);margin-bottom:8px;display:flex;align-items:center;gap:var(--sp-4);flex-wrap:wrap;box-shadow:var(--shadow-sm)}
+.idbar .sono{font-family:'Consolas',monospace;font-size:var(--fs-title);font-weight:var(--fw-bold)}
+.i{display:flex;flex-direction:column;line-height:1.2}
+.i .k{font-size:var(--fs-tag);color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+.i .v{font-size:var(--fs-body);font-weight:var(--fw-med)}
+.i .v.big{font-size:var(--fs-emphasis);font-weight:var(--fw-bold)}
+.life{display:flex;gap:3px;flex-wrap:wrap;margin-bottom:8px}
+.life span{font-size:var(--fs-tag);padding:1px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted);background:var(--surface)}
+.life .done{color:var(--green);border-color:var(--green);background:var(--greenbg)}
+.life .now{color:#fff;background:var(--m08);border-color:var(--m08);font-weight:var(--fw-semi)}
+.band{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);margin-bottom:8px}
+.band-hd{padding:5px var(--sp-3);font-size:var(--fs-caption);text-transform:uppercase;letter-spacing:.45px;font-weight:var(--fw-bold);color:var(--label);border-bottom:1px solid var(--line);display:flex;gap:var(--sp-2);align-items:center;cursor:pointer}
+.band-hd .fold{margin-left:auto;font-weight:var(--fw-reg);text-transform:none;letter-spacing:0;color:var(--ink2);font-size:var(--fs-body)}
+.band-bd{padding:var(--sp-3)}
+/* OF6-02 / F-034a - the fixed label box and the shared text inset. This is the anti-zig-zag rule. */
+.hdr2col{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px 24px;align-items:start;--hc:1;--hr:auto}
+.hdr2col>.frow{grid-column:var(--hc,1);grid-row:var(--hr,auto);margin-top:0}
+.frow{display:flex;gap:var(--sp-3);align-items:start}
+.ff{display:flex;flex-direction:column;min-width:0;flex:1}
+.ff>label{min-height:2.5em;display:flex;align-items:flex-end;line-height:1.25;padding-left:11.5px;font-size:var(--fs-caption);color:var(--label);font-weight:var(--fw-semi)}
+.ff>.ro{padding-left:11.5px;min-height:34px;display:block;padding-top:7px;color:var(--ink2)}
+.ff>.in{height:34px;box-sizing:border-box;border:1px solid var(--line2);border-radius:5px;padding:7px 10px;font-family:inherit;font-size:var(--fs-body);background:var(--surface);color:var(--ink);min-width:0}
+.ff>select.in{padding:0 10px}
+.ff>.in[readonly]{background:var(--surface2);color:var(--ink2)}
+.ff.btnrow{justify-content:flex-end}
+.ff.btnrow::before{content:'';min-height:2.5em;display:block}
+.req{color:var(--accent)}
+.lk{font-size:var(--fs-tag);color:var(--muted)}
+@media(max-width:1100px){.hdr2col{grid-template-columns:minmax(0,1fr)}.hdr2col>.frow{grid-column:1;grid-row:auto}}
+
+/* ---- THE LINE GRID - M06's law, column for column ---- */
+.lgwrap{overflow:auto;max-height:70vh}
+table.lg{border-collapse:separate;border-spacing:0;width:100%;font-size:var(--fs-body);table-layout:fixed}
+table.lg th{background:var(--surface2);text-align:center;padding:3px 4px;font-size:var(--fs-caption);font-weight:700;color:var(--ink2);text-transform:uppercase;letter-spacing:.3px;border-bottom:1px solid var(--line);white-space:normal;position:sticky;top:0;z-index:var(--z-sticky)}
+table.lg th.grp{text-align:center;font-size:var(--fs-caption);color:var(--navy);background:var(--surface);top:0}
+table.lg th.sepL,table.lg td.sepL{border-left:2px solid var(--line2)}
+table.lg td{padding:2px 4px;border-bottom:1px solid var(--line);white-space:nowrap;line-height:1.25}
+table.lg tbody td{vertical-align:top;padding-top:6px;padding-bottom:6px}
+table.lg tbody td>input.ec,table.lg tbody td>select.ec,table.lg tbody td>button.swt{height:26px;box-sizing:border-box;vertical-align:top;margin:0}
+table.lg td>select.ec{padding-right:2px;padding-top:0;padding-bottom:0}
+table.lg tbody td>.lgsub{margin-top:3px;min-height:13px;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+table.lg td.itm,table.lg th.itm{white-space:normal}
+table.lg td.itm .lgsub{white-space:normal}
+table.lg td>input.ec,table.lg td>select.ec{width:100%}
+table.lg tbody tr:hover{background:var(--surface2)}
+.itemdesc{display:block;white-space:nowrap;text-overflow:ellipsis;overflow:hidden;line-height:1.25;max-height:1.25em}
+.lgsub{font-size:var(--fs-caption);color:var(--label);white-space:nowrap;line-height:1.15}
+.lgsub b{color:var(--ink2)}
+.ec{border:1px solid var(--line2);border-radius:5px;padding:2px 5px;font-size:var(--fs-caption);font-family:inherit;background:var(--surface);color:var(--ink);width:78px;outline:none}
+.ec.n{text-align:right;font-family:'Consolas',monospace}
+.ec.mk{background:var(--m08bg);border-color:var(--m08)}
+/* OF-26 - a customisation is a connected sub-line at half size */
+table.lg tr.sub td{background:var(--purplebg);padding-top:0;padding-bottom:0;font-size:var(--fs-caption);line-height:1.15}
+table.lg tr.sub td.subno{padding-left:14px;color:var(--purple);font-weight:700;font-family:'Consolas',monospace}
+table.lg tr.sub td.ind{padding-left:22px;color:var(--purple);font-weight:600}
+/* the same connected-sub-line principle for the production mm pair */
+table.lg tr.prod td{background:var(--bluebg);padding-top:0;padding-bottom:0;font-size:var(--fs-caption);line-height:1.15}
+table.lg tr.prod td.subno{padding-left:14px;color:var(--blue);font-weight:700;font-family:'Consolas',monospace}
+/* header charges live INSIDE this table, under the lines - his word 2026-08-31 */
+table.lg tr.chg td{background:var(--surface2);font-size:var(--fs-caption)}
+table.lg tr.chg td.subno{padding-left:14px;color:var(--ink2);font-weight:700;font-family:'Consolas',monospace}
+table.lg tfoot td{border-top:2px solid var(--line2);font-weight:var(--fw-semi);padding:5px 4px}
+table.lg tr.nr td{background:var(--m08bg)}
+.tawrap{position:relative}
+.hits.inrow{position:absolute;left:0;right:0;top:100%;z-index:var(--z-popover);background:var(--surface);border:1px solid var(--line2);border-radius:var(--radius-sm);box-shadow:var(--shadow-md);max-height:220px;overflow:auto}
+.lockro{background:var(--surface2)}
+.na{color:var(--muted);font-size:var(--fs-caption)}
+.lglegend{display:flex;gap:14px;align-items:center;flex-wrap:wrap;font-size:var(--fs-caption);color:var(--label);margin-top:8px}
+.lgswatch{display:inline-block;width:16px;height:4px;border-radius:2px;background:var(--m08);border:0;vertical-align:2px;margin-right:6px}
+.lgswatch.ro{background:var(--line2)}
+.flag{display:inline-block;font-size:var(--fs-tag);padding:0 6px;border-radius:999px;margin-right:4px}
+.flag.w{background:var(--warnbg);color:var(--warn)}
+.flag.b{background:var(--accentbg);color:var(--accent)}
+.flag.i{background:var(--bluebg);color:var(--blue)}
+.tot{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:4px var(--sp-3)}
+.tot .t{display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid var(--line);font-size:var(--fs-caption)}
+.tot .t.g{font-size:var(--fs-emphasis);font-weight:var(--fw-bold);border-bottom:2px solid var(--line2)}
+.actbar{display:flex;align-items:center;gap:var(--sp-2);padding:6px var(--sp-4);background:var(--surface);border-top:1px solid var(--line2);box-shadow:0 -2px 10px rgba(15,58,95,.06);flex-wrap:wrap}
+.btn{appearance:none;font-family:inherit;font-size:var(--fs-body);font-weight:var(--fw-med);padding:6px 12px;border-radius:var(--radius-sm);border:1px solid var(--line2);background:var(--surface);color:var(--ink);cursor:pointer}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn-p{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:var(--fw-semi)}
+.btn.sm{padding:2px 7px;font-size:var(--fs-caption)}
+.btn .kb{margin-left:6px;opacity:.7;font-size:var(--fs-tag)}
+.sp{margin-left:auto}
+.cols2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media(max-width:1100px){.cols2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="mockbar">MOCKUP - NOT SERVED, SAMPLE ROWS</div>
+
+<div class="modhdr">
+  <span class="badge">M08</span><span class="mtitle">Sales Orders</span>
+  <span class="crumb">Home / Sales Orders</span>
+  <span class="right">
+    <span class="chip">A.Nithya RKE000003 - CCR</span>
+    <span class="chip">Scope: mapped</span>
+    <button class="btn sm">&#9201; History</button>
+  </span>
+</div>
+
+<div class="tabs" role="tablist">
+  <button class="tab" role="tab" aria-selected="true"  onclick="go('l',this)">List</button>
+  <button class="tab" role="tab" aria-selected="false" onclick="go('w',this)">Workspace</button>
+  <button class="tab" role="tab" aria-selected="false" onclick="go('r',this)">Records</button>
+</div>
+
+<div class="center">
+
+<!-- ============================= LIST ============================= -->
+<div class="zone on" id="z-l">
+  <div class="kstrip">
+    <div class="kcard" aria-pressed="true"><div class="v">6</div><div class="l">Draft</div></div>
+    <div class="kcard"><div class="v">3</div><div class="l">Pending approval</div></div>
+    <div class="kcard"><div class="v">11</div><div class="l">Approved</div></div>
+    <div class="kcard"><div class="v">27</div><div class="l">Confirmed</div></div>
+    <div class="kcard"><div class="v">1</div><div class="l">Credit-hold</div></div>
+  </div>
+  <div class="subbar">
+    <span class="srch"><span class="ico">&#128269;</span><input placeholder="Search orders, customers, PO numbers"><span class="kb">Ctrl+K</span></span>
+    <select class="f"><option>Origin: all</option><option>Direct</option><option>From quote</option></select>
+    <select class="f"><option>Category: all</option><option>Walk-in</option><option>Repeat order</option><option>Well-known dealer</option><option>Daily biller</option><option>Others / General Stock</option></select>
+    <select class="f"><option>Customer: all</option></select>
+    <select class="f"><option>Salesperson: all</option></select>
+    <select class="f"><option>Unit: all</option></select>
+    <select class="f"><option>From date</option></select>
+    <select class="f"><option>To date</option></select>
+    <button class="btn sm">Clear</button>
+    <span class="sp"></span>
+    <button class="btn sm">Export &#9662;</button>
+    <button class="btn btn-p" onclick="go('n',document.querySelectorAll('.tab')[1])">+ Sales Order</button>
+  </div>
+  <div class="pills"><span class="pill">Draft <b>&times;</b></span><span class="pill">Unit U1 <b>&times;</b></span></div>
+  <div class="listrow">
+    <div class="tblwrap">
+      <table class="reg">
+        <thead><tr>
+          <th>SO No</th><th>Rev</th><th>Date</th><th>Customer</th><th>Origin</th><th>Category</th>
+          <th>Status</th><th>Approval</th><th class="num">Order value</th><th>Required by</th>
+          <th class="num">Days</th><th>Salesperson</th><th>CCR</th><th>Unit</th><th>Updated</th>
+        </tr></thead>
+        <tbody>
+          <tr class="sel" onclick="go('w',document.querySelectorAll('.tab')[1])"><td class="mono">RKS-U1-26-000042</td><td>1</td><td>31-08-2026</td><td>Sri Balaji Steels</td><td>From quote</td><td>Repeat order</td><td><span class="st draft">Draft</span></td><td>-</td><td class="num">4,52,180.00</td><td>12-09-2026</td><td class="num">+12</td><td>M.Radhakrishnan</td><td>A.Nithya</td><td>U1</td><td>31-08-2026 15:40</td></tr>
+          <tr><td class="mono">RKS-U1-26-000041</td><td>0</td><td>30-08-2026</td><td>Anand Roofings</td><td>Direct</td><td>Walk-in</td><td><span class="st pend">Pending approval</span></td><td>Accounts, due 4h</td><td class="num">1,18,900.00</td><td>05-09-2026</td><td class="num">+5</td><td>M.Radhakrishnan</td><td>A.Nithya</td><td>U1</td><td>30-08-2026 11:02</td></tr>
+          <tr><td class="mono">RKS-U1-26-000040</td><td>2</td><td>29-08-2026</td><td>Kovai Constructions</td><td>From quote</td><td>Well-known dealer</td><td><span class="st appr">Approved</span></td><td>Approved</td><td class="num">9,86,400.00</td><td>10-09-2026</td><td class="num">+10</td><td>M.Radhakrishnan</td><td>A.Nithya</td><td>U2</td><td>29-08-2026 18:20</td></tr>
+          <tr><td class="mono">RKS-U1-26-000039</td><td>0</td><td>28-08-2026</td><td>Sri Balaji Steels</td><td>Direct</td><td>Daily biller</td><td><span class="st conf">Confirmed</span></td><td>Approved</td><td class="num">64,300.00</td><td>02-09-2026</td><td class="num">+2</td><td>M.Radhakrishnan</td><td>A.Nithya</td><td>U1</td><td>28-08-2026 09:15</td></tr>
+          <tr><td class="mono">RKS-U1-26-000038</td><td>0</td><td>27-08-2026</td><td>Metro Infra</td><td>Direct</td><td>Others / General Stock</td><td><span class="st hold">Credit-hold</span></td><td>-</td><td class="num">2,31,750.00</td><td>08-09-2026</td><td class="num">+8</td><td>M.Radhakrishnan</td><td>A.Nithya</td><td>U1</td><td>27-08-2026 16:44</td></tr>
+          <tr><td class="mono">RKS-U1-26-000037</td><td>1</td><td>26-08-2026</td><td>Anand Roofings</td><td>From quote</td><td>Repeat order</td><td><span class="st rej">Rejected</span></td><td>Rejected</td><td class="num">88,120.00</td><td>01-09-2026</td><td class="num">-1</td><td>M.Radhakrishnan</td><td>A.Nithya</td><td>U1</td><td>26-08-2026 12:30</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <aside class="p360">
+      <h4>RKS-U1-26-000042</h4>
+      <div class="kv"><span class="k">Customer</span><span>Sri Balaji Steels</span></div>
+      <div class="kv"><span class="k">Origin</span><span>From RKQ-U1-26-000053</span></div>
+      <div class="kv"><span class="k">Status</span><span>Draft</span></div>
+      <div class="kv"><span class="k">Order value</span><span>4,52,180.00</span></div>
+      <div class="kv"><span class="k">Required by</span><span>12-09-2026 (+12)</span></div>
+      <div class="kv"><span class="k">Lines</span><span>2</span></div>
+      <div class="kv"><span class="k">Pricing</span><span>Complete</span></div>
+      <div class="kv"><span class="k">Executing unit</span><span>U1</span></div>
+      <div class="kv"><span class="k">PO</span><span>Not recorded</span></div>
+      <div style="margin-top:var(--sp-3);display:flex;gap:6px">
+        <button class="btn btn-p sm" onclick="go('w',document.querySelectorAll('.tab')[1])">Open</button>
+        <button class="btn sm">Print</button>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<!-- ================= NEW SALES ORDER - a BAND in the workspace (OF-12), never a drawer ========= -->
+<div class="zone" id="z-n">
+  <div class="wsscroll">
+    <div class="band">
+      <div class="band-hd">New sales order</div>
+      <div class="band-bd">
+        <div class="frow" style="margin-bottom:8px">
+          <div class="ff"><label>Origin <span class="req">*</span></label>
+            <select class="in"><option>From a Won quote</option><option>Direct order</option></select></div>
+          <div class="ff"><label>Quote <span class="req">*</span></label>
+            <select class="in"><option>RKQ-U1-26-000053 - Sri Balaji Steels</option></select></div>
+          <div class="ff"><label>Category</label>
+            <select class="in" disabled><option>Set on a direct order</option></select></div>
+          <div class="ff"><label>Booking unit <span class="req">*</span></label>
+            <select class="in"><option>U1 - Trichy Main</option></select></div>
+        </div>
+        <div class="hdr2col">
+          <div class="frow" style="--hc:1;--hr:1">
+            <div class="ff"><label>Customer <span class="req">*</span></label><input class="in" value="Sri Balaji Steels"></div>
+            <div class="ff btnrow" style="flex:0 0 auto"><button class="btn sm">+ Customer</button></div>
+            <div class="ff"><label>Customer unit</label><select class="in"><option>U1 - Trichy Main</option></select></div>
+          </div>
+          <div class="frow" style="--hc:2;--hr:1">
+            <div class="ff"><label>Salesperson</label><select class="in"><option>M.Radhakrishnan RKE000001</option></select></div>
+            <div class="ff"><label>CCR</label><select class="in"><option>A.Nithya RKE000003</option></select></div>
+          </div>
+          <div class="frow" style="--hc:1;--hr:2">
+            <div class="ff"><label>Bill to <span class="req">*</span></label><select class="in"><option>Billing - Trichy</option></select></div>
+            <div class="ff"><label>Ship to <span class="req">*</span></label><select class="in"><option>Site - Thuvakudi</option></select></div>
+          </div>
+          <div class="frow" style="--hc:2;--hr:2">
+            <div class="ff"><label>Bill contact</label><select class="in"><option>R.Kumar - Accounts</option></select></div>
+            <div class="ff"><label>Ship contact</label><select class="in"><option>S.Vel - Site</option></select></div>
+          </div>
+          <div class="frow" style="--hc:1;--hr:3">
+            <div class="ff"><label>Payment terms <span class="req">*</span></label><select class="in"><option>Net 30 Days</option></select></div>
+            <div class="ff"><label>Delivery scope <span class="req">*</span></label><select class="in"><option>RK</option></select></div>
+          </div>
+          <div class="frow" style="--hc:2;--hr:3">
+            <div class="ff"><label>Delivery terms <span class="req">*</span></label><select class="in"><option>7 Days</option></select></div>
+            <div class="ff"><label>Insurance scope <span class="req">*</span></label><select class="in"><option>Customer</option></select></div>
+          </div>
+          <div class="frow" style="--hc:1;--hr:4">
+            <div class="ff"><label>Required delivery <span class="req">*</span></label><input class="in" value="12-09-2026"></div>
+            <div class="ff"><label>Executing unit</label><select class="in"><option>U1</option></select></div>
+          </div>
+          <div class="frow" style="--hc:2;--hr:4">
+            <div class="ff"><label>Customer PO number</label><input class="in"></div>
+            <div class="ff"><label>PO date</label><input class="in" value="DD-MM-YYYY"></div>
+          </div>
+          <div class="frow" style="--hc:1;--hr:5">
+            <div class="ff"><label>Referrer</label><input class="in" value=""></div>
+            <div class="ff"><label>Commission %</label><input class="in" disabled><span class="lk">Needs a referrer</span></div>
+          </div>
+          <div class="frow" style="--hc:2;--hr:5">
+            <div class="ff"><label>Order date</label><div class="ro"><span class="lk">&#128274;</span> set when the order is raised</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="actbar">
+    <button class="btn btn-p" onclick="go('w',document.querySelectorAll('.tab')[1])">Create</button>
+    <button class="btn" onclick="go('l',document.querySelectorAll('.tab')[0])">Cancel</button>
+    <span class="sp"></span><span class="chip">Lines are added after create</span>
+  </div>
+</div>
+
+<!-- ============================ WORKSPACE ============================ -->
+<div class="zone" id="z-w">
+  <div class="wsscroll">
+
+    <div class="idbar">
+      <span class="sono">RKS-U1-26-000042</span>
+      <span class="st draft">Draft</span>
+      <span class="chip">Rev 1</span>
+      <span class="chip">From RKQ-U1-26-000053</span>
+      <span class="i"><span class="k">Order date</span><span class="v">31-08-2026</span></span>
+      <span class="i"><span class="k">Required delivery</span><span class="v big">12-09-2026</span></span>
+      <span class="i"><span class="k">Days</span><span class="v">+12</span></span>
+      <span class="chip">Priority</span>
+      <span class="sp"></span><span class="chip">Unsaved changes</span>
+    </div>
+
+    <div class="life">
+      <span class="done">Draft</span><span class="now">Pending approval</span><span>Approved</span>
+      <span>Rejected</span><span>Confirmed</span><span>Credit-hold</span><span>Cancelled</span>
+    </div>
+
+    <!-- THE FOLD - after create this band opens FOLDED because the order has lines (M06 termsOpen) -->
+    <div class="band">
+      <div class="band-hd" onclick="fold()">Customer &amp; terms
+        <span class="fold" id="foldline">Sri Balaji Steels &middot; Net 30 Days &middot; RK &middot; 12-09-2026 &nbsp; &#9662;</span>
+      </div>
+      <div class="band-bd" id="termsBody" style="display:none">
+        <div class="hdr2col">
+          <div class="frow" style="--hc:1;--hr:1">
+            <div class="ff"><label>Customer <span class="req">*</span></label><input class="in" value="Sri Balaji Steels"></div>
+            <div class="ff"><label>Customer unit</label><select class="in"><option>U1 - Trichy Main</option></select></div>
+          </div>
+          <div class="frow" style="--hc:2;--hr:1">
+            <div class="ff"><label>Salesperson</label><select class="in"><option>M.Radhakrishnan RKE000001</option></select></div>
+            <div class="ff"><label>CCR</label><select class="in"><option>A.Nithya RKE000003</option></select></div>
+          </div>
+          <div class="frow" style="--hc:1;--hr:2">
+            <div class="ff"><label>Bill to <span class="req">*</span></label><select class="in"><option>Billing - Trichy</option></select></div>
+            <div class="ff"><label>Ship to <span class="req">*</span></label><select class="in"><option>Site - Thuvakudi</option></select></div>
+          </div>
+          <div class="frow" style="--hc:2;--hr:2">
+            <div class="ff"><label>Bill contact</label><select class="in"><option>R.Kumar - Accounts</option></select></div>
+            <div class="ff"><label>Ship contact</label><select class="in"><option>S.Vel - Site</option></select></div>
+          </div>
+          <div class="frow" style="--hc:1;--hr:3">
+            <div class="ff"><label>Payment terms <span class="req">*</span></label><select class="in"><option>Net 30 Days</option></select></div>
+            <div class="ff"><label>Delivery scope <span class="req">*</span></label><select class="in"><option>RK</option></select></div>
+          </div>
+          <div class="frow" style="--hc:2;--hr:3">
+            <div class="ff"><label>Delivery terms <span class="req">*</span></label><select class="in"><option>7 Days</option></select></div>
+            <div class="ff"><label>Delivery mode</label><select class="in"><option>Road</option></select></div>
+          </div>
+          <div class="frow" style="--hc:1;--hr:4">
+            <div class="ff"><label>Insurance scope <span class="req">*</span></label><select class="in"><option>Customer</option></select></div>
+            <div class="ff"><label>Required delivery <span class="req">*</span></label><input class="in" value="12-09-2026"></div>
+          </div>
+          <div class="frow" style="--hc:2;--hr:4">
+            <div class="ff"><label>Customer PO number</label><input class="in"></div>
+            <div class="ff"><label>PO date</label><input class="in" value="DD-MM-YYYY"></div>
+          </div>
+          <div class="frow" style="--hc:1;--hr:5">
+            <div class="ff"><label>Referrer</label><input class="in"></div>
+            <div class="ff"><label>Commission %</label><input class="in" disabled><span class="lk">Needs a referrer</span></div>
+          </div>
+          <div class="frow" style="--hc:2;--hr:5">
+            <div class="ff"><label>Executing unit</label><select class="in"><option>U1</option></select></div>
+            <div class="ff"><label>Supply type</label><div class="ro"><span class="lk">&#128274;</span> INTRA</div></div>
+          </div>
+          <div class="frow" style="--hc:1;--hr:6">
+            <div class="ff"><label>Tally alias</label><input class="in" value="SRIBALAJI01"></div>
+            <div class="ff"><label>Booking unit</label><select class="in"><option>U1</option></select></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LINE ITEMS - M06's segregation, and the charges come down into this table -->
+    <div class="band">
+      <div class="band-hd">Line items <span class="fold">2 lines &middot; 1 customisation &middot; 2 charges</span></div>
+      <div class="band-bd" style="padding:6px">
+        <div class="lgwrap"><table class="lg" style="min-width:1564px">
+          <colgroup>
+            <col style="width:34px"><col style="width:200px">
+            <col style="width:78px"><col style="width:80px"><col style="width:78px">
+            <col style="width:80px"><col style="width:82px"><col style="width:150px"><col style="width:128px"><col style="width:62px"><col style="width:76px"><col style="width:64px">
+            <col style="width:128px"><col style="width:128px">
+            <col style="width:132px"><col style="width:64px">
+          </colgroup>
+          <thead>
+            <tr>
+              <th class="grp" colspan="2"></th>
+              <th class="grp" colspan="3">Customer requirement</th>
+              <th class="grp sepL" colspan="7">As ordered</th>
+              <th class="grp sepL" colspan="2">Internal</th>
+              <th class="grp sepL">Amount</th><th class="grp"></th>
+            </tr>
+            <tr>
+              <th>#</th><th class="itm">Item</th>
+              <th>Length</th><th>UOM</th><th>Qty</th>
+              <th class="sepL">UOM</th><th>Total qty</th><th>Section weight</th><th>Rate</th><th>Disc%</th><th>State</th><th>Unit</th>
+              <th class="sepL">Cost</th><th>Margin</th>
+              <th class="sepL">Amount</th><th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1</td>
+              <td class="itm"><span class="itemdesc" title="RS-TSPPGL047BGW1090 Roofing Sheet PPGL 0.47 mm Bright Green 1090">RS-TSPPGL047BGW1090</span><div class="lgsub" title="Roofing Sheet PPGL 0.47 mm Bright Green 1090">Roofing Sheet PPGL 0.47 Bright Green</div></td>
+              <td class="lenc"><input class="ec n" value="100"><div class="lgsub">FT</div></td>
+              <td><select class="ec"><option>FT</option></select><div class="lgsub"></div></td>
+              <td><input class="ec n" value="3"><div class="lgsub"></div></td>
+              <td class="sepL"><select class="ec"><option>KG</option></select><div class="lgsub"></div></td>
+              <td class="num">367.735<div class="lgsub">from SW</div></td>
+              <td><input class="ec n" value="4.0216"><div class="lgsub"><b>standard</b> 4.0216</div></td>
+              <td><input class="ec n mk" value="125.00"><div class="lgsub">Price list</div></td>
+              <td><input class="ec n" value="2.00"><div class="lgsub"></div></td>
+              <td><span class="flag i">Carried</span><div class="lgsub" title="Carried from RKQ-U1-26-000053">RKQ-000053</div></td>
+              <td><select class="ec"><option>U1</option></select><div class="lgsub"></div></td>
+              <td class="sepL num">108.40<div class="lgsub"></div></td>
+              <td class="num">13.3%<div class="lgsub"></div></td>
+              <td class="sepL num">45,966.88<div class="lgsub">GST 18%</div></td>
+              <td><button class="btn sm">&#9998;</button></td>
+            </tr>
+            <tr class="prod"><td class="subno">1p</td><td colspan="15">Cut length <b>30480</b> mm &nbsp;&middot;&nbsp; Cover width <b>1090</b> mm</td></tr>
+            <tr class="sub"><td class="subno">1a</td><td class="ind" colspan="10">XT01 Profile Crimping &nbsp;&middot;&nbsp; qty 3.000 &nbsp;&middot;&nbsp; unit price 160.00</td><td class="num">-</td><td class="num">-</td><td class="num">-</td><td class="num">480.00</td><td><button class="btn sm">&#9998;</button></td></tr>
+            <tr>
+              <td>2</td>
+              <td class="itm"><span class="itemdesc" title="RS-TSPPGL047BGW0900 Roofing Sheet PPGL 0.47 mm Bright Green 900">RS-TSPPGL047BGW0900</span><div class="lgsub" title="Roofing Sheet PPGL 0.47 mm Bright Green 900">Roofing Sheet PPGL 0.47 Bright Green</div></td>
+              <td class="lenc"><input class="ec n" value="80"><div class="lgsub">FT</div></td>
+              <td><select class="ec"><option>FT</option></select><div class="lgsub"></div></td>
+              <td><input class="ec n" value="5"><div class="lgsub"></div></td>
+              <td class="sepL"><select class="ec"><option>KG</option></select><div class="lgsub"></div></td>
+              <td class="num">486.210<div class="lgsub">from SW</div></td>
+              <td><input class="ec n" value="3.3210"><div class="lgsub"><b>standard</b> 3.3210</div></td>
+              <td><input class="ec n" value="118.00"><div class="lgsub">Price list</div></td>
+              <td><input class="ec n" value="8.00"><div class="lgsub"><span class="flag w">Over ceiling</span></div></td>
+              <td><span class="flag i">Carried</span><div class="lgsub" title="Carried from RKQ-U1-26-000053">RKQ-000053</div></td>
+              <td><select class="ec"><option>U2</option></select><div class="lgsub"></div></td>
+              <td class="sepL num">102.10<div class="lgsub"></div></td>
+              <td class="num">13.5%<div class="lgsub"></div></td>
+              <td class="sepL num">52,782.96<div class="lgsub">GST 18%</div></td>
+              <td><button class="btn sm">&#9998;</button></td>
+            </tr>
+            <tr class="prod"><td class="subno">2p</td><td colspan="15">Cut length <b>24384</b> mm &nbsp;&middot;&nbsp; Cover width <b>900</b> mm</td></tr>
+            <tr class="nr">
+              <td>+</td>
+              <td class="itm"><div class="tawrap"><input class="ec mk" style="width:100%" placeholder="code / description"><div class="hits inrow" style="display:none"></div></div><div class="lgsub"></div></td>
+              <td class="lenc"><input class="ec mk n"><div class="lgsub"></div></td>
+              <td><select class="ec mk"><option>-</option></select><div class="lgsub"></div></td>
+              <td><input class="ec mk n"><div class="lgsub"></div></td>
+              <td class="sepL"><select class="ec mk"><option>- item default -</option></select><div class="lgsub"></div></td>
+              <td class="num lockro"><span class="na">worked out on saving</span></td>
+              <td><select class="ec mk"><option>Standard</option><option>Specific</option></select><div class="lgsub"></div></td>
+              <td class="num lockro"><span class="na">worked out on saving</span></td>
+              <td><input class="ec mk n"><div class="lgsub"></div></td>
+              <td class="lockro"><span class="na">-</span></td>
+              <td><select class="ec mk"><option>U1</option></select><div class="lgsub"></div></td>
+              <td class="sepL num lockro"><span class="na">-</span></td>
+              <td class="num lockro"><span class="na">-</span></td>
+              <td class="sepL num lockro"><span class="na">worked out on saving</span></td>
+              <td><button class="btn sm">Add</button></td>
+            </tr>
+            <tr class="chg"><td class="subno">C1</td><td colspan="13">GC01 Freight</td><td class="num">3,500.00</td><td><button class="btn sm">&#9998;</button></td></tr>
+            <tr class="chg"><td class="subno">C2</td><td colspan="13">GC04 Loading</td><td class="num">900.00</td><td><button class="btn sm">&#9998;</button></td></tr>
+          </tbody>
+          <tfoot>
+            <tr><td colspan="14" class="num">Sub total</td><td class="num">1,03,629.84</td><td></td></tr>
+          </tfoot>
+        </table></div>
+        <div style="margin-top:6px;display:flex;gap:6px;align-items:center">
+          <button class="btn sm">+ Item</button><button class="btn sm">+ Charge</button>
+          <span class="lglegend"><span><i class="lgswatch"></i>Editable</span><span><i class="lgswatch ro"></i>Derived</span></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="cols2">
+      <div class="band"><div class="band-hd">Approval</div><div class="band-bd">
+        <div class="kv"><span class="k">Tier</span><span>Accounts</span></div>
+        <div class="kv"><span class="k">Approver</span><span>K.Antony Jecintha RKE000006</span></div>
+        <div class="kv"><span class="k">Why routed</span><span>Large Order Review</span></div>
+        <div class="kv"><span class="k">Due</span><span>31-08-2026 19:40</span></div>
+        <div class="kv"><span class="k">Decision</span><span>Awaiting</span></div>
+        <div style="margin-top:6px"><button class="btn sm">Open in approval queue</button></div>
+      </div></div>
+
+      <div class="band"><div class="band-hd">Totals</div><div class="band-bd"><div class="tot">
+        <div class="t"><span>Sub total</span><b class="lgnum">1,03,629.84</b></div>
+        <div class="t"><span>CGST</span><b class="lgnum">9,326.69</b></div>
+        <div class="t"><span>SGST</span><b class="lgnum">9,326.69</b></div>
+        <div class="t"><span>IGST</span><b class="lgnum">0.00</b></div>
+        <div class="t"><span>Round off</span><b class="lgnum">-0.22</b></div>
+        <div class="t g"><span>Grand total</span><b class="lgnum">1,22,283</b></div>
+        <div class="t"><span>Weight</span><b class="lgnum">0.854 MT</b></div>
+        <div class="t"><span>Blended rate</span><b class="lgnum">143.19</b></div>
+        <div class="t"><span>Commission</span><b class="lgnum">0.00</b></div>
+        <div class="t"><span>Pricing</span><b>Complete</b></div>
+      </div></div></div>
+    </div>
+
+    <div class="band"><div class="band-hd">Notes, documents and trail</div><div class="band-bd"><div class="cols2">
+      <div>
+        <div class="kv"><span class="k">31-08-2026 15:40 A.Nithya</span><span>Customer asked for early dispatch.</span></div>
+        <div class="kv"><span class="k">31-08-2026 15:12 A.Nithya</span><span>Converted from quote 053.</span></div>
+        <div style="margin-top:6px;display:flex;gap:6px"><input class="in" style="flex:1;height:30px" placeholder="Add a note"><button class="btn sm">Add</button></div>
+      </div>
+      <div>
+        <div class="kv"><span class="k">SD01 Customer PO</span><span>Not attached</span></div>
+        <div class="kv"><span class="k">SD04 Signed quotation</span><span>quote-053.pdf</span></div>
+        <div style="margin-top:6px;display:flex;gap:6px"><button class="btn sm">Attach</button><button class="btn sm">Withdraw</button><button class="btn sm">Revisions</button><button class="btn sm">Status trail</button></div>
+      </div>
+    </div></div></div>
+
+  </div>
+  <div class="actbar">
+    <button class="btn btn-p">Save<span class="kb">Ctrl+S</span></button>
+    <button class="btn">Submit</button>
+    <button class="btn" disabled title="This order is not approved yet.">Confirm</button>
+    <button class="btn" disabled title="Only a frozen order can be revised.">Revise</button>
+    <button class="btn">Cancel</button>
+    <button class="btn" disabled title="Only Accounts can place a credit hold.">Credit-hold</button>
+    <button class="btn">Print</button>
+    <button class="btn">More &#9662;</button>
+    <span class="sp"></span><span class="chip">Saved 15:40</span>
+  </div>
+</div>
+
+<!-- ============================= RECORDS ============================= -->
+<div class="zone" id="z-r">
+  <div class="subbar">
+    <span class="srch"><span class="ico">&#128269;</span><input placeholder="Search all recorded orders"></span>
+    <select class="f"><option>Group: none</option><option>Salesperson</option><option>Executing unit</option><option>Customer</option></select>
+    <select class="f"><option>Period: this FY</option></select>
+    <button class="btn sm">Columns &#9662;</button>
+    <span class="sp"></span><button class="btn sm">Export &#9662;</button>
+  </div>
+  <div class="tblwrap">
+    <table class="reg">
+      <thead><tr><th>SO No</th><th>Rev</th><th>Date</th><th>Customer</th><th>Status</th><th class="num">Value</th><th class="num">Weight</th><th>Confirmed</th><th>Unit</th><th>Salesperson</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">RKS-U1-26-000039</td><td>0</td><td>28-08-2026</td><td>Sri Balaji Steels</td><td><span class="st conf">Confirmed</span></td><td class="num">64,300.00</td><td class="num">0.412</td><td>28-08-2026</td><td>U1</td><td>M.Radhakrishnan</td></tr>
+        <tr><td class="mono">RKS-U1-26-000040</td><td>2</td><td>29-08-2026</td><td>Kovai Constructions</td><td><span class="st appr">Approved</span></td><td class="num">9,86,400.00</td><td class="num">6.180</td><td>-</td><td>U2</td><td>M.Radhakrishnan</td></tr>
+        <tr><td class="mono">RKS-U1-26-000037</td><td>1</td><td>26-08-2026</td><td>Anand Roofings</td><td><span class="st rej">Rejected</span></td><td class="num">88,120.00</td><td class="num">0.590</td><td>-</td><td>U1</td><td>M.Radhakrishnan</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+</div>
+<script>
+function go(k,el){
+  document.querySelectorAll('.zone').forEach(function(z){z.classList.remove('on')});
+  document.getElementById('z-'+k).classList.add('on');
+  document.querySelectorAll('.tab').forEach(function(t){t.setAttribute('aria-selected','false')});
+  if(el)el.setAttribute('aria-selected','true');
+}
+function fold(){
+  var b=document.getElementById('termsBody');
+  var open=b.style.display!=='none';
+  b.style.display=open?'none':'block';
+  document.getElementById('foldline').style.display=open?'inline':'none';
+}
+</script>
+</body>
+</html>

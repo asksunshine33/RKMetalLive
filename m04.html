@@ -1,0 +1,2522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>M04 Employees - RK Metal ERP</title>
+<link rel="stylesheet" href="rk-foundation.css?v=RKF-1.13.0"/>
+<script src="rk-foundation.js?v=RKF-1.13.0"></script>
+<style>
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--ink);font-size:var(--fs-body);height:100vh;overflow:hidden;display:flex;flex-direction:column}
+
+.shell{display:flex;flex:1;overflow:hidden}
+.work{flex:1;display:flex;flex-direction:column;overflow:hidden}
+
+.mod-badge{font-size:var(--fs-caption);font-weight:800;color:var(--surface);background:var(--purple);padding:3px 8px;border-radius:5px}
+.mod-title{font-size:var(--fs-emphasis);font-weight:800;color:var(--navy)}
+.mod-tabs{display:flex;margin-left:12px}
+.mod-tab{padding:14px 16px;font-size:var(--fs-body);font-weight:500;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:all .12s;user-select:none}
+.mod-tab:hover{color:var(--navy)}
+.mod-tab.act{color:var(--navy);font-weight:700;border-bottom-color:var(--accent)}
+.mod-actions{margin-left:auto;display:flex;align-items:center;gap:7px}
+.content{flex:1;overflow-y:auto;padding:16px 18px}
+.tab-panel{display:none}.tab-panel.act{display:block}
+
+.toolbar{display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.search-box{flex:1;min-width:280px;max-width:320px;border:1.5px solid var(--line2);border-radius:7px;padding:7px 11px;font-size:var(--fs-body);color:var(--ink);outline:none;font-family:inherit}
+.search-box:focus{border-color:var(--purple)}
+.filter-sel{border:1.5px solid var(--line2);border-radius:7px;padding:6px 10px;font-size:var(--fs-body);font-family:inherit;outline:none;color:var(--ink)}
+.filter-sel:focus{border-color:var(--purple)}
+
+/* EMPLOYEE TABLE */
+.emp-table{width:100%;border-collapse:collapse;background:var(--surface);border:1px solid var(--line);border-radius:10px;overflow:hidden;box-shadow:0 1px 3px rgba(16,40,70,.06)}
+.emp-table thead th{background:var(--surface2);padding:9px 14px;font-size:var(--fs-caption);font-weight:700;color:var(--ink2);text-transform:uppercase;letter-spacing:.35px;border-bottom:2px solid var(--line);text-align:left;white-space:nowrap}
+.emp-table tbody td{padding:10px 14px;border-bottom:1px solid var(--line);font-size:var(--fs-body);vertical-align:middle}
+.emp-table tbody tr{cursor:pointer;transition:background .1s}
+.emp-table tbody tr:hover{background:var(--surface2)}
+.emp-table tbody tr:last-child td{border-bottom:none}
+.emp-table tbody tr.exited td{opacity:.55}
+#tab-record:not(.rec-open) .rec-layout{display:none !important}
+#tab-record:not(.rec-open) #m4-rec-empty{display:none !important}
+.rec-layout{display:flex;gap:16px}
+.rec-sidebar{width:220px;flex-shrink:0}
+.rec-main{flex:1;min-width:0}
+.emp-avatar-lg{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,var(--purple),#3a2fa0);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:var(--surface);margin:0 auto 12px}
+.emp-code{font-family:monospace;font-size:var(--fs-body);font-weight:700;color:var(--purple);text-align:center;margin-bottom:4px}
+.emp-name-lg{font-size:var(--fs-emphasis);font-weight:800;color:var(--navy);text-align:center;margin-bottom:8px}
+
+/* SETUP PROGRESS */
+.setup-progress{background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:12px 14px;margin-bottom:12px}
+.setup-label{font-size:var(--fs-caption);font-weight:700;color:var(--ink2);text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px;display:flex;justify-content:space-between}
+.progress-bar{height:6px;background:var(--line2);border-radius:3px;overflow:hidden}
+.progress-fill{height:100%;border-radius:3px;transition:width .3s}
+.setup-items{margin-top:10px;display:flex;flex-direction:column;gap:4px}
+.setup-item{display:flex;align-items:center;gap:7px;font-size:var(--fs-body)}
+.setup-item .si-icon{font-size:12px;width:16px;text-align:center}
+.setup-item.done{color:var(--green)}
+.setup-item.pending{color:var(--muted)}
+
+/* FORM SECTIONS */
+.form-section{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin-bottom:12px}
+.form-section-hd{font-size:var(--fs-caption);font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.form-section-hd .fsh-icon{font-size:14px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.field{margin-bottom:0}
+.field label{display:block;font-size:var(--fs-caption);font-weight:700;text-transform:uppercase;letter-spacing:.3px;color:var(--ink2);margin-bottom:5px}
+.field .req{color:var(--accent)}
+.field input,.field select,.field textarea{width:100%;border:1.5px solid var(--line2);border-radius:7px;padding:8px 11px;font-size:var(--fs-body);color:var(--ink);outline:none;font-family:inherit;transition:border-color .15s}
+.field input:focus,.field select:focus{border-color:var(--purple)}
+.field input.readonly{background:var(--surface2);color:var(--muted);cursor:not-allowed}
+.field .hint{font-size:var(--fs-caption);color:var(--muted);margin-top:4px}
+.field .auto-tag{font-size:var(--fs-caption);background:var(--greenbg);color:var(--green);padding:1px 6px;border-radius:4px;font-weight:700;margin-left:6px}
+.access-grid .access-card{min-width:0}
+.unit-matrix th,.aa-table th{white-space:nowrap}
+.access-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
+.access-card{background:var(--surface);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.access-card-hd{background:var(--surface2);padding:10px 14px;font-size:var(--fs-body);font-weight:700;color:var(--ink2);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between}
+.role-chip{display:inline-flex;align-items:center;gap:5px;background:var(--purplebg);color:var(--purple);border:1px solid #c8c3f0;border-radius:7px;padding:5px 10px;font-size:var(--fs-body);font-weight:700;cursor:pointer;transition:all .12s}
+.role-chip:hover{background:#e0deff}
+.role-chip.sel{background:var(--purple);color:var(--surface)}
+.role-grid{display:flex;flex-wrap:wrap;gap:6px;padding:12px 14px}
+.unit-matrix{width:100%}
+.unit-matrix thead th{background:var(--surface2);padding:7px 12px;font-size:var(--fs-caption);font-weight:700;color:var(--ink2);text-align:left;border-bottom:1px solid var(--line)}
+.unit-matrix tbody td{padding:8px 12px;border-bottom:1px solid var(--line);font-size:var(--fs-body)}
+.unit-matrix tbody tr:last-child td{border-bottom:none}
+.perm-sel{border:1.5px solid var(--line2);border-radius:6px;padding:4px 8px;font-size:var(--fs-body);font-family:inherit;outline:none}
+.perm-sel:focus{border-color:var(--purple)}
+.auth-toggle{display:flex;gap:8px;padding:12px 14px}
+.auth-opt{flex:1;border:2px solid var(--line2);border-radius:9px;padding:12px;cursor:default;text-align:center}
+.auth-opt.sel{border-color:var(--purple);background:var(--purplebg)}
+.auth-opt .ao-icon{font-size:20px;margin-bottom:6px}
+.auth-opt .ao-label{font-size:var(--fs-body);font-weight:700;color:var(--ink)}
+.auth-opt .ao-sub{font-size:var(--fs-caption);color:var(--muted);margin-top:2px}
+.auth-detail{padding:0 14px 14px}
+
+/* APPROVAL AUTHORITY TABLE */
+.aa-table{width:100%;border-collapse:collapse}
+.aa-table thead th{background:var(--surface2);padding:7px 10px;font-size:var(--fs-caption);font-weight:700;color:var(--ink2);text-align:left;border-bottom:2px solid var(--line)}
+.aa-table tbody td{padding:7px 10px;border-bottom:1px solid var(--line);font-size:var(--fs-body);vertical-align:middle}
+.aa-table tbody tr:last-child td{border-bottom:none}
+.aa-input{border:1.5px solid var(--line2);border-radius:6px;padding:4px 8px;font-size:var(--fs-body);font-family:inherit;outline:none;width:100px}
+.aa-input:focus{border-color:var(--purple)}
+
+/* DELEGATION TABLE */
+.del-row{display:flex;align-items:center;gap:10px;padding:9px 14px;border-bottom:1px solid var(--line)}
+.del-row:last-child{border-bottom:none}
+.del-to{font-size:var(--fs-body);font-weight:700;color:var(--ink);flex:1}
+.del-period{font-size:var(--fs-body);color:var(--ink2)}
+.del-modules{font-size:var(--fs-caption);color:var(--muted)}
+
+/* KPI TABLE */
+.kpi-row{display:flex;align-items:center;gap:10px;padding:9px 14px;border-bottom:1px solid var(--line)}
+.kpi-row:last-child{border-bottom:none}
+.kpi-type{font-size:var(--fs-body);font-weight:700;color:var(--ink);flex:1}
+.kpi-target{font-size:var(--fs-body);color:var(--blue);font-weight:700}
+.kpi-period{font-size:var(--fs-caption);background:var(--bluebg);color:var(--blue);padding:2px 7px;border-radius:5px;font-weight:600}
+
+/* EFFECTIVE PERMS */
+.eff-perm-row{display:flex;align-items:center;gap:10px;padding:7px 14px;border-bottom:1px solid var(--line);font-size:var(--fs-body)}
+.eff-perm-row:last-child{border-bottom:none}
+.eff-module{flex:1;color:var(--ink2)}
+.eff-level{font-weight:700}
+.eff-level.full{color:var(--green)}
+.eff-level.read{color:var(--blue)}
+.eff-level.none{color:var(--muted)}
+.eff-source{font-size:var(--fs-caption);color:var(--muted)}
+
+/* LEAVER CHECKLIST */
+.leaver-item{display:flex;align-items:center;gap:10px;padding:9px 14px;border-bottom:1px solid var(--line)}
+.leaver-item:last-child{border-bottom:none}
+.leaver-icon{font-size:14px;flex-shrink:0}
+.leaver-desc{flex:1;font-size:var(--fs-body);color:var(--ink)}
+.leaver-status{font-size:var(--fs-caption);font-weight:700;padding:2px 8px;border-radius:5px}
+.leaver-status.done{background:var(--greenbg);color:var(--green)}
+.leaver-status.pending{background:var(--warnbg);color:var(--warn)}
+
+.pill{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:9px;font-size:var(--fs-caption);font-weight:700}
+.pill.g{background:var(--greenbg);color:var(--green)}
+.pill.w{background:var(--warnbg);color:var(--warn)}
+.pill.r{background:var(--accentbg);color:var(--accent)}
+.pill.b{background:var(--bluebg);color:var(--blue)}
+.pill.p{background:var(--purplebg);color:var(--purple)}
+.pill.n{background:var(--surface2);color:var(--muted)}
+
+/* TOGGLE */
+.tgl{position:relative;width:40px;height:22px;display:inline-block;flex-shrink:0}
+.tgl input{opacity:0;width:0;height:0}
+.tsl{position:absolute;cursor:pointer;inset:0;background:var(--line2);border-radius:22px;transition:.2s}
+.tsl:before{content:'';position:absolute;height:16px;width:16px;left:3px;top:3px;background:var(--surface);border-radius:50%;transition:.2s}
+.tgl input:checked+.tsl{background:var(--green)}
+.tgl input:checked+.tsl:before{transform:translateX(18px)}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:5px;padding:7px 13px;border-radius:7px;font-size:var(--fs-body);font-weight:600;cursor:pointer;border:none;transition:all .15s;white-space:nowrap}
+.btn-p{background:var(--accent);color:var(--surface)}.btn-p:hover{background:#9e2c1a}
+.btn-g{background:transparent;color:var(--ink2);border:1px solid var(--line2)}.btn-g:hover{background:var(--surface2)}
+.btn-purple{background:var(--purple);color:var(--surface)}.btn-purple:hover{background:#3a2fa0}
+.btn-w{background:var(--warn);color:var(--surface)}.btn-w:hover{background:#8f6110}
+.btn-sm{padding:5px 10px;font-size:var(--fs-body)}
+.btn-xs{padding:3px 8px;font-size:var(--fs-caption)}
+
+/* MODAL */
+.ovl{position:fixed;inset:0;background:rgba(10,25,45,.4);z-index:var(--z-modal);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s}
+.ovl.show{opacity:1;pointer-events:all}
+.modal{background:var(--surface);border-radius:12px;width:560px;max-height:88vh;overflow-y:auto;box-shadow:0 20px 60px rgba(10,25,45,.25)}
+.modal-hd{background:var(--navy);padding:15px 20px;color:var(--surface);border-radius:12px 12px 0 0}
+.modal-hd h3{font-size:var(--fs-emphasis);font-weight:700}
+.modal-hd p{font-size:var(--fs-caption);opacity:.7;margin-top:2px}
+.modal-body{padding:18px 20px}
+.modal-ft{padding:12px 20px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:8px;background:var(--surface2);border-radius:0 0 12px 12px;position:sticky;bottom:0;z-index:var(--z-sticky)} 
+
+.warn-box{background:var(--warnbg);border:1px solid #dfc37b;border-radius:7px;padding:9px 12px;font-size:var(--fs-body);color:var(--warn);margin-top:8px}
+.danger-box{background:var(--accentbg);border:1px solid #f0b3a0;border-radius:7px;padding:9px 12px;font-size:var(--fs-body);color:var(--accent);margin-top:8px}
+.info-box{background:var(--bluebg);border:1px solid #b3d1f0;border-radius:7px;padding:9px 12px;font-size:var(--fs-body);color:var(--blue)}
+
+/* TOAST */
+
+::-webkit-scrollbar{width:4px;height:4px}::-webkit-scrollbar-thumb{background:var(--line2);border-radius:3px}
+
+#tab-record.rec-open .rkf-roster{display:none}
+#tab-record.rec-open .rkf-recback{display:flex}
+.rkf-roster-scroll .emp-table{min-width:1280px}.rkf-roster-scroll .emp-table th,.rkf-roster-scroll .emp-table td{white-space:nowrap}
+.rkf-roster-scroll .emp-table tbody tr{cursor:pointer}
+.rkf-roster-scroll .emp-table tbody tr.sel td{background:var(--bluebg)}
+.rkf-effperm .eff-perm-row{display:grid;grid-template-columns:1fr 90px 1fr 200px;gap:8px;padding:8px 16px;border-bottom:1px solid var(--line);font-size:var(--fs-body)}
+.rkf-effperm .eff-perm-row:last-child{border-bottom:none}
+.rkf-effperm .eff-level{text-align:right;font-weight:700}
+.rkf-effperm .eff-source{text-align:right;color:var(--muted);font-size:var(--fs-caption);text-transform:none;letter-spacing:0}
+</style>
+</head>
+<body>
+<div class="shell">
+<div class="work">
+  <div class="mod-hdr rkf-halfbar">
+    <span class="mod-badge">M04</span>
+    <span class="mod-title">Employees</span>
+    <div class="mod-tabs">
+      <div class="mod-tab act" onclick="switchTab(this,'list')">List</div>
+      <div class="mod-tab" onclick="switchTab(this,'record')">Record</div>
+      <div class="mod-tab" onclick="switchTab(this,'access')">Access</div>
+    </div>
+    <div class="mod-actions">
+      <span id="alog-access-point"><button class="btn btn-g btn-sm" id="history-btn" title="Activity Log" onclick="openHistory()">&#128340; History</button></span>
+      <button class="btn btn-p btn-sm rkf-write" onclick="openAddEmp()">+ Add Employee</button>
+    </div>
+  </div>
+  <div class="content">
+
+    <!-- ===== LIST TAB ===== -->
+    <div class="tab-panel act" id="tab-list">
+      <div class="toolbar">
+        <input class="search-box" id="emp-search" placeholder="Search employees" oninput="filterEmployees()"/>
+        <select class="filter-sel" id="f-status" onchange="filterEmployees()"></select>
+        <select class="filter-sel" id="f-dept" onchange="filterEmployees()">
+          <option value="">All Departments</option>
+        </select>
+        <select class="filter-sel" id="f-unit" onchange="filterEmployees()">
+          <option value="">All Units</option>
+        </select>
+      </div>
+      <table class="emp-table" id="emp-table">
+        <thead id="emp-head">
+          <tr>
+            <th>Code</th><th>Name</th><th>Department</th><th>Designation</th>
+            <th>Unit</th><th>Role</th><th>Login</th><th>Status</th><th></th>
+          </tr>
+        </thead>
+        <tbody id="emp-body"><tr><td colspan="9" style="color:var(--muted);padding:12px 14px">Loading…</td></tr></tbody>
+      </table>
+      <div style="margin-top:10px;font-size:var(--fs-body);color:var(--muted)">Showing <span id="emp-count">6</span> employees</div>
+    </div>
+
+    <!-- ===== RECORD TAB ===== -->
+    <div class="tab-panel" id="tab-record">
+
+      <div class="rkf-recback">
+        <button class="btn btn-g btn-sm" onclick="m4CloseRecord()">&#8592; All employees</button>
+        <span class="rkf-recback-who" id="rkf-recback-who"></span>
+        <span class="rkf-recback-sub" id="rkf-recback-sub"></span>
+      </div>
+
+      <div class="rkf-roster">
+        <div class="rkf-roster-hd">Active employees <span id="rkf-roster-count"></span></div>
+
+        <div class="toolbar">
+          <input class="search-box" id="rec-search" placeholder="Search employees" oninput="m4FilterRoster()"/>
+          <select class="filter-sel" id="rec-f-status" onchange="m4FilterRoster()"></select>
+          <select class="filter-sel" id="rec-f-dept" onchange="m4FilterRoster()"></select>
+          <select class="filter-sel" id="rec-f-unit" onchange="m4FilterRoster()"></select>
+        </div>
+        <div class="rkf-roster-scroll">
+          <table class="emp-table" id="rkf-roster-table">
+            <thead id="rkf-roster-head"><tr>
+              <th>Code</th><th>Name</th><th>Mobile</th><th>Email</th><th>Joined</th>
+              <th>Type</th><th>Department</th><th>Designation</th><th>Reports To</th>
+              <th>Unit</th><th>Tally Alias</th><th>Roles</th><th>Sign-in</th><th>Status</th>
+            </tr></thead>
+            <tbody id="rkf-roster-body"><tr><td colspan="14" class="rkf-roster-note">Loading employees</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="rec-layout">
+        <!-- Sidebar -->
+        <div class="rec-sidebar">
+          <div class="emp-avatar-lg" id="rec-avatar">KV</div>
+          <div class="emp-code" id="rec-code">EMP-0002</div>
+          <div class="emp-name-lg" id="rec-name">Karthik V.</div>
+          <div style="text-align:center;margin-bottom:14px">
+            <span class="pill g" id="rec-status-pill">Active</span>
+            <span class="pill g" style="margin-left:4px" id="rec-login-pill">Login On</span>
+          </div>
+          <div class="setup-progress">
+            <div class="setup-label">
+              <span>Setup Completion</span>
+              <span id="setup-pct" style="color:var(--green);font-weight:800">100%</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" id="setup-bar" style="width:100%;background:var(--green)"></div></div>
+            <div class="setup-items" id="setup-items">
+              <div class="setup-item done"><span class="si-icon">&#10003;</span> Basic info</div>
+              <div class="setup-item done"><span class="si-icon">&#10003;</span> Login configured</div>
+              <div class="setup-item done"><span class="si-icon">&#10003;</span> Role assigned</div>
+              <div class="setup-item done"><span class="si-icon">&#10003;</span> Posting unit set</div>
+              <div class="setup-item done"><span class="si-icon">&#10003;</span> Unit access set</div>
+              <div class="setup-item done"><span class="si-icon">&#10003;</span> KPI assigned</div>
+            </div>
+          </div>
+          <div id="rec-glance" style="border-top:1px solid var(--line);margin:10px 0;padding-top:8px;font-size:var(--fs-body);color:var(--ink2);line-height:1.7"></div>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <button class="btn btn-g btn-sm rkf-write" onclick="openExitModal()">&#128682; Mark as Exited</button>
+          </div>
+        </div>
+        <!-- Main form -->
+        <div class="rec-main">
+          <div class="form-section">
+            <div class="form-section-hd"><span class="fsh-icon">&#128100;</span> Personal &amp; Employment</div>
+            <div class="grid-3">
+              <div class="field"><label>Employee Code <span style="font-size:var(--fs-caption);color:var(--muted)">(auto-assigned)</span></label><input id="r-code" value="" class="readonly" readonly/></div>
+              <div class="field"><label>Full Name <span class="req">*</span></label><input id="r-name" value=""/></div>
+              <div class="field"><label>Mobile <span style="font-size:var(--fs-caption);font-weight:400;color:var(--muted)">(required when ERP access is ON)</span></label><input id="r-mobile" type="tel" inputmode="numeric" maxlength="10" value=""/></div>
+            </div>
+            <div class="grid-3">
+              <div class="field"><label>Email</label><input id="r-email" type="email" value=""/></div>
+              <div class="field"><label>Date of Joining <span class="req">*</span></label><span class="dpf" style="position:relative;display:inline-flex;align-items:center;width:100%"><input id="r-doj" placeholder="DD-MM-YYYY" maxlength="10" oninput="dmyMask(this)" autocomplete="off" style="flex:1;width:100%"/><button type="button" onclick="dpOpen(event,'r-doj')" title="Pick date" style="position:absolute;right:4px;border:none;background:none;cursor:pointer;font-size:var(--fs-emphasis);line-height:1">&#128197;</button><div id="r-doj-cal" class="dp-cal" style="display:none"></div></span></div>
+            </div>
+            <div class="grid-3">
+              <div class="field"><label>Employment Type <span class="req">*</span></label>
+                <select id="r-emptype"></select>
+              </div>
+              <div class="field"><label>Department <span class="req">*</span></label>
+                <select id="r-dept"></select>
+              </div>
+              <div class="field"><label>Designation <span class="req">*</span></label>
+                <select id="r-desig"></select>
+              </div>
+            </div>
+            <div class="grid-3">
+              <div class="field"><label>Reports To</label>
+                <select id="r-reports"></select>
+              </div>
+              <div class="field"><label>Posting Unit <span class="req">*</span></label>
+                <select id="r-unit"></select>
+              </div>
+              <div class="field"><label>Tally Alias <span class="req">*</span></label><input id="r-tally" value="RKMR-EMP-KARTHIK"/></div>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <div class="form-section-hd"><span class="fsh-icon">&#128274;</span> ERP Access</div>
+            <div style="display:flex;align-items:center;gap:14px;margin-bottom:12px">
+              <label style="font-size:var(--fs-body);font-weight:700;color:var(--ink)">ERP Login Access</label>
+              <label class="tgl"><input type="checkbox" id="r-access" checked onchange="toggleAccessFields()"><span class="tsl"></span></label>
+              <span id="r-access-label" style="font-size:var(--fs-body);color:var(--green);font-weight:600">Enabled</span>
+            </div>
+            <div id="access-fields">
+              <div class="form-section-hd" style="margin-top:0;margin-bottom:10px;font-size:var(--fs-caption)">Auth Method</div>
+              <div class="auth-toggle" id="auth-toggle">
+                <div class="auth-opt sel" id="auth-email" onclick="m4PickAuth('EMAIL')">
+                  <div class="ao-icon">&#128140;</div>
+                  <div class="ao-label">Email Login</div>
+
+                </div>
+                <div class="auth-opt" id="auth-user" onclick="m4PickAuth('USERNAME_PASSWORD')">
+                  <div class="ao-icon">&#128273;</div>
+                  <div class="ao-label">Username + Password</div>
+
+                </div>
+              </div>
+              <div id="auth-detail-email" class="auth-detail">
+                <div class="field"><label>Login Email <span class="req">*</span></label><input id="r-login-email" class="readonly" value="" readonly/></div>
+              </div>
+              <div id="auth-detail-user" class="auth-detail" style="display:none">
+                <div class="grid-2">
+                  <div class="field"><label>Username</label><input id="r-username" class="readonly" readonly/><div class="hint" id="r-username-hint"></div></div>
+                </div>
+              </div>
+
+              <div class="rkf-cred" id="cred-block">
+                <div class="rkf-cred-hd">Sign-in account</div>
+                <div class="rkf-cred-state" id="cred-state"></div>
+                <div class="rkf-cred-acts" id="cred-acts"></div>
+              </div>
+            </div>
+            <div id="no-access-note" class="info-box" style="margin-top:10px;display:none">No login for this employee.</div>
+          </div>
+
+          <div class="form-section">
+            <div class="form-section-hd"><span class="fsh-icon">&#127919;</span> KPI &amp; Targets</div>
+            <div id="kpi-list">
+              <div class="kpi-row">
+                <div class="kpi-type">Quotes Converted</div>
+                <div class="kpi-target">Target: 8 / month</div>
+                <span class="kpi-period">Monthly</span>
+                <button class="btn btn-g btn-xs" onclick="openKpiModal()">Edit</button>
+              </div>
+              <div class="kpi-row">
+                <div class="kpi-type">Leads Generated</div>
+                <div class="kpi-target">Target: 20 / month</div>
+                <span class="kpi-period">Monthly</span>
+                <button class="btn btn-g btn-xs" onclick="openKpiModal()">Edit</button>
+              </div>
+            </div>
+            <button class="btn btn-g btn-sm rkf-write" style="margin-top:10px" onclick="openKpiModal()">+ Add KPI</button>
+          </div>
+
+          <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:4px;position:sticky;bottom:0;background:var(--bg);padding:10px 0 12px;border-top:1px solid var(--line);z-index:20">
+            <button class="btn btn-g" onclick="switchTab(document.querySelector('.mod-tab'),\'list\')">Cancel</button>
+            <button class="btn btn-p rkf-write" onclick="saveEmployee()">Save Employee <span class="kbd-hint" style="font-size:var(--fs-caption);font-weight:400;opacity:.65;margin-left:4px">Ctrl+S</span></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ACCESS TAB -->
+    <div class="tab-panel" id="tab-access">
+      <div class="rkf-subtabs" id="rkf-subtabs">
+        <div class="rkf-subtab act" onclick="m4AccView('general')">General</div>
+        <div class="rkf-subtab" onclick="m4AccView('individual')">Individual</div>
+      </div>
+
+      <!-- ---------------- GENERAL ---------------- -->
+      <div class="rkf-view act" id="rkf-view-general">
+
+        <div class="access-card rkf-full">
+          <div class="access-card-hd">Roles and module access
+            <span class="rkf-cardacts">
+              <button class="btn btn-g btn-xs rkf-write" onclick="m4OpenRole('')">Add role</button>
+            </span></div>
+          <div id="authz-matrix" class="rkf-matrix-wrap"><div class="rkf-empty">Loading</div></div>
+        </div>
+
+        <div class="access-card rkf-full">
+          <div class="access-card-hd">Assign a role to several employees
+            <span class="rkf-cardacts">
+              <button class="btn btn-g btn-xs rkf-write" id="btn-assign-role" onclick="m4GroupRole('assign')">Assign</button>
+              <button class="btn btn-g btn-xs rkf-write" id="btn-revoke-role" onclick="m4GroupRole('revoke')">Revoke</button>
+            </span></div>
+          <div class="rkf-group">
+            <div class="rkf-group-role">
+              <label for="ga-role">Role</label>
+              <select id="ga-role" onchange="m4GroupTickRender()"></select>
+              <div class="rkf-empty" id="ga-note"></div>
+            </div>
+            <div class="rkf-group-emps" id="ga-picker"><div class="rkf-empty">Loading</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ---------------- INDIVIDUAL ---------------- -->
+      <div class="rkf-view" id="rkf-view-individual">
+        <div class="rkf-split">
+
+          <div class="rkf-picker">
+            <div class="rkf-picker-hd">Employee</div>
+            <input class="search-box rkf-picker-search" id="acc-emp-search" placeholder="Search employees" oninput="m4AccPickerRender()"/>
+            <div class="rkf-picker-list" id="acc-emp-list"></div>
+          </div>
+
+          <div class="rkf-split-main">
+            <div class="rkf-split-hd" id="acc-emp-name">Choose an employee</div>
+
+            <div class="access-grid">
+
+              <div class="access-card">
+                <div class="access-card-hd">Roles
+                  <span class="rkf-cardacts"><button class="btn btn-g btn-xs rkf-write" onclick="m4SaveRoles()">Save</button></span></div>
+                <div class="role-grid" id="role-grid"></div>
+                <div class="rkf-soft" id="role-soft"></div>
+                <div class="rkf-cardfoot">
+                  <label class="tgl"><input type="checkbox" id="r-commission"><span class="tsl"></span></label>
+                  <span class="rkf-inline">Receives commission</span>
+                </div>
+              </div>
+
+              <div class="access-card">
+                <div class="access-card-hd">Unit access</div>
+
+                <div class="rkf-pane"><table class="unit-matrix">
+                  <thead><tr><th>Unit</th><th>This unit's records</th><th>Valid from / to</th></tr></thead>
+                  <tbody id="um-body"></tbody>
+                </table></div>
+              </div>
+
+              <div class="access-card">
+                <div class="access-card-hd">Data scope</div>
+                <div id="acc-scope"></div>
+              </div>
+
+              <div class="access-card">
+                <div class="access-card-hd">Module override
+                  <span class="rkf-cardacts" id="rkf-cardacts-override"></span></div>
+
+                <div id="acc-override" class="rkf-pane"></div>
+              </div>
+
+              <div class="access-card">
+                <div class="access-card-hd">Delegations
+                  <span class="rkf-cardacts"><button class="btn btn-g btn-xs rkf-write" onclick="openDelegModal()">Add</button></span></div>
+                <div id="del-list"></div>
+              </div>
+
+              <div class="access-card">
+                <div class="access-card-hd">Escalation</div>
+                <div id="acc-escalation"></div>
+              </div>
+            </div>
+
+            <div class="access-card rkf-full rkf-effperm">
+              <div class="access-card-hd">Effective permissions</div>
+              <div id="rkf-effpermective" class="rkf-pane"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- content -->
+</div><!-- work -->
+</div><!-- shell -->
+
+<!-- ADD EMPLOYEE MODAL -->
+<div class="ovl" id="add-modal" onclick="closeModals(event)">
+<div class="modal" onclick="event.stopPropagation()">
+  <div class="modal-hd"><h3>Add Employee</h3></div>
+  <div class="modal-body">
+    <div class="grid-2">
+      <div class="field"><label>Employee Code</label><input id="new-code" value=""/></div>
+      <div class="field"><label>Full Name <span class="req">*</span></label><input id="new-name" placeholder="e.g. Arun Kumar"/></div>
+    </div>
+    <div class="grid-2">
+      <div class="field"><label>Mobile <span style="font-size:var(--fs-caption);font-weight:400;color:var(--muted)">(required when ERP access is ON)</span></label><input id="new-mobile" placeholder="+91 98XXX XXXXX"/></div>
+      <div class="field"><label>Email</label><input id="new-email" placeholder="arun@rkmetal.com"/></div>
+    </div>
+    <div class="grid-2">
+      <div class="field"><label>Department <span class="req">*</span></label>
+        <select id="new-dept"></select>
+      </div>
+      <div class="field"><label>Designation <span class="req">*</span></label>
+        <select id="new-desig"></select>
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="field"><label>Posting Unit <span class="req">*</span></label>
+        <select id="new-unit"></select>
+      </div>
+      <div class="field"><label>Reports To</label>
+        <select id="new-reports"></select>
+      </div>
+    </div>
+    <div class="field"><label>Date of Joining <span class="req">*</span></label><span class="dpf" style="position:relative;display:inline-flex;align-items:center;width:100%"><input id="new-doj" placeholder="DD-MM-YYYY" maxlength="10" oninput="dmyMask(this)" autocomplete="off" style="flex:1;width:100%"/><button type="button" onclick="dpOpen(event,'new-doj')" title="Pick date" style="position:absolute;right:4px;border:none;background:none;cursor:pointer;font-size:var(--fs-emphasis);line-height:1">&#128197;</button><div id="new-doj-cal" class="dp-cal" style="display:none"></div></span></div>
+    <div style="margin-top:4px;font-size:var(--fs-body);color:var(--ink2)"></div>
+  </div>
+  <div class="modal-ft">
+    <button class="btn btn-g" onclick="closeModals()">Cancel</button>
+    <button class="btn btn-p" onclick="saveNewEmp()">Save Employee <span class="kbd-hint" style="font-size:var(--fs-caption);font-weight:400;opacity:.65;margin-left:4px">Ctrl+S</span></button>
+  </div>
+</div>
+</div>
+
+<div class="ovl" id="pw-modal" onclick="closeModals(event)">
+<div class="modal" onclick="event.stopPropagation()">
+  <div class="modal-hd"><h3>Set password</h3></div>
+  <div class="modal-body">
+    <div style="font-size:var(--fs-body);font-weight:700;color:var(--navy);margin-bottom:8px" id="pw-who"></div>
+    <div class="field"><label>New password <span class="req">*</span></label><input id="pw-new" type="password" autocomplete="new-password"/>
+      </div>
+    <div class="field"><label>Type it again <span class="req">*</span></label><input id="pw-again" type="password" autocomplete="new-password"/></div>
+    <div class="hint" id="pw-note" style="color:var(--warn)"></div>
+
+  </div>
+  <div class="modal-ft">
+    <button class="btn btn-g" onclick="closeModals()">Cancel</button>
+    <button class="btn btn-p" onclick="m4SavePassword()">Set password <span class="kbd-hint" style="font-size:var(--fs-caption);font-weight:400;opacity:.65;margin-left:4px">Ctrl+S</span></button>
+  </div>
+</div>
+</div>
+
+<div class="ovl" id="role-modal" onclick="closeModals(event)">
+<div class="modal" onclick="event.stopPropagation()">
+  <div class="modal-hd"><h3 id="role-modal-title">Add role</h3></div>
+  <div class="modal-body">
+    <div class="grid-2">
+      <div class="field"><label>Role name <span class="req">*</span></label><input id="role-name" placeholder="e.g. Dispatch Supervisor"/></div>
+      <div class="field"><label>Code</label><input id="role-code" placeholder="left blank = next free" maxlength="3" style="text-transform:uppercase"/><div class="hint" id="role-code-hint"></div></div>
+    </div>
+    <div class="grid-2">
+      <div class="field"><label>Group <span class="req">*</span></label><select id="role-group"></select>
+        </div>
+      <div class="field"><label>Segregation of duties <span class="req">*</span></label>
+        <select id="role-sod">
+          <option value="">Choose...</option>
+          <option value="creator">Creates transactions</option>
+          <option value="approver">Approves transactions</option>
+          <option value="none">Neither</option>
+        </select>
+        </div>
+    </div>
+    <div class="field" id="role-active-wrap" style="display:none">
+      <label style="display:flex;align-items:center;gap:8px">
+        <label class="tgl"><input type="checkbox" id="role-active"><span class="tsl"></span></label>
+        <span class="rkf-inline">In use</span></label>
+
+    </div>
+    <div class="hint" id="role-modal-note" style="color:var(--warn)"></div>
+  </div>
+  <div class="modal-ft">
+    <button class="btn btn-g" onclick="closeModals()">Cancel</button>
+    <button class="btn btn-p" onclick="m4SaveRole()">Save role <span class="kbd-hint" style="font-size:var(--fs-caption);font-weight:400;opacity:.65;margin-left:4px">Ctrl+S</span></button>
+  </div>
+</div>
+</div>
+
+<!-- KPI MODAL -->
+<div class="ovl" id="kpi-modal" onclick="closeModals(event)">
+<div class="modal" onclick="event.stopPropagation()">
+  <div class="modal-hd"><h3>Add KPI</h3></div>
+  <div class="modal-body">
+    <div class="field"><label>KPI Type <span class="req">*</span></label>
+      <select id="kpi-type"></select>
+    </div>
+    <div class="grid-2">
+      <div class="field"><label>Target Value <span class="req">*</span></label><input id="kpi-target" type="number" placeholder="e.g. 20"/></div>
+      <div class="field"><label>Period <span class="req">*</span></label>
+        <select id="kpi-period"><option>Monthly</option><option>Quarterly</option><option>Annual</option></select>
+      </div>
+    </div>
+    <div class="field"><label>Effective From</label><span class="dpf" style="position:relative;display:inline-flex;align-items:center;width:100%"><input id="kpi-from" placeholder="DD-MM-YYYY" maxlength="10" oninput="dmyMask(this)" autocomplete="off" style="flex:1;width:100%"/><button type="button" onclick="dpOpen(event,'kpi-from')" title="Pick date" style="position:absolute;right:4px;border:none;background:none;cursor:pointer;font-size:var(--fs-emphasis);line-height:1">&#128197;</button><div id="kpi-from-cal" class="dp-cal" style="display:none"></div></span></div>
+  </div>
+  <div class="modal-ft">
+    <button class="btn btn-g" onclick="closeModals()">Cancel</button>
+    <button class="btn btn-p" onclick="saveKpi()">Add KPI <span class="kbd-hint" style="font-size:var(--fs-caption);font-weight:400;opacity:.65;margin-left:4px">Ctrl+S</span></button>
+  </div>
+</div>
+</div>
+
+<!-- APPROVAL AUTHORITY MODAL -->
+<div class="ovl" id="aa-modal" onclick="closeModals(event)">
+<div class="modal" onclick="event.stopPropagation()">
+  <div class="modal-hd"><h3>Add Approval Authority</h3></div>
+  <div class="modal-body">
+    <div class="field"><label>Module <span class="req">*</span></label>
+      <select id="aa-module"></select>
+    </div>
+    <div class="grid-2">
+      <div class="field"><label>Value Limit (Rs.) <span class="req">*</span></label><input id="aa-val" type="number" placeholder="e.g. 200000"/></div>
+      <div class="field"><label>Max Discount % <span class="req">*</span></label><input id="aa-disc" type="number" placeholder="e.g. 5"/></div>
+    </div>
+    <div class="grid-2">
+      <div class="field"><label>TAT hours</label><input id="aa-tat" type="number" placeholder="optional, e.g. 24"/></div>
+      <div class="field"><label>Validity</label><div style="display:flex;gap:6px;align-items:center"><span class="dpf" style="position:relative;display:inline-flex;align-items:center;flex:1"><input id="aa-from" placeholder="DD-MM-YYYY" maxlength="10" oninput="dmyMask(this)" autocomplete="off" style="flex:1;width:100%"/><button type="button" onclick="dpOpen(event,'aa-from')" title="Pick date" style="position:absolute;right:4px;border:none;background:none;cursor:pointer;font-size:var(--fs-emphasis);line-height:1">&#128197;</button><div id="aa-from-cal" class="dp-cal" style="display:none"></div></span><span style="font-size:var(--fs-caption);color:var(--muted)">to</span><span class="dpf" style="position:relative;display:inline-flex;align-items:center;flex:1"><input id="aa-to" placeholder="DD-MM-YYYY" maxlength="10" oninput="dmyMask(this)" autocomplete="off" style="flex:1;width:100%"/><button type="button" onclick="dpOpen(event,'aa-to')" title="Pick date" style="position:absolute;right:4px;border:none;background:none;cursor:pointer;font-size:var(--fs-emphasis);line-height:1">&#128197;</button><div id="aa-to-cal" class="dp-cal" style="display:none"></div></span></div></div>
+    </div>
+    <div id="m4-aa-uq" class="hint" style="color:var(--warn)"></div>
+  </div>
+  <div class="modal-ft">
+    <button class="btn btn-g" onclick="closeModals()">Cancel</button>
+    <button class="btn btn-p" onclick="saveAa()">Add Authority <span class="kbd-hint" style="font-size:var(--fs-caption);font-weight:400;opacity:.65;margin-left:4px">Ctrl+S</span></button>
+  </div>
+</div>
+</div>
+
+<!-- DELEGATION MODAL -->
+<div class="ovl" id="deleg-modal" onclick="closeModals(event)">
+<div class="modal" onclick="event.stopPropagation()">
+  <div class="modal-hd"><h3>Add Delegation</h3></div>
+  <div class="modal-body">
+    <div class="field"><label>Delegate To <span class="req">*</span></label>
+      <select id="del-to-sel">
+        <option value="">Select employee...</option>
+      </select>
+
+    </div>
+    <div class="grid-2">
+      <div class="field"><label>From Date <span class="req">*</span></label><span class="dpf" style="position:relative;display:inline-flex;align-items:center;width:100%"><input id="del-from" placeholder="DD-MM-YYYY" maxlength="10" oninput="dmyMask(this)" autocomplete="off" style="flex:1;width:100%"/><button type="button" onclick="dpOpen(event,'del-from')" title="Pick date" style="position:absolute;right:4px;border:none;background:none;cursor:pointer;font-size:var(--fs-emphasis);line-height:1">&#128197;</button><div id="del-from-cal" class="dp-cal" style="display:none"></div></span></div>
+      <div class="field"><label>To Date <span class="req">*</span></label><span class="dpf" style="position:relative;display:inline-flex;align-items:center;width:100%"><input id="del-to-dt" placeholder="DD-MM-YYYY" maxlength="10" oninput="dmyMask(this)" autocomplete="off" style="flex:1;width:100%"/><button type="button" onclick="dpOpen(event,'del-to-dt')" title="Pick date" style="position:absolute;right:4px;border:none;background:none;cursor:pointer;font-size:var(--fs-emphasis);line-height:1">&#128197;</button><div id="del-to-dt-cal" class="dp-cal" style="display:none"></div></span></div>
+    </div>
+    <div class="field"><label>Modules <span class="req">*</span></label>
+      <div style="display:flex;flex-direction:column;gap:7px;padding:8px 0">
+        <label style="display:flex;align-items:center;gap:8px;font-size:var(--fs-body);cursor:pointer"><input type="checkbox" id="del-m06" checked/> M06 Quote</label>
+        <label style="display:flex;align-items:center;gap:8px;font-size:var(--fs-body);cursor:pointer"><input type="checkbox" id="del-m08" checked/> M08 Sales Order</label>
+        <label style="display:flex;align-items:center;gap:8px;font-size:var(--fs-body);cursor:pointer"><input type="checkbox" id="del-m01"/> M01 Customer</label>
+      </div>
+    </div>
+  </div>
+  <div class="modal-ft">
+    <button class="btn btn-g" onclick="closeModals()">Cancel</button>
+    <button class="btn btn-p" onclick="saveDeleg()">Create Delegation</button>
+  </div>
+</div>
+</div>
+
+<!-- EXIT MODAL -->
+<div class="ovl" id="exit-modal" onclick="closeModals(event)">
+<div class="modal" onclick="event.stopPropagation()">
+  <div class="modal-hd"><h3>Mark Employee as Exited</h3><p></p></div>
+  <div class="modal-body">
+    <div class="field"><label>Date of Exit <span class="req">*</span></label><span class="dpf" style="position:relative;display:inline-flex;align-items:center;width:100%"><input id="exit-date" placeholder="DD-MM-YYYY" maxlength="10" oninput="dmyMask(this)" autocomplete="off" style="flex:1;width:100%"/><button type="button" onclick="dpOpen(event,'exit-date')" title="Pick date" style="position:absolute;right:4px;border:none;background:none;cursor:pointer;font-size:var(--fs-emphasis);line-height:1">&#128197;</button><div id="exit-date-cal" class="dp-cal" style="display:none"></div></span></div>
+    <div class="field"><label>Exit Reason <span class="req">*</span></label>
+      <select id="exit-reason"></select>
+    </div>
+    <div class="field"><label>Remarks</label><textarea id="exit-remarks" rows="2" placeholder="Optional remarks"></textarea></div>
+    </div>
+  <div class="modal-ft">
+    <button class="btn btn-g" onclick="closeModals()">Cancel</button>
+    <button class="btn btn-w" onclick="confirmExit()">Confirm Exit</button>
+  </div>
+</div>
+</div>
+
+<!-- LEAVER CHECKLIST MODAL -->
+<div class="ovl" id="leaver-modal" onclick="closeModals(event)">
+<div class="modal" onclick="event.stopPropagation()">
+  <div class="modal-hd"><h3>Leaver Checklist</h3></div>
+  <div class="modal-body"></div>
+  <div class="modal-ft">
+    <button class="btn btn-g" onclick="closeModals()">Close</button>
+    <button class="btn btn-purple" onclick="toast('Navigating to M03 for reassignment');closeModals()">Reassign in M03</button>
+  </div>
+</div>
+</div>
+
+<div class="rkf-toast" id="toast-el"></div>
+
+<script>
+/* TAB SWITCHING */
+function switchTab(el, key) {
+  document.querySelectorAll('.mod-tab').forEach(function(t){t.classList.remove('act');});
+  document.querySelectorAll('.tab-panel').forEach(function(p){p.classList.remove('act');});
+  if (el) el.classList.add('act');
+  var panel = document.getElementById('tab-' + key);
+  if (panel) panel.classList.add('act');
+}
+
+function updateSetupProgress(pct) {
+  document.getElementById('setup-pct').textContent = pct + '%';
+  var bar = document.getElementById('setup-bar');
+  bar.style.width = pct + '%';
+  bar.style.background = pct === 100 ? 'var(--green)' : pct >= 60 ? 'var(--warn)' : 'var(--accent)';
+}
+
+/* ACCESS FIELDS TOGGLE */
+function toggleAccessFields() {
+  var on = document.getElementById('r-access').checked;
+  document.getElementById('access-fields').style.display = on ? 'block' : 'none';
+  document.getElementById('no-access-note').style.display = on ? 'none' : 'block';
+  document.getElementById('r-access-label').textContent = on ? 'Enabled' : 'Disabled';
+  document.getElementById('r-access-label').style.color = on ? 'var(--green)' : 'var(--muted)';
+}
+
+/* AUTH METHOD SELECTION */
+var currentAuth = 'EMAIL';
+function selectAuth(method) {
+  currentAuth = method;
+  document.getElementById('auth-email').classList.toggle('sel', method === 'EMAIL');
+  document.getElementById('auth-user').classList.toggle('sel', method === 'USERNAME_PASSWORD');
+  document.getElementById('auth-detail-email').style.display = method === 'EMAIL' ? 'block' : 'none';
+  document.getElementById('auth-detail-user').style.display = method === 'USERNAME_PASSWORD' ? 'block' : 'none';
+}
+
+/* ADD EMPLOYEE MODAL */
+function openAddEmp() {
+  document.getElementById('new-code').value = 'EMP-0008';
+  document.getElementById('new-name').value = '';
+  document.getElementById('new-mobile').value = '';
+  document.getElementById('new-email').value = '';
+  document.getElementById('new-dept').value = '';
+  document.getElementById('new-desig').value = '';
+  document.getElementById('new-unit').value = '';
+  document.getElementById('new-doj').value = '';
+  document.getElementById('add-modal').classList.add('show');
+}
+
+/* KPI MODAL */
+function openKpiModal() {
+  document.getElementById('kpi-type').value = '';
+  document.getElementById('kpi-target').value = '';
+  document.getElementById('kpi-period').value = 'Monthly';
+  document.getElementById('kpi-modal').classList.add('show');
+}
+
+/* APPROVAL AUTHORITY */
+
+function openAaModal() {
+  document.getElementById('aa-module').value = '';
+  document.getElementById('aa-val').value = '';
+  document.getElementById('aa-disc').value = '';
+  document.getElementById('aa-modal').classList.add('show');
+}
+
+/* DELEGATION */
+function openDelegModal() {
+  document.getElementById('del-to-sel').value = '';
+  document.getElementById('del-from').value = '';
+  document.getElementById('del-to-dt').value = '';
+  document.getElementById('deleg-modal').classList.add('show');
+}
+
+/* EXIT FLOW */
+function openExitModal() {
+  document.getElementById('exit-date').value = '';
+  document.getElementById('exit-reason').value = '';
+  document.getElementById('exit-remarks').value = '';
+  document.getElementById('exit-modal').classList.add('show');
+}
+
+function confirmExit() {
+  var date = dmyToIso(document.getElementById('exit-date').value.trim());
+  var reason = document.getElementById('exit-reason').value;
+  if (!date || !reason) { toast('Exit date and reason are required'); return; }
+  closeModals();
+  setTimeout(function() {
+    document.getElementById('leaver-modal').classList.add('show');
+  }, 300);
+}
+
+/* CLOSE MODALS */
+function closeModals(e) {
+  if (!e || e.target.classList.contains('ovl')) {
+    document.querySelectorAll('.ovl').forEach(function(o){o.classList.remove('show');});
+  }
+}
+
+/* TOAST */
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+
+if(!window.supabase||!window.supabase.createClient){document.documentElement.innerHTML='<div style="font-family:sans-serif;padding:48px"><h2 style="color:#b8341f">RK ERP UAT cannot start</h2><p>The screen cannot open.</p></div>';throw new Error('supabase-js missing');}
+var SUPA_FN_BASE='https://ntymdsbezetobrnjqqvl.supabase.co/functions/v1';
+
+var supa=RKF.client('https://ntymdsbezetobrnjqqvl.supabase.co','sb_publishable_nev1rE7tHlu-bOWOm1JpXw_jd40773y');
+
+var M4_BIZ={reference_values:'Reference data',roles:'Roles',org_units:'Units',employees:'Employees',
+  employee_role_map:'Role assignments',employee_unit_access:'Unit access',
+  employee_delegations:'Delegations',employee_kpis:'KPIs',modules:'Modules',number_series:'Employee code series',
+  role_module_access:'Role access',
+  employee_module_access_override:'Module access overrides',module_catalog:'Modules',
+  employee_module_override:'Module access overrides'};
+function m4Biz(t){return M4_BIZ[t]||'A required list';}
+var M4={user:null,sel:null,exitCode:null,allocCode:null,deps:{},live:{lists:{},roles:[],units:[],employees:[],roleMap:[],unitAccess:[],authority:[],delegations:[],kpis:[],series:null,segments:[],counter:null,modules:[]}};
+
+(function(){
+ document.querySelectorAll('.mod-tab').forEach(function(t){if(t.textContent.trim()==='Governance')t.remove();});
+ var g=document.getElementById('tab-gov');if(g)g.remove();
+
+ var kf=document.getElementById('kpi-from');if(kf){kf.value='';kf.removeAttribute('value');}
+
+ var nm=document.getElementById('new-mobile');if(nm)nm.placeholder='+91 98XXX XXXXX';
+
+})();
+
+function m4Guard(what){toast('Nothing was saved - '+what+' is not available.');}
+
+window.saveKpi=function(){m4Guard('Add KPI');};
+window.saveAa=function(){m4Guard('Add Approval Authority');};
+window.saveDeleg=function(){m4Guard('Create Delegation');};
+
+(function(){var d=document.createElement('div');d.id='uat-login';d.style.cssText='position:fixed;inset:0;background:var(--navy,#0f3a5f);display:flex;align-items:center;justify-content:center;z-index:9999';
+ d.innerHTML='<div id="uat-bootmsg" style="color:#fff;font-size:var(--fs-emphasis);font-weight:600">Opening Employees…</div>'+'<div id="uat-loginform" style="display:none;background:#fff;border-radius:12px;padding:28px 30px;width:360px"><div style="font-weight:800;font-size:17px;color:var(--navy)">RK Metal ERP - M04 Employees</div><div style="font-size:var(--fs-body);color:var(--ink2);margin:10px 0 14px;line-height:1.5">You are not signed in. The ERP is signed into once, on the home page, and every screen shares that one sign-in.</div><button class="btn btn-p" style="width:100%" onclick="location.href=\'index.html\'">Go to the ERP home page</button></div>';
+ document.body.appendChild(d);})();
+
+async function m4Load(){
+ var RV=await supa.from('reference_values').select('code,list_id,label,active,metadata').in('list_id',['ED','EG','ET','EK','EX']).eq('active',true).order('sort_order');
+ if(RV.error)throw new Error(m4Biz('reference_values')+' could not be loaded');
+ var L={};(RV.data||[]).forEach(function(v){(L[v.list_id]=L[v.list_id]||[]).push([v.code,v.label,(v.metadata&&v.metadata.scope_type)||null]);});M4.live.lists=L;
+ var RO=await supa.from('roles').select('role_code,role_name,role_group,active').eq('active',true).order('role_code');
+ if(RO.error)throw new Error(m4Biz('roles')+' could not be loaded');M4.live.roles=RO.data||[];
+ var U=await supa.from('org_units').select('unit_code,unit_name,unit_type,active,responsible_primary,responsible_secondary').eq('is_deleted',false).order('unit_code');
+ if(U.error)throw new Error(m4Biz('org_units')+' could not be loaded');M4.live.units=U.data||[];
+ var EM=await supa.from('employees').select('id,employee_code,full_name,preferred_name,mobile_number,email,date_of_joining,date_of_exit,employment_type,department,designation,reports_to,posting_unit,tally_alias,has_erp_access,auth_method,username,auth_user_id,two_fa_enabled,commission_eligible,status,active,exit_reason,exit_remarks').eq('is_deleted',false).order('employee_code');
+ if(EM.error)throw new Error(m4Biz('employees')+' could not be loaded');M4.live.employees=EM.data||[];
+ var RM=await supa.from('employee_role_map').select('employee_code,role_code,active');
+ if(RM.error)throw new Error(m4Biz('employee_role_map')+' could not be loaded');M4.live.roleMap=RM.data||[];
+ var UA=await supa.from('employee_unit_access').select('employee_code,unit_code,permission_level,valid_from,valid_to,active');
+ if(UA.error)throw new Error(m4Biz('employee_unit_access')+' could not be loaded');M4.live.unitAccess=UA.data||[];
+
+ M4.live.authority=[];
+ var DL=await supa.from('employee_delegations').select('delegation_id,delegator_code,delegate_code,start_date,end_date,modules,active').eq('is_deleted',false);
+ if(DL.error)throw new Error(m4Biz('employee_delegations')+' could not be loaded');M4.live.delegations=DL.data||[];
+ var KP=await supa.from('employee_kpis').select('kpi_id,employee_code,kpi_type,target_value,target_period,effective_from,active').eq('is_deleted',false);
+ if(KP.error)throw new Error(m4Biz('employee_kpis')+' could not be loaded');M4.live.kpis=KP.data||[];
+
+ var WM=await supa.from('workflow_module_map').select('module_code,live_status_values').eq('module_code','M04').limit(1);
+ M4.live.statusValues=(WM&&WM.data&&WM.data[0]&&WM.data[0].live_status_values)
+   ? String(WM.data[0].live_status_values).split(',').map(function(x){return x.trim();}).filter(Boolean)
+   : [];
+ var MO=await supa.from('modules').select('module_code,module_name,active').order('module_code');
+ if(MO.error)throw new Error(m4Biz('modules')+' could not be loaded');M4.live.modules=MO.data||[];
+ var NS=await supa.from('number_series').select('id,series_code,label,scope,active').eq('series_code','EMP').limit(1);
+ if(NS.error)throw new Error(m4Biz('number_series')+' could not be loaded');
+ M4.live.series=(NS.data&&NS.data[0])||null;M4.live.segments=[];M4.live.counter=null;
+ if(M4.live.series){
+  var SG=await supa.from('number_series_segments').select('ordinal,seg_type,seg_value,pad').eq('series_id',M4.live.series.id).order('ordinal');
+  M4.live.segments=SG.data||[];
+  var CT=await supa.from('number_counters').select('scope_key,fy,current_value').eq('series_id',M4.live.series.id).limit(1);
+  M4.live.counter=(CT.data&&CT.data[0])||null;
+ }
+
+ M4.deps.lists={ED:(L.ED||[]).length,EG:(L.EG||[]).length,ET:(L.ET||[]).length,EK:(L.EK||[]).length};
+ M4.deps.mconfig=M4.deps.lists.ED>0&&M4.deps.lists.EG>0&&M4.deps.lists.ET>0&&M4.deps.lists.EK>0;
+ M4.deps.roles=M4.live.roles.length;
+ M4.deps.unitsActive=M4.live.units.filter(function(u){return u.active;}).length;
+ M4.deps.series=!!(M4.live.series&&M4.live.series.active&&M4.live.segments.length);
+ M4.deps.employees=M4.live.employees.length;
+}
+
+function m4SeriesPreview(){return M4.live.segments.map(function(s){return s.seg_type==='seq'?Array((s.pad||4)+1).join('#'):(s.seg_value||'');}).join('');}
+function m4SeriesNext(){var n=(M4.live.counter?Number(M4.live.counter.current_value):0)+1;
+ return M4.live.segments.map(function(s){if(s.seg_type==='seq'){var v=String(n);while(v.length<(s.pad||4))v='0'+v;return v;}return s.seg_value||'';}).join('');}
+
+function m4Banner(){
+
+  var b=document.getElementById('m4-deps');
+  if(b&&b.parentNode)b.parentNode.removeChild(b);
+  var se=document.getElementById('m4-secE-note');
+  if(se&&se.parentNode)se.parentNode.removeChild(se);
+}
+</script>
+
+<script>
+
+function m4Esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function m4Lbl(list,code){if(!code)return '-';var t=(M4.live.lists[list]||[]).filter(function(x){return x[0]===code;})[0];
+ return t?(m4Esc(t[1])+' <code style="font-size:var(--fs-caption);color:var(--muted)">'+m4Esc(code)+'</code>'):('<span style="color:var(--warn)">'+m4Esc(code)+' (not in '+list+' list)</span>');}
+
+function m4StatusLabel(v){return String(v||'').replace(/_/g,' ');}
+function m4StatusOptions(){
+ var vals=(M4.live.statusValues||[]);
+ if(!vals.length)return '';
+ return vals.map(function(v){return '<option value="'+m4Esc(v)+'">'+m4Esc(m4StatusLabel(v))+'</option>';}).join('');
+}
+function m4StatusPill(s){return '<span class="pill '+(s==='Active'?'g':(s==='On_Leave'?'w':'r'))+'">'+m4Esc(s==='On_Leave'?'On Leave':s)+'</span>';}
+function m4RolesOf(code){return M4.live.roleMap.filter(function(r){return r.employee_code===code&&r.active;}).map(function(r){return r.role_code;});}
+
+function m4AdminRemains(skipRole,skipEmp){
+  var adminRole={},livePerson={};
+  (M4.live.roles||[]).forEach(function(r){if(r.active!==false&&r.role_group==='Admin')adminRole[r.role_code]=1;});
+  (M4.live.employees||[]).forEach(function(e){if(e.active!==false&&!e.is_deleted)livePerson[e.employee_code]=1;});
+  return (M4.live.roleMap||[]).some(function(m){
+    if(!m.active||!adminRole[m.role_code]||!livePerson[m.employee_code])return false;
+    if((skipRole||skipEmp)&&(!skipRole||m.role_code===skipRole)&&(!skipEmp||m.employee_code===skipEmp))return false;
+    return true;});
+}
+function m4IsAdminRole(roleCode){
+  var r=(M4.live.roles||[]).filter(function(x){return x.role_code===roleCode;})[0];
+  return !!r&&r.active!==false&&r.role_group==='Admin';
+}
+function m4Opt(list,ph){var l=M4.live.lists[list]||[];if(!l.length)return '<option value="" disabled selected>Waiting on M-CONFIG - '+list+' list empty</option>';
+ return '<option value="">'+ph+'</option>'+l.map(function(c){return '<option value="'+m4Esc(c[0])+'">'+m4Esc(c[1])+'</option>';}).join('');}
+function m4OptUnits(ph){if(!M4.live.units.length)return '<option value="" disabled selected>Waiting on M03 - no units yet</option>';
+ return '<option value="">'+ph+'</option>'+M4.live.units.map(function(u){return '<option value="'+m4Esc(u.unit_code)+'"'+(u.active?'':' disabled')+'>'+m4Esc(u.unit_code)+' - '+m4Esc(u.unit_name)+(u.active?'':' (inactive - activate in M03)')+'</option>';}).join('');}
+function m4OptEmployees(ph){if(!M4.live.employees.length)return '<option value="" disabled selected>No employees yet</option>';
+ return '<option value="">'+ph+'</option>'+M4.live.employees.map(function(e){return '<option value="'+m4Esc(e.employee_code)+'">'+m4Esc(e.full_name)+' ('+m4Esc(e.employee_code)+')</option>';}).join('');}
+
+function m4OptDelegates(ph){var l=M4.live.employees.filter(function(e){return e.status!=='Exited';});
+ if(!l.length)return '<option value="" disabled selected>No active employees</option>';
+ return '<option value="">'+ph+'</option>'+l.map(function(e){return '<option value="'+m4Esc(e.employee_code)+'">'+m4Esc(e.full_name)+' ('+m4Esc(e.employee_code)+')</option>';}).join('');}
+
+function m4OptReports(ph,keepCode){var l=M4.live.employees.filter(function(e){return e.status!=='Exited';});
+ var kept=keepCode?M4.live.employees.filter(function(e){return e.employee_code===keepCode&&e.status==='Exited';})[0]:null;
+ if(!l.length&&!kept)return '<option value="" disabled selected>No active employees</option>';
+ return '<option value="">'+ph+'</option>'+l.map(function(e){return '<option value="'+m4Esc(e.employee_code)+'">'+m4Esc(e.full_name)+' ('+m4Esc(e.employee_code)+')</option>';}).join('')
+  +(kept?'<option value="'+m4Esc(kept.employee_code)+'">'+m4Esc(kept.full_name)+' ('+m4Esc(kept.employee_code)+') (Exited)</option>':'');}
+function m4ClearInput(id){var el=document.getElementById(id);if(!el)return;el.value='';el.removeAttribute('value');}
+
+var m4EmpSort=RKF.sort.state('code',1), m4RosterSort=RKF.sort.state('code',1);
+function m4EmpVal(e,k){
+ var mgr;
+ switch(k){
+  case 'name': return String(e.full_name||'').toLowerCase();
+  case 'mobile': return e.mobile_number||'';
+  case 'email': return String(e.email||'').toLowerCase();
+  case 'joined': return e.date_of_joining||'';
+  case 'type': return String(m4Lbl('ET',e.employment_type)).replace(/<[^>]*>/g,'').toLowerCase();
+  case 'dept': return String(m4Lbl('ED',e.department)).replace(/<[^>]*>/g,'').toLowerCase();
+  case 'desig': return String(m4Lbl('EG',e.designation)).replace(/<[^>]*>/g,'').toLowerCase();
+  case 'reports': mgr=e.reports_to?(M4.live.employees.filter(function(x){return x.employee_code===e.reports_to;})[0]||null):null; return String(mgr?mgr.full_name:(e.reports_to||'')).toLowerCase();
+  case 'unit': return e.posting_unit||'';
+  case 'tally': return e.tally_alias||'';
+  case 'role': case 'roles': return m4RolesOf(e.employee_code).join(' ');
+  case 'login': case 'signin': return e.has_erp_access?String(e.auth_method||''):'';
+  case 'status': return e.status||'';
+  default: return e.employee_code||'';
+ }
+}
+function m4EmpHead(){
+ var h=document.getElementById('emp-head'); if(!h)return;
+ h.innerHTML='<tr>'+[['code','Code'],['name','Name'],['dept','Department'],['desig','Designation'],['unit','Unit'],['role','Role'],['login','Login'],['status','Status']]
+  .map(function(c){return RKF.sort.th(m4EmpSort,c[0],c[1],"m4SortEmp('"+c[0]+"')",null,null,'eth-');}).join('')+'<th></th></tr>';
+}
+function m4RosterHead(){
+ var h=document.getElementById('rkf-roster-head'); if(!h)return;
+ h.innerHTML='<tr>'+[['code','Code'],['name','Name'],['mobile','Mobile'],['email','Email'],['joined','Joined'],['type','Type'],['dept','Department'],['desig','Designation'],['reports','Reports To'],['unit','Unit'],['tally','Tally Alias'],['roles','Roles'],['signin','Sign-in'],['status','Status']]
+  .map(function(c){return RKF.sort.th(m4RosterSort,c[0],c[1],"m4SortRoster('"+c[0]+"')",null,null,'rth-');}).join('')+'</tr>';
+}
+window.m4SortEmp=function(k){ RKF.sort.toggle(m4EmpSort,k); m4Render(true); if(window.filterEmployees)filterEmployees(); };
+window.m4SortRoster=function(k){ RKF.sort.toggle(m4RosterSort,k); m4RenderRoster(); if(window.m4FilterRoster)m4FilterRoster(); };
+function m4Render(bodyOnly){
+
+ m4EmpHead();
+ var tb=document.getElementById('emp-body');var rows=RKF.sort.rows(M4.live.employees.slice(),m4EmpSort,m4EmpVal);
+ if(tb)tb.innerHTML=rows.length?rows.map(function(e){
+  var roles=m4RolesOf(e.employee_code);
+  return '<tr data-status="'+m4Esc(e.status)+'" data-dept="'+m4Esc(e.department||'')+'" data-unit="'+m4Esc(e.posting_unit||'')+'"'+(e.status==='Exited'?' class="exited" style="display:none"':'')+' onclick="m4SelectRow(\''+m4Esc(e.employee_code)+'\',event)">'
+   +'<td><code>'+m4Esc(e.employee_code)+'</code></td>'
+   +'<td><b>'+m4Esc(e.full_name)+'</b></td>'
+   +'<td>'+m4Lbl('ED',e.department)+'</td>'
+   +'<td>'+m4Lbl('EG',e.designation)+'</td>'
+   +'<td>'+(e.posting_unit?'<code>'+m4Esc(e.posting_unit)+'</code>':'-')+'</td>'
+   +'<td>'+(roles.length?roles.map(function(rc){return '<span class="pill p">'+m4Esc(rc)+'</span>';}).join(' '):'<span style="color:var(--muted)">none yet</span>')+'</td>'
+   +'<td>'+(e.has_erp_access?'<span class="pill g">'+(e.auth_method==='USERNAME_PASSWORD'?'Username':'Email')+'</span>':'<span class="pill w">No Login</span>')+'</td>'
+   +'<td>'+m4StatusPill(e.status)+'</td>'
+   +'<td><button class="btn btn-g btn-xs" onclick="m4OpenRecord(\''+m4Esc(e.employee_code)+'\')">Maintain</button>'+(e.status==='Exited'?'':' <button class="btn btn-g btn-xs" onclick="m4ExitOpen(\''+m4Esc(e.employee_code)+'\')">Exit</button>')+'</td></tr>';}).join('')
+  :'<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:20px">No employees yet.</td></tr>';
+ var cnt=document.getElementById('emp-count');
+ if(cnt){var p=cnt.parentNode;p.innerHTML='Showing <span id="emp-count">'+rows.filter(function(e){return e.status!=='Exited';}).length+'</span> of '+rows.length+' employees. Exited are hidden.';}
+ if(bodyOnly)return;
+
+ var fs=document.getElementById('f-status');
+ if(fs)fs.innerHTML='<option value="">All Statuses</option>'+m4StatusOptions();
+ var fd=document.getElementById('f-dept');if(fd)fd.innerHTML='<option value="">All Departments</option>'+(M4.live.lists.ED||[]).map(function(c){return '<option value="'+m4Esc(c[0])+'">'+m4Esc(c[1])+'</option>';}).join('');
+ var fu=document.getElementById('f-unit');if(fu)fu.innerHTML='<option value="">All Units</option>'+M4.live.units.map(function(u){return '<option value="'+m4Esc(u.unit_code)+'">'+m4Esc(u.unit_code)+' - '+m4Esc(u.unit_name)+(u.active?'':' (inactive)')+'</option>';}).join('');
+
+ var rs=document.getElementById('rec-f-status');
+ if(rs)rs.innerHTML='<option value="">All Statuses</option>'+m4StatusOptions();
+ var rd=document.getElementById('rec-f-dept');
+ if(rd)rd.innerHTML='<option value="">All Departments</option>'+(M4.live.lists.ED||[]).map(function(c){return '<option value="'+m4Esc(c[0])+'">'+m4Esc(c[1])+'</option>';}).join('');
+ var ru2=document.getElementById('rec-f-unit');
+ if(ru2)ru2.innerHTML='<option value="">All Units</option>'+M4.live.units.map(function(u){return '<option value="'+m4Esc(u.unit_code)+'">'+m4Esc(u.unit_code)+' - '+m4Esc(u.unit_name)+(u.active?'':' (inactive)')+'</option>';}).join('');
+ m4RenderRoster();
+ m4RenderRecordBlocked();
+ m4RenderAccess();
+ m4RenderModals();
+}
+
+function m4RenderRoster(){
+ var tb=document.getElementById('rkf-roster-body');if(!tb)return;
+ m4RosterHead();
+ var rows=RKF.sort.rows(M4.live.employees.filter(function(e){return e.status!=='Exited';}),m4RosterSort,m4EmpVal);
+ var cnt=document.getElementById('rkf-roster-count');
+ if(cnt)cnt.textContent=rows.length?('- '+rows.length):'';
+ if(!M4.live.employees.length){tb.innerHTML='<tr><td colspan="14" class="rkf-roster-note">No employees yet.</td></tr>';return;}
+ if(!rows.length){tb.innerHTML='<tr><td colspan="14" class="rkf-roster-note">Every employee is exited.</td></tr>';return;}
+ var sel=M4.sel?M4.sel.employee_code:null;
+ tb.innerHTML=rows.map(function(e){
+  var roles=m4RolesOf(e.employee_code);
+  var mgr=e.reports_to?(M4.live.employees.filter(function(x){return x.employee_code===e.reports_to;})[0]||null):null;
+  return '<tr data-status="'+m4Esc(e.status)+'" data-dept="'+m4Esc(e.department||'')+'" data-unit="'+m4Esc(e.posting_unit||'')+'"'
+   +(e.employee_code===sel?' class="sel"':'')+' onclick="m4OpenRecord(\''+m4Esc(e.employee_code)+'\')">'
+   +'<td><code>'+m4Esc(e.employee_code)+'</code></td>'
+   +'<td><b>'+m4Esc(e.full_name)+'</b></td>'
+   +'<td>'+m4Esc(e.mobile_number||'-')+'</td>'
+   +'<td>'+m4Esc(e.email||'-')+'</td>'
+   +'<td>'+(e.date_of_joining?fmtDDMMYYYY(e.date_of_joining):'-')+'</td>'
+   +'<td>'+m4Lbl('ET',e.employment_type)+'</td>'
+   +'<td>'+m4Lbl('ED',e.department)+'</td>'
+   +'<td>'+m4Lbl('EG',e.designation)+'</td>'
+   +'<td>'+(mgr?m4Esc(mgr.full_name):(e.reports_to?m4Esc(e.reports_to):'-'))+'</td>'
+   +'<td>'+(e.posting_unit?'<code>'+m4Esc(e.posting_unit)+'</code>':'-')+'</td>'
+   +'<td>'+m4Esc(e.tally_alias||'-')+'</td>'
+   +'<td>'+(roles.length?roles.map(function(rc){return '<span class="pill p">'+m4Esc(rc)+'</span>';}).join(' '):'-')+'</td>'
+   +'<td>'+(e.has_erp_access?'<span class="pill g">'+(e.auth_method==='USERNAME_PASSWORD'?'Username':(e.auth_method==='EMAIL'?'Email':'Not set'))+'</span>':'<span class="pill w">No Login</span>')+'</td>'
+   +'<td>'+m4StatusPill(e.status)+'</td></tr>';}).join('');
+}
+
+function m4RenderRecordBlocked(){
+ var panel=document.getElementById('tab-record');if(!panel)return;
+ var lay=panel.querySelector('.rec-layout');if(lay)lay.style.display='none';
+ if(!document.getElementById('m4-rec-empty')){
+  var d=document.createElement('div');d.id='m4-rec-empty';
+  d.style.cssText='padding:48px 20px;text-align:center;color:var(--muted);font-size:var(--fs-emphasis);border:1px dashed var(--line2,#d7dee6);border-radius:10px';
+  d.innerHTML='<b style="color:var(--ink2,#4a5868)">Open an employee from the list above</b>';
+  panel.insertBefore(d,lay||panel.firstChild); 
+ }
+
+ ['r-code','r-name','r-mobile','r-email','r-doj','r-tally','r-login-email','r-username'].forEach(m4ClearInput);
+ var av=document.getElementById('rec-avatar');if(av)av.textContent='-';
+ var rc=document.getElementById('rec-code');if(rc)rc.textContent='';
+ var rn=document.getElementById('rec-name');if(rn)rn.textContent='';
+ var sp=document.getElementById('rec-status-pill');if(sp){sp.textContent='-';sp.className='pill n';}
+ var lp=document.getElementById('rec-login-pill');if(lp){lp.textContent='-';lp.className='pill n';}
+
+ var st=document.getElementById('r-emptype');if(st)st.innerHTML=m4Opt('ET','Select...');
+ var sd=document.getElementById('r-dept');if(sd)sd.innerHTML=m4Opt('ED','Select...');
+ var sg=document.getElementById('r-desig');if(sg)sg.innerHTML=m4Opt('EG','Select...');
+ var su=document.getElementById('r-unit');if(su)su.innerHTML=m4OptUnits('Select unit...');
+ var sr=document.getElementById('r-reports');if(sr)sr.innerHTML=m4OptReports('(Optional)'); 
+
+ var si=document.getElementById('setup-items');if(si)si.innerHTML='<div style="font-size:var(--fs-body);color:var(--muted);padding:4px 0">No employee selected.</div>';
+ var pc=document.getElementById('setup-pct');if(pc){pc.textContent='-';pc.style.color='var(--muted,#8a97a6)';}
+ var sb=document.getElementById('setup-bar');if(sb)sb.style.width='0%';
+
+ var cs=document.getElementById('cred-state');if(cs)cs.textContent='';
+ var ca=document.getElementById('cred-acts');if(ca)ca.innerHTML='';
+
+ var kl=document.getElementById('kpi-list');if(kl)kl.innerHTML='<div style="font-size:var(--fs-body);color:var(--muted);padding:6px 0">No employee selected.</div>';
+
+ var btns=panel.querySelectorAll('button');
+ for(var i=0;i<btns.length;i++){(function(b){var t=b.textContent;
+  if(t.indexOf('Mark as Exited')>=0)b.onclick=function(){m4ExitOpen(M4.sel?M4.sel.employee_code:null);};
+  else if(t.indexOf('Save Employee')>=0)b.onclick=function(){saveEmployee();};
+  else if(t.indexOf('+ Add KPI')>=0)b.onclick=function(){openKpiModal();};
+  else if(t.trim()==='Cancel')b.onclick=function(){switchTab(document.querySelector('.mod-tab'),'list');};
+ })(btns[i]);}
+}
+
+function m4RenderAccess(){ if(typeof m4S6Access==='function')m4S6Access(); }
+
+function m4RenderModals(){
+ var ib=document.querySelector('#add-modal .info-box');
+ if(ib)ib.innerHTML=M4.deps.series?('Employee code: <b>'+m4SeriesNext()+'</b>')
+  :'<span style="color:var(--warn)">&#9888; No EMP number series. Set one up first.</span>';
+ var nc=document.getElementById('new-code');
+ if(nc){var v=M4.deps.series?m4SeriesNext():'';nc.value=v;if(v)nc.setAttribute('value',v);else nc.removeAttribute('value');}
+ var nd=document.getElementById('new-dept');if(nd)nd.innerHTML=m4Opt('ED','Select...');
+ var ng=document.getElementById('new-desig');if(ng)ng.innerHTML=m4Opt('EG','Select...');
+ var nu=document.getElementById('new-unit');if(nu)nu.innerHTML=m4OptUnits('Select...');
+ var nr=document.getElementById('new-reports');if(nr)nr.innerHTML=m4OptReports('(Optional)'); 
+
+ if(!document.getElementById('new-emptype')){
+  var doj=document.getElementById('new-doj');var host=doj?doj.closest('.field'):null;
+  if(host&&host.parentNode){var g=document.createElement('div');g.className='grid-2';
+   g.innerHTML='<div class="field"><label>Employment Type</label><select id="new-emptype">'+m4Opt('ET','Select...')+'</select></div>'
+    +'<div class="field"><label>Tally Alias <b class="req">*</b></label><input id="new-tally" placeholder="e.g. RKMR-EMP-NAME"/></div>';
+   host.parentNode.insertBefore(g,host);}
+ }else{var ne=document.getElementById('new-emptype');if(ne)ne.innerHTML=m4Opt('ET','Select...');}
+
+ var kt=document.getElementById('kpi-type');if(kt)kt.innerHTML=m4Opt('EK','Select...');
+
+ var am=document.getElementById('aa-module');
+ if(am)am.innerHTML=M4.live.modules.length?('<option value="">Select...</option>'+M4.live.modules.filter(function(m){return m.active;}).map(function(m){return '<option value="'+m4Esc(m.module_code)+'">'+m4Esc(m.module_code)+' - '+m4Esc(m.module_name)+'</option>';}).join('')):'<option value="" disabled selected>No modules</option>';
+
+ var dmBox=document.getElementById('del-mod-box');
+ if(!dmBox){var dm6=document.getElementById('del-m06');if(dm6){dmBox=dm6.closest('div');if(dmBox)dmBox.id='del-mod-box';}}
+ if(dmBox)dmBox.innerHTML=M4.live.modules.length?M4.live.modules.filter(function(m){return m.active;}).map(function(m){return '<label style="display:flex;align-items:center;gap:8px;font-size:var(--fs-body);cursor:pointer"><input type="checkbox" id="del-mod-'+m4Esc(m.module_code)+'"/> '+m4Esc(m.module_code)+' - '+m4Esc(m.module_name)+'</label>';}).join(''):'<div style="font-size:var(--fs-body);color:var(--muted)">Modules registry empty (live)</div>';
+
+ var ds=document.getElementById('del-to-sel');if(ds)ds.innerHTML=m4OptDelegates('Select employee...');
+
+ var xr=document.getElementById('exit-reason');if(xr)xr.innerHTML=m4Opt('EX','Select...');
+ var lf=document.querySelectorAll('#leaver-modal .modal-ft button');
+
+ if(!document.getElementById('m4-exit-note')){var eb=document.querySelector('#exit-modal .modal-body');
+  if(eb){var n2=document.createElement('div');n2.id='m4-exit-note';n2.className='hint';n2.style.cssText='color:var(--warn);margin-top:8px';
+   n2.textContent='Exit revokes access and cancels delegations.';
+   eb.appendChild(n2);}}
+}
+
+async function m4Boot(showToast){try{
+
+ var LVL=await RKF.accessGate('M04',{client:supa});
+ if(LVL!=='Read'&&LVL!=='Full'){var lg=document.getElementById('uat-login');if(lg)lg.style.display='none';return;}
+ M4_ALOG_ACCESS=LVL;
+ document.body.classList.toggle('rkf-readonly',LVL!=='Full');
+ await m4Load();m4Banner();m4Render();
+ document.getElementById('uat-login').style.display='none';
+
+ if(typeof m4LoadAuthz==='function')m4LoadAuthz();
+ if(typeof m4SyncAlogPoint==='function')m4SyncAlogPoint();
+ if(showToast!==false)toast('Signed in.');
+}catch(e){var er=document.getElementById('uat-err');if(er)er.textContent=RKF.errText(e);else toast(RKF.errText(e),'err');}}
+</script>
+
+<script>
+
+(function(){
+ var st=document.createElement('style');st.textContent='.field label b.req{color:var(--accent);font-weight:800;margin-left:2px}';document.head.appendChild(st);
+ ['add-modal','role-modal','pw-modal','kpi-modal','aa-modal','deleg-modal','exit-modal','leaver-modal'].forEach(function(mid){
+  var m=document.getElementById(mid);if(!m)return;
+  m.querySelectorAll('.field label').forEach(function(l){var h=l.innerHTML;
+   if(/\*/.test(h)&&h.indexOf('class="req"')<0)l.innerHTML=h.replace(/\s?\*/,' <b class="req">*</b>');});});
+
+ var SAVES={'add-modal':function(){saveNewEmp();},'role-modal':function(){m4SaveRole();},'pw-modal':function(){m4SavePassword();},'kpi-modal':function(){saveKpi();},'aa-modal':function(){saveAa();},'deleg-modal':function(){saveDeleg();}};
+ RKF.keys.register({ctrlS:SAVES,escCloses:'any',ctrlSFallback:function(){var rec=document.getElementById('tab-record');if(rec&&rec.classList.contains('act'))saveEmployee();}});
+})();
+</script>
+
+<style>
+
+.emp-table tbody tr{cursor:default}
+.emp-table tbody tr:hover{cursor:default}
+.emp-table tbody tr:hover td{cursor:default}
+</style>
+
+<script>
+
+(function(){
+ if(new URLSearchParams(location.search).get('embed')==='1')return;
+ var SELF='m04';
+ var KEYS={'Settings':'config','Organization':'m03','Employees':'m04'}; 
+ document.querySelectorAll('.rail .ri').forEach(function(ri){
+  var tt=ri.querySelector('.tt');var name=tt?tt.textContent.trim():'';
+  var key=KEYS[name];
+  if(key===SELF){ri.style.cursor='default';if(tt)tt.textContent=name+' - you are here';}
+  else if(key){ri.setAttribute('role','link');ri.onclick=function(){location.href='index.html#'+key;};
+   if(tt)tt.textContent=name+' - open (in the ERP shell)';}
+  else{ri.style.cursor='default';ri.style.opacity='.45';if(tt)tt.textContent=name+' - arrives with its module';}});
+})();
+</script>
+
+<script>
+/* EMBED MODE */
+</script>
+
+<script>
+
+function fmtDDMMYYYY(v){if(!v)return '-';var m=String(v).match(/^(\d{4})-(\d{2})-(\d{2})/);
+ return m?(m[3]+'-'+m[2]+'-'+m[1]):m4Esc(String(v));}
+
+function m4DelegPill(d){
+ if(!d.active)return '<span class="pill n">Inactive</span>';
+ var t=new Date(),today=t.getFullYear()+'-'+('0'+(t.getMonth()+1)).slice(-2)+'-'+('0'+t.getDate()).slice(-2);
+ if(d.start_date&&today<String(d.start_date).slice(0,10))return '<span class="pill n">Upcoming</span>';
+ if(d.end_date&&today>String(d.end_date).slice(0,10))return '<span class="pill r">Expired</span>';
+ return '<span class="pill g">Active</span>';}
+
+function m4ActorEmail(){return (M4.user&&M4.user.email)||'uat-operator';}
+
+var M4_ACTOR_EMP=null, M4_ACTOR_NAME=null, M4_ACTOR_CODE=null;
+async function m4LoadActor(){
+  try{
+    var u=await supa.auth.getUser(); var em=u&&u.data&&u.data.user?u.data.user.email:null;
+    if(!em) return;
+    var e=await supa.from('employees').select('id,full_name,employee_code').eq('email',em).maybeSingle();
+    if(e&&e.data){ M4_ACTOR_EMP=e.data.id; M4_ACTOR_NAME=e.data.full_name; M4_ACTOR_CODE=e.data.employee_code; }
+  }catch(_){ }
+}
+function m4ReqId(){ return (window.crypto&&crypto.randomUUID)?crypto.randomUUID():(String(Date.now())+'-'+Math.random().toString(16).slice(2)); }
+function m4NoActor(){ return { error:{ message:'Your login is not mapped to an employee. Saving is disabled.' } }; }
+function m4Env(r){
+  if(r.error) return { error:r.error };
+  var env=r.data||{};
+  if(env.ok!==true){ return { error:env.error||{} }; }
+  return { data:[env.data||{ok:true}] };
+}
+
+async function m4Create(data){
+  if(!M4_ACTOR_EMP) return m4NoActor();
+  return m4Env(await supa.rpc('rpc_m04_employee_create',{p_payload:{data:data},p_request_id:m4ReqId(),p_by_emp:M4_ACTOR_EMP}));
+}
+async function m4Update(empCode,data){
+  if(!M4_ACTOR_EMP) return m4NoActor();
+  return m4Env(await supa.rpc('rpc_m04_employee_update',{p_payload:{employee_code:empCode,data:data},p_request_id:m4ReqId(),p_by_emp:M4_ACTOR_EMP}));
+}
+
+async function m4Child(entity,data){
+  if(!M4_ACTOR_EMP) return m4NoActor();
+  return m4Env(await supa.rpc('rpc_m04_child_upsert',{p_payload:{entity:entity,data:data},p_request_id:m4ReqId(),p_by_emp:M4_ACTOR_EMP}));
+}
+async function m4RoleAssign(empCode,roleCode){
+  if(!M4_ACTOR_EMP) return m4NoActor();
+  return m4Env(await supa.rpc('rpc_m04_role_assign',{p_payload:{p_actor_emp:M4_ACTOR_EMP,employee_code:empCode,role_code:roleCode}}));
+}
+async function m4RoleRevoke(empCode,roleCode){
+  if(!M4_ACTOR_EMP) return m4NoActor();
+  if(m4IsAdminRole(roleCode)&&!m4AdminRemains(roleCode,empCode))
+    return { error:{ message:empCode+' is the only active Admin. Cannot revoke.' } };
+  return m4Env(await supa.rpc('rpc_m04_role_revoke',{p_payload:{p_actor_emp:M4_ACTOR_EMP,employee_code:empCode,role_code:roleCode}}));
+}
+
+async function m4Audit(empCode,field,oldV,newV){ return; }
+
+async function m4Reload(){try{await m4Load();m4Banner();m4Render();}catch(e){toast('Could not reload the screen.');}}
+
+(function(){var _r=m4Render;
+ m4Render=function(){_r();
+  if(M4.sel){var live=M4.live.employees.filter(function(x){return x.employee_code===M4.sel.employee_code;})[0];
+   if(live)m4FillRecord(live);else M4.sel=null;}};})();
+
+window.openAddEmp=function(){
+ ['new-name','new-mobile','new-email','new-doj','new-tally'].forEach(m4ClearInput);
+ ['new-dept','new-desig','new-unit','new-reports','new-emptype'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
+ try{ 
+  [['new-dept','rk_last_m04_dept'],['new-desig','rk_last_m04_desig']].forEach(function(p){var el=document.getElementById(p[0]),v=localStorage.getItem(p[1]);
+   if(el&&v&&!el.value&&[].some.call(el.options,function(o){return o.value===v;}))el.value=v;});}catch(e){}
+ M4.allocCode=M4.deps.series?m4SeriesNext():null;
+ var nc=document.getElementById('new-code');
+ if(nc){nc.value=M4.allocCode||'';nc.readOnly=false;
+  nc.title='';}
+ document.getElementById('add-modal').classList.add('show');
+};
+
+
+window.saveNewEmp=async function(){
+ function g(id){var el=document.getElementById(id);return el?String(el.value||'').trim():'';}
+ var code=g('new-code'),name=g('new-name'),mobile=g('new-mobile'),email=g('new-email'),
+     dept=g('new-dept'),desig=g('new-desig'),unit=g('new-unit'),reports=g('new-reports'),
+     doj=dmyToIso(g('new-doj')),tally=g('new-tally'),emptype=g('new-emptype');
+
+ if(!code){toast('Cannot save - Employee Code is required.');return;}
+ if(!/^[A-Z0-9-]{1,20}$/.test(code)){toast('Employee Code: up to 20 capitals, digits, hyphens.');return;}
+ if(M4.live.employees.some(function(x){return x.employee_code===code;})){toast('Cannot save - Employee Code '+code+' already exists.');return;}
+ if(!name){toast('Cannot save - Full Name is required.');return;}
+ if(!doj){toast('Cannot save - Date of Joining is required.');return;}
+
+ if(isNaN(new Date(doj).getTime())){toast('Cannot save - Date of Joining is not a valid date.');return;}
+ if(!dept){toast('Cannot save - Department is required.');return;}
+ if(!desig){toast('Cannot save - Designation is required.');return;}
+ if(!unit){toast('Cannot save - Posting Unit is required.');return;}
+
+ if(!tally){toast('Cannot save - Tally Alias is required.');return;}
+
+ if(mobile&&!/^[6-9]\d{9}$/.test(mobile)){toast('Mobile must be 10 digits starting 6 to 9.');return;}
+
+ if(email&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){toast('Cannot save - that email address is not a valid one.');return;}
+
+ var row={employee_code:code,full_name:name,preferred_name:null,mobile_number:mobile||null,email:email||null,
+  date_of_joining:doj,employment_type:emptype||null,department:dept,designation:desig,
+  reports_to:reports||null,posting_unit:unit,tally_alias:tally,
+  has_erp_access:false,two_fa_enabled:false,
+  commission_eligible:!!(document.getElementById('new-commission')&&document.getElementById('new-commission').checked),
+  status:'Active'};
+ var ins=await m4Create(row);
+ if(ins&&ins.error){toast(RKF.errText(ins.error,{fallback:'Could not save (nothing else was changed).'}));return;}
+
+ code = (ins.data && ins.data[0] && ins.data[0].employee_code) || code;
+
+ await m4Audit(code,'created',null,code);
+
+ if(M4.allocCode&&code!==M4.allocCode)await m4Audit(code,'employee_code_override',M4.allocCode,code);
+ M4.allocCode=null;
+ await m4Reload();
+ closeModals();
+ toast('Employee '+code+' created.',[{label:'Open record',fn:function(){m4OpenRecord(code);}},{label:'Add another',fn:function(){openAddEmp();}}]);
+};
+
+function m4SetSel(id,val){var el=document.getElementById(id);if(!el)return;
+ if(val&&![].some.call(el.options,function(o){return o.value===val;})){
+  var op=document.createElement('option');op.value=val;op.textContent=val+' (not in live list)';el.appendChild(op);}
+ el.value=val||'';}
+
+function m4FillRecord(e){
+ M4.sel=e;
+ var lay=document.querySelector('#tab-record .rec-layout');if(lay)lay.style.display='';
+ var em=document.getElementById('m4-rec-empty');if(em)em.style.display='none';
+ var av=document.getElementById('rec-avatar');if(av)av.textContent=String(e.full_name||'?').split(' ').map(function(w){return w.charAt(0);}).join('').substring(0,2).toUpperCase();
+ var rc=document.getElementById('rec-code');if(rc)rc.textContent=e.employee_code;
+ var rn=document.getElementById('rec-name');if(rn)rn.textContent=e.full_name;
+ var sp=document.getElementById('rec-status-pill');if(sp){sp.textContent=(e.status==='On_Leave'?'On Leave':e.status);sp.className='pill '+(e.status==='Active'?'g':(e.status==='On_Leave'?'w':'r'));}
+ var lp=document.getElementById('rec-login-pill');if(lp){lp.textContent=e.has_erp_access?'Login On':'No Login';lp.className='pill '+(e.has_erp_access?'g':'n');}
+ function set(id,v){var el=document.getElementById(id);if(el)el.value=(v==null?'':v);}
+ set('r-code',e.employee_code);
+ var rcd=document.getElementById('r-code');if(rcd){rcd.readOnly=true;rcd.title='IMMUTABLE (V 213.txt): employee_code never changes after create.';}
+ set('r-name',e.full_name);set('r-mobile',e.mobile_number);set('r-email',e.email);
+ set('r-doj',isoToDMY(e.date_of_joining));
+
+ var rdj=document.getElementById('r-doj');if(rdj){rdj.readOnly=false;rdj.title='Date of Joining can be changed. Shown as '+fmtDDMMYYYY(e.date_of_joining)+' (DD-MM-YYYY).';}
+ m4SetSel('r-emptype',e.employment_type);m4SetSel('r-dept',e.department);m4SetSel('r-desig',e.designation);
+ var sr=document.getElementById('r-reports');if(sr)sr.innerHTML=m4OptReports('(Optional)',e.reports_to); 
+ m4SetSel('r-reports',e.reports_to);
+ m4SetSel('r-unit',e.posting_unit);
+ set('r-tally',e.tally_alias);
+ var ra=document.getElementById('r-access');if(ra){ra.checked=!!e.has_erp_access;ra.disabled=false;ra.title='Toggle ERP login access - changes persist immediately (V ruling CL-574/575: the 2FA DB gate was dropped). A mobile number is required when access is ON (V-M04-11). The 2FA sign-in step returns with the 2FA story.';}
+ try{toggleAccessFields();}catch(x){}
+ if(e.auth_method){try{selectAuth(e.auth_method);}catch(x){}}
+
+ var ru=document.getElementById('r-username');
+ if(ru){ru.value=e.username||'';ru.readOnly=!!e.username;ru.classList.toggle('readonly',!!e.username);
+  ru.title='';}
+ var ruh=document.getElementById('r-username-hint');
+ if(ruh)ruh.textContent='';
+
+ var rle=document.getElementById('r-login-email');
+ if(rle){rle.value=e.email||'';rle.disabled=false;rle.readOnly=true;rle.classList.add('readonly');
+  rle.title='';}
+ var kl=document.getElementById('kpi-list');
+ if(kl){var ks=M4.live.kpis.filter(function(k){return k.employee_code===e.employee_code;});
+  kl.innerHTML=ks.length?ks.map(function(k){return '<div class="kpi-row"><div class="kpi-type">'+m4Lbl('EK',k.kpi_type)+'</div><div class="kpi-target">Target: '+m4Esc(k.target_value)+'</div><span class="kpi-period">'+m4Esc(k.target_period)+'</span><span style="font-size:var(--fs-caption);color:var(--muted)">from '+fmtDDMMYYYY(k.effective_from)+'</span></div>';}).join('')
+   :'<div style="font-size:var(--fs-body);color:var(--muted);padding:6px 0">No KPIs yet for '+m4Esc(e.employee_code)+'.</div>';}
+
+ if(typeof m4SetupRender==='function')m4SetupRender(e);
+ if(typeof m4RenderCredential==='function')m4RenderCredential(e); 
+ if(typeof m4RenderRoster==='function')m4RenderRoster(); 
+ if(typeof m4SyncAlogPoint==='function')m4SyncAlogPoint(); 
+ m4RenderAccess();
+}
+
+window.rkRecentPush=function(t,c,l){return RKF.recents.push(t,c,l);}; 
+
+window.m4SelectRow=function(code,ev){
+ if(ev&&ev.target&&ev.target.closest&&ev.target.closest('button'))return; /* a button owns its click */
+ var e=M4.live.employees.filter(function(x){return x.employee_code===code;})[0];
+ if(!e)return;
+ M4.sel=e;
+ document.querySelectorAll('#emp-body tr').forEach(function(r){r.classList.remove('sel');});
+ var row=ev&&ev.currentTarget?ev.currentTarget:null;if(row)row.classList.add('sel');
+ if(typeof m4SyncAlogPoint==='function')m4SyncAlogPoint();
+ if(typeof m4RenderRoster==='function')m4RenderRoster();
+ m4RenderAccess();
+};
+
+window.m4CloseRecord=function(){
+ var panel=document.getElementById('tab-record');if(panel)panel.classList.remove('rec-open');
+ if(typeof m4RenderRoster==='function')m4RenderRoster();
+ if(typeof m4FilterRoster==='function')m4FilterRoster();
+ try{window.scrollTo(0,0);}catch(x){}
+};
+function m4OpenRecord(code){
+ var e=M4.live.employees.filter(function(x){return x.employee_code===code;})[0];
+ if(!e){toast('Employee '+code+' not in the list. Reload.');return;}
+ rkRecentPush('Employee',code,e.full_name); 
+ m4FillRecord(e);
+ var panel=document.getElementById('tab-record');if(panel)panel.classList.add('rec-open');
+ var who=document.getElementById('rkf-recback-who');if(who)who.textContent=e.full_name;
+ var sub=document.getElementById('rkf-recback-sub');if(sub)sub.textContent=e.employee_code;
+ switchTab(document.querySelectorAll('.mod-tab')[1],'record');
+ try{window.scrollTo(0,0);}catch(x){}
+}
+
+function m4CyclePath(empCode,mgrCode){
+ var chain=[empCode,mgrCode],seen={},cur=mgrCode;
+ while(cur){
+  if(seen[cur])return null;seen[cur]=1;
+  var r=M4.live.employees.filter(function(x){return x.employee_code===cur;})[0];
+  var nxt=r?(r.reports_to||null):null;
+  if(!nxt)return null;
+  chain.push(nxt);
+  if(nxt===empCode)return chain;
+  cur=nxt;}
+ return null;}
+
+window.saveEmployee=async function(){
+ if(!M4.sel){toast('Open an employee first.');return;}
+ var e=M4.sel;
+ function g(id){var el=document.getElementById(id);return el?String(el.value||'').trim():'';}
+ var name=g('r-name'),mobile=g('r-mobile'),email=g('r-email'),
+     desig=g('r-desig'),dept=g('r-dept'),reports=g('r-reports'),unit=g('r-unit'),
+     tally=g('r-tally'),emptype=g('r-emptype'),doj=dmyToIso(g('r-doj'));
+ if(!name){toast('Cannot save - Full Name is required.');return;}
+
+ if(!doj){toast('Cannot save - Date of Joining is required.');return;}
+ if(isNaN(new Date(doj).getTime())){toast('Cannot save - Date of Joining is not a valid date.');return;}
+ if(!dept){toast('Cannot save - Department is required.');return;}
+ if(!desig){toast('Cannot save - Designation is required.');return;}
+ if(!unit){toast('Cannot save - Posting Unit is required.');return;}
+ if(!tally){toast('Cannot save - Tally Alias is required.');return;}
+
+ var accEl=document.getElementById('r-access');
+ var wantAccess=accEl?!!accEl.checked:!!e.has_erp_access;
+ if(wantAccess&&!mobile){toast('Mobile is required for ERP access.');return;}
+
+ if(mobile&&!/^[6-9]\d{9}$/.test(mobile)){toast('Mobile must be 10 digits starting 6 to 9.');return;}
+
+ if(email&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){toast('Cannot save - that email address is not a valid one.');return;}
+ if(reports){
+  if(reports===e.employee_code){toast(e.employee_code+' cannot report to themselves.');return;}
+  var cyc=m4CyclePath(e.employee_code,reports);
+  if(cyc){toast('Reporting line loops: '+cyc.join(' -> '));return;}
+ }
+ var want={has_erp_access:wantAccess,
+  full_name:name,mobile_number:mobile||null,email:email||null,
+  designation:desig,department:dept,reports_to:reports||null,posting_unit:unit,
+  tally_alias:tally,employment_type:emptype||null,
+  date_of_joining:doj };
+
+ var uname=g('r-username').toLowerCase();
+ if(!e.username&&uname){
+  if(!/^[a-z0-9.\-]+$/.test(uname)){toast('Username: small letters, digits, dot, hyphen only.');return;}
+  if(M4.live.employees.some(function(x){return x.username===uname&&x.employee_code!==e.employee_code;})){
+   toast('Cannot save - that username already belongs to another employee.');return;}
+  want.username=uname;
+  if(!e.auth_method)want.auth_method='USERNAME_PASSWORD';
+ }
+ var changes={},diffs=[];
+ Object.keys(want).forEach(function(k){
+  var oldV=(e[k]==null?null:e[k]),newV=want[k];
+  if(k==='date_of_joining'&&oldV!=null)oldV=String(oldV).slice(0,10); 
+  if(String(oldV==null?'':oldV)!==String(newV==null?'':newV)){changes[k]=newV;diffs.push([k,oldV,newV]);}});
+ if(!diffs.length){
+
+  toast('No changes to save.');
+  return;}
+ var up=await m4Update(e.employee_code, changes);
+ if(up&&up.error){toast(RKF.errText(up.error,{fallback:'Could not save (nothing was changed).'}));return;}
+ for(var i=0;i<diffs.length;i++)await m4Audit(e.employee_code,diffs[i][0],diffs[i][1],diffs[i][2]);
+ await m4Reload();
+ var fresh=M4.live.employees.filter(function(x){return x.employee_code===e.employee_code;})[0];
+ if(fresh){M4.sel=fresh;if(typeof m4RenderCredential==='function')m4RenderCredential(fresh);}
+ toast('Saved '+e.employee_code+' - '+diffs.length+' field(s) updated.',[{label:'View',fn:function(){m4OpenRecord(e.employee_code);}}]);
+};
+
+function m4ExitOpen(code){
+ if(!code){toast('Open an employee first.');return;}
+ var e=M4.live.employees.filter(function(x){return x.employee_code===code;})[0];
+ if(!e){toast('Employee '+code+' is not in the loaded list.');return;}
+ if(e.status==='Exited'){toast(code+' is already Exited - nothing to do.');return;}
+ M4.exitCode=code;
+ ['exit-date','exit-remarks'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
+ var er=document.getElementById('exit-reason');if(er)er.value='';
+ var who=document.getElementById('m4-exit-who');
+ if(!who){var eb=document.querySelector('#exit-modal .modal-body');
+  if(eb){who=document.createElement('div');who.id='m4-exit-who';who.style.cssText='font-size:var(--fs-body);font-weight:700;color:var(--navy);margin-bottom:8px';eb.insertBefore(who,eb.firstChild);}}
+ if(who)who.textContent='Exiting: '+e.employee_code+' - '+e.full_name;
+ document.getElementById('exit-modal').classList.add('show');
+}
+
+window.confirmExit=async function(){
+ var code=M4.exitCode;
+ if(!code){toast('No employee selected.');return;}
+ var e=M4.live.employees.filter(function(x){return x.employee_code===code;})[0];
+ if(!e){toast('Nothing was saved - '+code+' is not in the loaded list.');return;}
+ function g(id){var el=document.getElementById(id);return el?String(el.value||'').trim():'';}
+ var date=dmyToIso(g('exit-date')),reason=g('exit-reason'),remarks=g('exit-remarks');
+
+ if(!date||!reason){toast('Date of Exit and Exit Reason are required.');return;}
+ if(isNaN(new Date(date).getTime())){toast('Cannot exit - Date of Exit is not a valid date.');return;}
+
+ var r1=await m4Env(await supa.rpc('rpc_m04_employee_exit',{p_payload:{employee_code:code,date_of_exit:date,exit_reason:reason,exit_remarks:remarks||null},p_request_id:m4ReqId(),p_by_emp:M4_ACTOR_EMP}));
+ if(r1&&r1.error){toast(RKF.errText(r1.error,{fallback:'Exit was not saved (nothing was changed).'}));return;}
+ await m4Audit(code,'status',e.status,'Exited');
+ await m4Audit(code,'date_of_exit',e.date_of_exit,date);
+ await m4Audit(code,'exit_reason',e.exit_reason,reason);
+ if(remarks)await m4Audit(code,'exit_remarks',e.exit_remarks,remarks);
+ await m4Audit(code,'has_erp_access',String(!!e.has_erp_access),'false');
+
+ var nDel=0;
+ var r2=await {data:[{note:'cancelled on exit'}]};
+ if(r2&&r2.error)toast('Exited; delegations not cancelled. Report this.');
+ else nDel=(r2.data||[]).length;
+ await m4Audit(code,'delegations_cancelled',null,String(nDel));
+
+ var nDelIn=0;
+ var r2b=await {data:[{note:'cancelled on exit'}]};
+ if(r2b&&r2b.error)toast('Exited; incoming delegations not cancelled. Report this.');
+ else nDelIn=(r2b.data||[]).length;
+ await m4Audit(code,'delegations_cancelled_incoming',null,String(nDelIn));
+
+ var nAuth=0;
+
+ var nodes=M4.live.units.filter(function(u){
+  return [u.responsible_primary,u.responsible_secondary].some(function(v){return v&&(v===e.id||v===e.employee_code);});});
+ M4.exitCode=null;
+ await m4Reload();
+ closeModals();
+ m4LeaverShow(code,nDel,nDelIn,nAuth,nodes);
+ toast(code+' marked Exited ('+fmtDDMMYYYY(date)+').');
+};
+
+function m4LeaverShow(code,nDel,nDelIn,nAuth,nodes){
+ var lb=document.querySelector('#leaver-modal .modal-body');if(!lb)return;
+ function item(icon,desc,done){return '<div class="leaver-item"><span class="leaver-icon">'+icon+'</span><div class="leaver-desc">'+desc+'</div><span class="leaver-status '+(done?'done':'pending')+'">'+(done?'Done':'Action Needed')+'</span></div>';}
+ lb.innerHTML=item('&#128682;','ERP login revoked for '+m4Esc(code),true)
+  +item('&#128203;','Active delegations cancelled (outgoing '+nDel+', incoming '+nDelIn+')',true)
+  +item('&#127981;',(nodes&&nodes.length)
+    ?('Responsible for '+nodes.length+' unit(s): '+nodes.map(function(u){return m4Esc(u.unit_code);}).join(', '))
+    :'Responsible for no unit',!(nodes&&nodes.length))
+  +item('&#128196;','Open documents: not checked',false)
+  +'<div style="margin-top:10px;font-size:var(--fs-body);color:var(--muted)"></div>';
+ document.getElementById('leaver-modal').classList.add('show');
+}
+
+function m4OpFrozen(emp){
+ var le=M4.live.employees.filter(function(x){return x.employee_code===emp;})[0];
+ if(le&&le.status==='Exited'){
+  toast(emp+' is Exited - operational rights are frozen (V rule 2026-07-10); administrative corrections only.');
+  return true;}
+ return false;}
+window.m4OpFrozen=m4OpFrozen;
+
+/* list filter */
+
+window.m4FilterTable=function(searchId,statusId,deptId,unitId,bodyId,countId){
+ function val(id){var el=document.getElementById(id);return el?String(el.value||''):'';}
+ var search=val(searchId).toLowerCase(), status=val(statusId), dept=val(deptId), unit=val(unitId);
+ var rows=document.querySelectorAll('#'+bodyId+' tr');var count=0;
+ rows.forEach(function(row){
+  if(!row.getAttribute('data-status'))return; 
+  var text=row.textContent.toLowerCase();
+  var ok=(!search||text.indexOf(search)>=0)
+   &&(status?row.getAttribute('data-status')===status:row.getAttribute('data-status')!=='Exited')
+   &&(!dept||row.getAttribute('data-dept')===dept)
+   &&(!unit||row.getAttribute('data-unit')===unit);
+  row.style.display=ok?'':'none';if(ok)count++;});
+ var c=countId?document.getElementById(countId):null;if(c)c.textContent=count;
+ return count;
+};
+window.m4FilterRoster=function(){
+ var n=m4FilterTable('rec-search','rec-f-status','rec-f-dept','rec-f-unit','rkf-roster-body',null);
+ var cnt=document.getElementById('rkf-roster-count');if(cnt)cnt.textContent=n?('- '+n):'';
+};
+window.filterEmployees=function(){
+ var search=String(document.getElementById('emp-search').value||'').toLowerCase();
+ var status=document.getElementById('f-status').value;
+ var dept=document.getElementById('f-dept').value;
+ var unit=document.getElementById('f-unit').value;
+ var rows=document.querySelectorAll('#emp-body tr');var count=0;
+ rows.forEach(function(row){
+  if(!row.getAttribute('data-status'))return; /* empty-state row */
+  var text=row.textContent.toLowerCase();
+  var ok=(!search||text.indexOf(search)>=0)
+   &&(status?row.getAttribute('data-status')===status:row.getAttribute('data-status')!=='Exited')
+   &&(!dept||row.getAttribute('data-dept')===dept)
+   &&(!unit||row.getAttribute('data-unit')===unit);
+  row.style.display=ok?'':'none';if(ok)count++;});
+ var c=document.getElementById('emp-count');if(c)c.textContent=count;
+};
+
+window.openKpiModal=function(){
+ var kt=document.getElementById('kpi-type');if(kt)kt.value='';
+ var kg=document.getElementById('kpi-target');if(kg)kg.value='';
+ var kp=document.getElementById('kpi-period');if(kp)kp.value='Monthly';
+ var kf=document.getElementById('kpi-from');
+ if(kf){var d=new Date();kf.value=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+ document.getElementById('kpi-modal').classList.add('show');
+};
+</script>
+
+<script>
+
+M4.live.statusValues=M4.live.statusValues||[];M4.live.scopes=M4.live.scopes||[];M4.live.modOv=M4.live.modOv||[];M4.live.rma=M4.live.rma||[]; 
+
+(function(){var _l=m4Load;
+ m4Load=async function(){await _l();
+
+  var RA=await supa.from('role_module_access').select('role_code,module_code,access_level,active').eq('active',true);
+  if(RA.error)throw new Error(m4Biz('role_module_access')+' could not be loaded');M4.live.rma=RA.data||[];
+
+  var MV=await supa.from('employee_module_override').select('id,employee_id,module_code,access_level,active').eq('active',true);
+  if(MV.error)throw new Error(m4Biz('employee_module_override')+' could not be loaded');
+  var byId={};(M4.live.employees||[]).forEach(function(e){byId[e.id]=e.employee_code;});
+  M4.live.modOv=(MV.data||[]).map(function(o){return {id:o.id,employee_id:o.employee_id,employee_code:byId[o.employee_id]||null,module_code:o.module_code,access_level:o.access_level,active:o.active};});
+ };})();
+
+function m4NDate(d){return d?String(d).slice(0,10):'';}
+
+function m4DateField(id,extra){ return '<span class="dpf" style="position:relative;display:inline-flex;align-items:center;'+(extra||'')+'">'+
+  '<input id="'+id+'" placeholder="DD-MM-YYYY" maxlength="10" oninput="dmyMask(this)" autocomplete="off" style="flex:1;width:100%"/>'+
+  '<button type="button" onclick="dpOpen(event,\''+id+'\')" title="Pick date" style="position:absolute;right:4px;border:none;background:none;cursor:pointer;font-size:var(--fs-emphasis);line-height:1">&#128197;</button>'+
+  '<div id="'+id+'-cal" class="dp-cal" style="display:none"></div></span>'; }
+function m4Validity(f,t){return (f?fmtDDMMYYYY(f):'-')+' to '+(t?fmtDDMMYYYY(t):'no expiry');}
+
+window.m4SetupCalc=function(e){
+ var emp=e.employee_code;
+ var items=[
+  ['Basic info',!!(e.full_name&&e.mobile_number&&e.date_of_joining)],
+  ['Login configured',!!e.has_erp_access],
+  ['Role assigned',M4.live.roleMap.some(function(r){return r.employee_code===emp&&r.active;})],
+  ['Posting unit',!!e.posting_unit],
+  ['Unit access',M4.live.unitAccess.some(function(a){return a.employee_code===emp;})],
+  ['KPI',M4.live.kpis.some(function(k){return k.employee_code===emp;})]];
+ var done=0;items.forEach(function(it){if(it[1])done++;});
+ return {items:items,done:done,pct:Math.round(done*100/items.length)};
+};
+window.m4SetupRender=function(e){
+ var r=m4SetupCalc(e);
+ var col=r.pct===100?'var(--green,#1e7d3e)':(r.pct===0?'var(--red,#c0392b)':'var(--warn,#b07a12)');
+ var pc=document.getElementById('setup-pct');if(pc){pc.textContent=r.pct+'%';pc.style.color=col;}
+ var sb=document.getElementById('setup-bar');if(sb){sb.style.width=r.pct+'%';sb.style.background=col;}
+ var si=document.getElementById('setup-items');
+ if(si)si.innerHTML=r.items.map(function(it){return '<div class="setup-item'+(it[1]?' done':'')+'"><span class="si-icon">'+(it[1]?'&#10003;':'&#9675;')+'</span> '+it[0]+'</div>';}).join('');
+};
+
+async function m4S6Reload(table,key,cols,softDel){
+ var qr=supa.from(table).select(cols);if(softDel)qr=qr.eq('is_deleted',false);
+ var r=await qr;
+ if(r&&r.error){toast('Could not refresh '+m4Biz(table)+' - the save DID go through; reload the screen.');return;}
+ M4.live[key]=(r&&r.data)||[];m4Render();
+}
+
+window.m4AccView=function(v){
+ var g=document.getElementById('rkf-view-general'),d=document.getElementById('rkf-view-individual');
+ if(!g||!d)return;
+ g.classList.toggle('act',v==='general'); d.classList.toggle('act',v==='individual');
+ var tabs=document.querySelectorAll('#rkf-subtabs .rkf-subtab');
+ if(tabs[0])tabs[0].classList.toggle('act',v==='general');
+ if(tabs[1])tabs[1].classList.toggle('act',v==='individual');
+ M4.accView=v; m4S6Access();
+};
+
+window.m4AccPickerRender=function(){
+ var box=document.getElementById('acc-emp-list'); if(!box)return;
+ var q=String((document.getElementById('acc-emp-search')||{}).value||'').trim().toLowerCase();
+ var rows=M4.live.employees.filter(function(e){return e.status!=='Exited';});
+ if(q)rows=rows.filter(function(e){
+  return [e.employee_code,e.full_name,e.department,e.designation,e.posting_unit,e.email]
+   .some(function(f){return String(f||'').toLowerCase().indexOf(q)>=0;});});
+ var sel=M4.sel?M4.sel.employee_code:null;
+ box.innerHTML=rows.length?rows.map(function(e){
+  return '<div class="rkf-pick'+(e.employee_code===sel?' sel':'')+'" onclick="m4AccSelect(\''+m4Esc(e.employee_code)+'\')">'
+   +m4Esc(e.full_name)+'<div class="rkf-pick-sub">'+m4Esc(e.employee_code)+'</div></div>';}).join('')
+  :'<div class="rkf-empty">'+(q?'No employee matches that search.':'No active employees yet.')+'</div>';
+};
+window.m4AccSelect=function(code){
+ var e=M4.live.employees.filter(function(x){return x.employee_code===code;})[0];
+ if(!e){toast('Employee not in the list. Reload.');return;}
+ M4.sel=e;
+ if(typeof m4SyncAlogPoint==='function')m4SyncAlogPoint();
+ m4S6Access(); m4AccPickerRender();
+};
+
+function m4RenderMatrix(){
+ var el=document.getElementById('authz-matrix'); if(!el)return;
+ var mods=M4.authzMods||[], roles=M4.live.roles||[];
+ if(!mods.length){el.innerHTML='<div class="rkf-empty">No modules are recorded yet.</div>';return;}
+ if(!roles.length){el.innerHTML='<div class="rkf-empty">No active roles yet.</div>';return;}
+ var map={};(M4.authzRma||[]).forEach(function(r){map[r.role_code+'|'+r.module_code]=r.access_level;});
+ var h='<table class="rkf-matrix"><thead><tr><th>Role</th>';
+ mods.forEach(function(m){h+='<th>'+m4Esc(m.module_code)+'</th>';});
+ h+='</tr></thead><tbody>';
+
+ roles.forEach(function(r){
+  h+='<tr><td><button class="btn btn-g btn-xs rkf-write" style="margin-right:6px" onclick="m4OpenRole(\''+m4Esc(r.role_code)+'\')">Edit</button><b>'+m4Esc(r.role_name||r.role_code)+'</b> <code>'+m4Esc(r.role_code)+'</code></td>';
+  mods.forEach(function(m){
+   var cur=map[r.role_code+'|'+m.module_code]||'';
+   h+='<td><select data-prev="'+m4Esc(cur)+'" onchange="m4SetDefault(this,\''+m4Esc(r.role_code)+'\',\''+m4Esc(m.module_code)+'\')">'
+    +['','Read','Full','None'].map(function(v){return '<option value="'+v+'"'+(v===cur?' selected':'')+'>'+(v||'—')+'</option>';}).join('')
+    +'</select></td>';});
+  h+='</tr>';});
+ el.innerHTML=h+'</tbody></table>';
+ var vb=document.getElementById('rkf-cardacts-matrix');
+ if(vb)vb.innerHTML='';
+}
+
+window.m4GroupTickRender=function(){
+ var box=document.getElementById('ga-picker'), rs=document.getElementById('ga-role');
+ if(!box)return;
+ var role=rs?rs.value:'';
+ var rows=M4.live.employees.filter(function(e){return e.status!=='Exited';});
+ box.innerHTML=rows.length?rows.map(function(e){
+  var held=m4RolesOf(e.employee_code);
+  var has=role&&held.indexOf(role)>=0;
+  return '<label class="rkf-tick"><input type="checkbox" class="ga-tick" value="'+m4Esc(e.employee_code)+'"/>'
+   +'<span>'+m4Esc(e.full_name)+' <code>'+m4Esc(e.employee_code)+'</code></span>'
+   +'<span class="rkf-tick-held">'+(held.length?m4Esc(held.join(', ')):'no role')+(has?' - holds this one':'')+'</span></label>';}).join('')
+  :'<div class="rkf-empty">No active employees yet.</div>';
+ var nt=document.getElementById('ga-note');
+ if(nt)nt.textContent=role?'':'Choose a role first.';
+};
+
+function m4RenderIndividual(){
+ var SEL=M4.sel, emp=SEL?SEL.employee_code:null;
+ var hd=document.getElementById('acc-emp-name');
+ if(hd)hd.textContent=SEL?(SEL.full_name+' - '+SEL.employee_code):'Choose an employee from the list';
+
+ var rg=document.getElementById('role-grid');
+ if(rg){
+  if(!SEL)rg.innerHTML='<div class="rkf-empty">No employee chosen.</div>';
+  else if(!M4.live.roles.length)rg.innerHTML='<div class="rkf-empty">No active roles yet.</div>';
+  else{var held=m4RolesOf(emp);
+   rg.innerHTML=M4.live.roles.map(function(r){
+    return '<div class="role-chip'+(held.indexOf(r.role_code)>=0?' sel':'')+'" data-role="'+m4Esc(r.role_code)+'" onclick="m4RoleChipToggle(this)">'
+     +m4Esc(r.role_code)+' '+m4Esc(r.role_name)+'</div>';}).join('');}
+ }
+ m4RoleSoft();
+ var cm=document.getElementById('r-commission');
+ if(cm){cm.disabled=!SEL;cm.checked=!!(SEL&&SEL.commission_eligible);
+  cm.title=SEL?'':'Choose an employee first.';cm.onchange=function(){m4CommissionToggle();};}
+
+ var um=document.getElementById('um-body');
+ if(um){
+  if(!SEL)um.innerHTML='<tr><td colspan="3" class="rkf-empty">No employee chosen.</td></tr>';
+  else if(!M4.live.units.length)um.innerHTML='<tr><td colspan="3" class="rkf-empty">No units yet.</td></tr>';
+  else um.innerHTML=M4.live.units.map(function(u){
+   var row=M4.live.unitAccess.filter(function(a){return a.employee_code===emp&&a.unit_code===u.unit_code;})[0];
+   var lvl=(row&&row.active)?row.permission_level:'';
+   function opt(v,l){return '<option value="'+v+'"'+(lvl===v?' selected':'')+'>'+l+'</option>';}
+   return '<tr><td><code>'+m4Esc(u.unit_code)+'</code> '+m4Esc(u.unit_name)+(u.active?'':' <span class="pill n">Inactive</span>')+'</td>'
+    +'<td><select class="perm-sel" id="ua-lvl-'+m4Esc(u.unit_code)+'"><option value="">-</option>'+opt('Full','Full')+opt('Read','Read only')+opt('None','No access')+'</select></td>'
+    +'<td style="white-space:nowrap">'+m4DateField('ua-from-'+m4Esc(u.unit_code),'width:118px')+' '+m4DateField('ua-to-'+m4Esc(u.unit_code),'width:118px')
+    +' <button class="btn btn-g btn-xs rkf-write" onclick="m4SaveUnitAccess(\''+m4Esc(u.unit_code)+'\')">Save</button></td></tr>';}).join('');
+  if(SEL)M4.live.units.forEach(function(u){
+   var row=M4.live.unitAccess.filter(function(a){return a.employee_code===emp&&a.unit_code===u.unit_code;})[0];
+   var f=document.getElementById('ua-from-'+u.unit_code),t=document.getElementById('ua-to-'+u.unit_code);
+   if(f)f.value=isoToDMY(m4NDate(row?row.valid_from:''));
+   if(t)t.value=isoToDMY(m4NDate(row?row.valid_to:''));});
+ }
+
+ var sc=document.getElementById('acc-scope');
+ if(sc)sc.innerHTML=SEL?'<div class="rkf-empty">Loading</div>':'<div class="rkf-empty">No employee chosen.</div>';
+
+ var ov=document.getElementById('acc-override');
+ if(ov){
+  if(!SEL)ov.innerHTML='<div class="rkf-empty">No employee chosen.</div>';
+  else{var mods=(M4.authzMods||[]);
+   if(!mods.length)ov.innerHTML='<div class="rkf-empty">No modules are recorded yet.</div>';
+   else{var h2='<table class="rkf-table">';
+    mods.forEach(function(m){
+     var row=M4.live.modOv.filter(function(o){return o.employee_code===emp&&o.module_code===m.module_code;})[0];
+     var cur=row?row.access_level:'';
+     function mo(v,l){return '<option value="'+v+'"'+(cur===v?' selected':'')+'>'+l+'</option>';}
+     h2+='<tr><td style="padding:8px 16px;font-size:var(--fs-body);color:var(--ink2)"><code>'+m4Esc(m.module_code)+'</code> '+m4Esc(m.module_name||'')+'</td>'
+      +'<td style="padding:8px 16px;text-align:right"><select class="perm-sel rkf-write" id="modov-'+m4Esc(m.module_code)+'" onchange="m4OverrideSet(\''+m4Esc(m.module_code)+'\')">'
+      +'<option value=""'+(cur===''?' selected':'')+'>No override</option>'+mo('READ','Read')+mo('FULL','Full')+mo('DENY','Deny')+'</select></td></tr>';});
+    ov.innerHTML=h2+'</table>';}}
+  var vo=document.getElementById('rkf-cardacts-override');
+  if(vo)vo.innerHTML='';
+ }
+
+ var dl=document.getElementById('del-list');
+ if(dl){var rowsD=SEL?M4.live.delegations.filter(function(d){return d.delegator_code===emp||d.delegate_code===emp;}):[];
+  dl.innerHTML=rowsD.length?rowsD.map(function(d){
+   return '<div class="del-row"><div><div class="del-to">'+m4Esc(d.delegator_code)+' &rarr; '+m4Esc(d.delegate_code)+'</div>'
+    +'<div class="del-period">'+fmtDDMMYYYY(d.start_date)+' to '+fmtDDMMYYYY(d.end_date)+'</div>'
+    +'<div class="del-modules">'+(d.modules||[]).map(m4Esc).join(', ')+'</div></div>'+m4DelegPill(d)+'</div>';}).join('')
+   :'<div class="rkf-empty">'+(SEL?'No delegation for this employee.':'No employee chosen.')+'</div>';}
+
+ var es=document.getElementById('acc-escalation');
+ if(es){
+  if(!SEL)es.innerHTML='<div class="rkf-empty">No employee chosen.</div>';
+  else{var lines=[m4Esc(SEL.full_name)+' <code>'+m4Esc(emp)+'</code>'],seen={},cur=SEL.reports_to,n=2;
+   seen[emp]=1;
+   while(cur&&!seen[cur]&&n<=8){seen[cur]=1;
+    var mgr=M4.live.employees.filter(function(x){return x.employee_code===cur;})[0];
+    if(!mgr){lines.push(m4Esc(cur));break;}
+    lines.push(m4Esc(mgr.full_name)+' <code>'+m4Esc(mgr.employee_code)+'</code>'+(mgr.status==='Exited'?' <span class="pill r">Exited</span>':''));
+    cur=mgr.reports_to;n++;}
+
+   es.innerHTML='<div style="padding:12px 16px;font-size:var(--fs-body);color:var(--ink2);line-height:1.9">'
+    +(lines.length>1?lines.join(' &rarr; '):lines[0]+' <span style="color:var(--muted)">- no one above</span>')
+    +'</div>';}
+ }
+
+ m4RenderEffective();
+}
+
+function m4RenderEffective(){
+ var el=document.getElementById('rkf-effpermective'); if(!el)return;
+ var SEL=M4.sel;
+ if(!SEL){el.innerHTML='<div class="rkf-empty">No employee chosen.</div>';return;}
+ el.innerHTML='<div class="rkf-empty">Loading</div>';
+ supa.rpc('get_effective_permissions_for',{p_employee_code:SEL.employee_code}).then(function(r){
+  if(r.error){
+   el.innerHTML='<div class="rkf-empty">'+m4Esc(RKF.errText(r.error,{fallback:'The server could not answer.'}))
+    +' <button class="btn btn-g btn-xs" onclick="m4RenderEffective()">Try again</button></div>';return;}
+  var rows=r.data||[];
+  m4RenderScope(rows);   
+  var lead='';
+  if(!rows.length){el.innerHTML=lead+'<div class="rkf-empty">No module is open to this employee.</div>';return;}
+  var h=lead+'<div class="eff-perm-row" style="font-size:var(--fs-caption);font-weight:700;color:var(--muted);text-transform:uppercase">'
+   +'<span class="eff-module">Module</span><span class="eff-level">Access</span><span class="eff-source">Units</span><span class="eff-source">Where it comes from</span></div>';
+  h+=rows.map(function(x){
+   var lvl=String(x.access_level||''),cls=/full/i.test(lvl)?'full':(/read/i.test(lvl)?'read':'none');
+
+   var un=(x.units||[]).map(function(u){return m4Esc(u.unit)+' '+m4Esc(u.level);}).join(' · ');
+   return '<div class="eff-perm-row"><span class="eff-module"><code>'+m4Esc(x.module_code)+'</code></span>'
+    +'<span class="eff-level '+cls+'">'+m4Esc(lvl)+'</span><span class="eff-source">'+(un||'-')+'</span><span class="eff-source">'+m4Esc(x.source||'')+'</span></div>';}).join('');
+  el.innerHTML=h;
+ });
+}
+
+function m4RenderScope(rows){
+ var sc=document.getElementById('acc-scope'); if(!sc)return;
+ var x=(rows||[])[0];
+ if(!x){sc.innerHTML='<div class="rkf-empty">No module is open to this employee.</div>';return;}
+ var all=(x.see_emp_ids===null||x.see_emp_ids===undefined);
+ var team=(x.team_ids||[]).map(function(id){var e=(M4.live.employees||[]).filter(function(q){return q.id===id;})[0];return e?(m4Esc(e.full_name)+' <code>'+m4Esc(e.employee_code)+'</code>'):m4Esc(String(id).slice(0,8));});
+ var units=(x.units||[]).map(function(u){return '<code>'+m4Esc(u.unit)+'</code> '+m4Esc(u.level);}).join(' &middot; ');
+ var h='<table class="rkf-table">';
+ h+='<tr><td>Records seen</td><td>'+(all?'Every record.':('Own and team: '+(team.length?team.join(', '):'-')))+'</td></tr>';
+ if(!all)h+='<tr><td>Also</td><td>Records where CCR or manager.</td></tr>';
+ h+='<tr><td>Units</td><td>'+(units||'-')+'</td></tr>';
+ sc.innerHTML=h+'</table>';
+}
+
+function m4S6Access(){
+ if(M4.accView==='individual'){ m4AccPickerRender(); m4RenderIndividual(); return; }
+ var rs=document.getElementById('ga-role');
+ if(rs){var keep=rs.value;
+  rs.innerHTML=(M4.live.roles||[]).map(function(r){return '<option value="'+m4Esc(r.role_code)+'">'+m4Esc(r.role_code)+' '+m4Esc(r.role_name||'')+'</option>';}).join('');
+  if(keep)rs.value=keep;}
+ m4RenderMatrix(); m4GroupTickRender();
+}
+
+window.m4SaveUnitAccess=async function(unitCode){
+ if(!M4.sel){toast('Open an employee first.');return;}
+ var emp=M4.sel.employee_code;
+ if(m4OpFrozen(emp))return; 
+ function gv(id){var el=document.getElementById(id);return el?String(el.value||'').trim():'';}
+ var lvl=gv('ua-lvl-'+unitCode),from=dmyToIso(gv('ua-from-'+unitCode))||null,to=dmyToIso(gv('ua-to-'+unitCode))||null;
+ var row=M4.live.unitAccess.filter(function(a){return a.employee_code===emp&&a.unit_code===unitCode;})[0];
+ if(from&&to&&from>to){toast('Cannot save - Valid FROM '+fmtDDMMYYYY(from)+' is after Valid TO '+fmtDDMMYYYY(to)+' (chk_eua_validity mirror, Sr74).');return;}
+ if(!lvl){toast(row?('Pick Full, Read or None for '+unitCode+'.')
+                  :('Nothing was saved - no permission picked for '+unitCode+'.'));return;}
+ if(!row&&lvl==='None'){toast(emp+' already has no access to '+unitCode+'.');return;}
+ var oldDesc=row?(row.permission_level+' '+m4NDate(row.valid_from)+'..'+m4NDate(row.valid_to)+(row.active?'':' [inactive row]')):'no-row';
+ if(row&&row.active&&row.permission_level===lvl&&m4NDate(row.valid_from)===(from||'')&&m4NDate(row.valid_to)===(to||'')){toast('No change - '+unitCode+' already stores '+lvl+' with this validity.');return;}
+ var r;
+ if(row)r=await m4Child('unit_access',{employee_code:emp,unit_code:unitCode,permission_level:lvl,valid_from:from,valid_to:to,active:true});
+ else r=await m4Child('unit_access',{employee_code:emp,unit_code:unitCode,permission_level:lvl,valid_from:from,valid_to:to,active:true});
+ if(r&&r.error){toast(RKF.errText(r.error,{fallback:'Could not save (nothing was changed).'}));return;}
+ await m4Audit(emp,'unit_access_'+unitCode,oldDesc,lvl+' '+(from||'')+'..'+(to||''));
+ var how=row?(row.active?'row updated':'row reactivated'):'row created';
+ await m4S6Reload('employee_unit_access','unitAccess','employee_code,unit_code,permission_level,valid_from,valid_to,active',false);
+ toast('Unit access saved - '+emp+' @ '+unitCode+' = '+lvl+' ('+how+').');
+};
+
+window.m4ScopeSet=async function(type, clear){
+ if(!M4.sel){toast('Choose an employee first.');return;}
+ var emp=M4.sel.employee_code;
+ if(m4OpFrozen(emp)){m4S6Access();return;}
+ var el=document.getElementById('scope-'+type);
+ var v=clear?null:(el?el.value:'');
+ if(!clear&&!v)v=null;               
+ var row=M4.live.scopes.filter(function(x){return x.employee_code===emp&&x.scope_type===type;})[0];
+ if(!row&&!v)return;                 
+ if(row&&row.scope_value===v)return;
+ var r=await m4Env(await supa.rpc('rpc_m04_data_scope_set',
+   {p_payload:{employee_code:emp,scope_type:type,scope_value:v},p_request_id:m4ReqId(),p_by_emp:M4_ACTOR_EMP}));
+ if(r&&r.error){toast(RKF.errText(r.error,{fallback:'The data scope could not be saved.'}));m4S6Access();return;}
+ await m4S6Reload('employee_data_scope','scopes','employee_code,scope_type,scope_value',false);
+ toast(v?('Data scope saved - '+type+' is now '+v.toLowerCase()+' for '+emp+'.')
+        :(type+' is back to own records only for '+emp+'.'));
+};
+
+window.m4OverrideSet=async function(mod){
+ if(!M4.sel){toast('Choose an employee first.');m4S6Access();return;}
+ var emp=M4.sel.employee_code, uid=M4.sel.id;
+ if(m4OpFrozen(emp)){m4S6Access();return;}
+ if(!uid){toast('Nothing was saved. Reload.');return;}
+ var el=document.getElementById('modov-'+mod); var v=el?el.value:'';
+ var row=M4.live.modOv.filter(function(o){return o.employee_code===emp&&o.module_code===mod;})[0];
+ if(!row&&!v)return;
+ if(row&&row.access_level===v)return;
+ var r=await m4Env(await supa.rpc('rpc_m04_emp_module_override_set',
+  {p_payload:{employee_id:uid,module_code:mod,access_level:v||null},p_request_id:m4ReqId(),p_by_emp:M4_ACTOR_EMP}));
+ if(r&&r.error){toast(RKF.errText(r.error,{fallback:'The override could not be saved.'}));m4S6Access();return;}
+ if(v){ if(row)row.access_level=v; else M4.live.modOv.push({employee_id:uid,employee_code:emp,module_code:mod,access_level:v,active:true}); }
+ else M4.live.modOv=M4.live.modOv.filter(function(o){return !(o.employee_code===emp&&o.module_code===mod);});
+ m4S6Access();
+ toast(v?(mod+' is now '+v.toLowerCase()+' for '+emp+', over the role.'):(mod+' follows the role again for '+emp+'.'));
+};
+
+/* commission_eligible */
+window.m4CommissionToggle=async function(){
+ var el=document.getElementById('r-commission');
+ if(!M4.sel){toast('Open an employee first.');if(el)el.checked=false;return;}
+ var emp=M4.sel.employee_code;var want=!!(el&&el.checked);var old=!!M4.sel.commission_eligible;
+ if(want===old)return;
+ var r=await m4Update(emp, {commission_eligible:want});
+ if(r&&r.error){toast(RKF.errText(r.error,{fallback:'Could not save (nothing was changed).'}));if(el)el.checked=old;return;}
+ await m4Audit(emp,'commission_eligible',String(old),String(want));
+ await m4Reload();
+ toast('Commission eligibility for '+emp+' = '+want+'.');
+};
+
+async function m4Credential(action, body){
+ var r;
+ try{
+  var sess=await supa.auth.getSession();
+  var tok=sess&&sess.data&&sess.data.session?sess.data.session.access_token:null;
+  if(!tok){toast('Your session has expired - sign in again.');return null;}
+  var res=await fetch(SUPA_FN_BASE+'/m04-credential',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','Authorization':'Bearer '+tok},
+    body:JSON.stringify(Object.assign({action:action},body||{}))});
+  r=await res.json();
+ }catch(e){ toast('The sign-in service could not be reached.'); return null; }
+ if(!r||r.ok!==true){ toast(RKF.errText(r&&r.error,{fallback:'That could not be done.'})); return null; }
+ return r.data||{};
+}
+window.m4RenderCredential=function(e){
+ var st=document.getElementById('cred-state'), ac=document.getElementById('cred-acts');
+ if(!st||!ac)return;
+ if(!e){st.textContent='';ac.innerHTML='';return;}
+ var has=!!e.auth_user_id;
+ st.textContent = has
+   ? ('Signs in as '+(e.email||'-')+'.')
+   : (e.email ? 'No sign-in account yet.' : 'No email, so no sign-in account.');
+ var acts=[];
+ if(!has&&e.email)acts.push('<button class="btn btn-p btn-xs rkf-write" onclick="m4CredCreate()">Create sign-in</button>');
+ if(has){
+  acts.push('<button class="btn btn-g btn-xs rkf-write" onclick="m4CredSetPassword()">Set password</button>');
+  acts.push('<button class="btn btn-g btn-xs rkf-write" onclick="m4CredReset()">Email a reset link</button>');
+  acts.push('<button class="btn btn-g btn-xs rkf-write" onclick="m4CredRevoke()">Remove sign-in</button>');
+ }
+ ac.innerHTML=acts.join('');
+};
+window.m4CredCreate=async function(){
+ if(!M4.sel)return;
+ var d=await m4Credential('create',{employee_code:M4.sel.employee_code});
+ if(!d)return;
+ await m4Reload();
+ toast(d.password_set?('Sign-in created for '+d.signs_in_with+'.')
+                     :('Sign-in created for '+d.signs_in_with+(d.link_sent?' - a set-up link was emailed.':' - set a password next.')),
+   [{label:'Set password',fn:function(){m4CredSetPassword();}}]);
+};
+
+window.m4CredSetPassword=function(){
+ if(!M4.sel)return;
+ var who=document.getElementById('pw-who');
+ if(who)who.textContent=M4.sel.full_name+' ('+M4.sel.employee_code+')';
+ ['pw-new','pw-again'].forEach(m4ClearInput);
+ var n=document.getElementById('pw-note');if(n)n.textContent='';
+ document.getElementById('pw-modal').classList.add('show');
+};
+window.m4SavePassword=async function(){
+ if(!M4.sel)return;
+ function g(id){var el=document.getElementById(id);return el?String(el.value||''):'';}
+ var a=g('pw-new'), b=g('pw-again');
+ var note=document.getElementById('pw-note');
+ function say(t){if(note)note.textContent=t;}
+ if(!a){say('Type the new password.');return;}
+ if(a!==b){say('The two entries are not the same.');return;}
+ var d=await m4Credential('set_password',{employee_code:M4.sel.employee_code,password:a});
+ if(!d)return;                       
+ ['pw-new','pw-again'].forEach(m4ClearInput);
+ closeModals();
+ toast('Password set for '+M4.sel.employee_code+'. Hand it over in person.');
+};
+window.m4CredReset=async function(){
+ if(!M4.sel)return;
+ var d=await m4Credential('send_reset',{employee_code:M4.sel.employee_code});
+ if(d)toast('A reset link was emailed to '+d.sent_to+'.');
+};
+window.m4CredRevoke=async function(){
+ if(!M4.sel)return;
+ var d=await m4Credential('revoke',{employee_code:M4.sel.employee_code});
+ if(!d)return;
+ await m4Reload();
+ toast('Sign-in removed for '+M4.sel.employee_code+'.');
+};
+
+var M4_ALOG_ACCESS=null, M4_ALOG_BTN=null;
+function m4SyncAlogPoint(){
+ var ap=document.getElementById('alog-access-point');if(!ap)return;
+ if(M4_ALOG_ACCESS!==null&&M4_ALOG_ACCESS!=='Read'&&M4_ALOG_ACCESS!=='Full'){
+  if(ap.parentNode)ap.parentNode.removeChild(ap);return;}
+
+ var btn=document.getElementById('history-btn');
+ if(!btn&&M4_ALOG_BTN){ap.appendChild(M4_ALOG_BTN);M4_ALOG_BTN=null;btn=document.getElementById('history-btn');}
+ if(btn){
+  var ready=!!(M4_ALOG_ACCESS&&M4.sel);
+  btn.disabled=!ready;
+  btn.title=ready?('Changes recorded for '+M4.sel.employee_code)
+                 :'No employee chosen.';
+ }
+}
+
+window.openHistory=function(){
+ if(!M4.sel)return;
+ RKF.history.open({ client:supa, module_code:'M04', record_entity:'employee',
+  record_key:M4.sel.id, title:M4.sel.employee_code, focus:'history-btn',
+  emptyMessage:'No changes recorded' });
+};
+window.closeHistory=function(){ RKF.history.close(); };
+if(window.RKF&&RKF.registerSurface){
+
+ RKF.registerSurface('m04.modals',{depth:10,
+  isOpen:function(){return !!document.querySelector('.ovl.show');},
+  close:function(){closeModals();}});
+ RKF.registerSurface('m04.open-record',{depth:5,
+  isOpen:function(){var p=document.getElementById('tab-record');
+   return !!p&&p.classList.contains('rec-open')&&p.classList.contains('act');},
+  close:function(){m4CloseRecord();}});
+}
+
+/* auth method */
+window.m4PickAuth=async function(method){
+ if(!M4.sel){toast('Open an employee first.');return;}
+ var e=M4.sel,code=e.employee_code;
+ if(m4OpFrozen(code))return;
+ var mail=String((document.getElementById('r-email')||{}).value||'').trim();
+ if(method==='EMAIL'&&!mail){
+  toast('Email is required for Email Login.');
+  selectAuth(e.auth_method||'USERNAME_PASSWORD');return;}
+ selectAuth(method);
+ var uEl=document.getElementById('r-username'),hEl=document.getElementById('r-username-hint');
+ if(method==='USERNAME_PASSWORD'){
+  var stored=e.username||'';
+  if(uEl){uEl.readOnly=!!stored;uEl.classList.toggle('readonly',!!stored);
+   uEl.title=stored?'Set - does not change.':'Small letters, numbers, dot, hyphen.';}
+  if(hEl)hEl.textContent='';
+  if(!stored){if(uEl)uEl.focus();return;}
+ }else if(hEl)hEl.textContent='';
+ if((e.auth_method||'')===method)return;
+ var r=await m4Update(code,{auth_method:method});
+ if(r&&r.error){toast(RKF.errText(r.error,{fallback:'The sign-in method could not be changed.'}));selectAuth(e.auth_method||'EMAIL');return;}
+ e.auth_method=method;
+ await m4Reload();
+ toast('Sign-in method for '+code+' is now '+(method==='EMAIL'?'Email Login':'Username and Password')+'.',
+  [{label:'Open',fn:function(){m4OpenRecord(code);}}]);
+};
+
+/* modal opens */
+function m4WhoLine(modalId,divId,text){var mb=document.querySelector('#'+modalId+' .modal-body');if(!mb)return;
+ var d=document.getElementById(divId);
+ if(!d){d=document.createElement('div');d.id=divId;d.style.cssText='font-size:var(--fs-body);font-weight:700;color:var(--navy);margin-bottom:8px';mb.insertBefore(d,mb.firstChild);}
+ d.textContent=text;}
+
+window.openAaModal=function(){
+ if(!M4.sel){toast('Open an employee first.');return;}
+
+ if(M4.sel.status==='Exited'){toast('Exited employee: no approval authority.');return;}
+ ['aa-val','aa-disc','aa-tat','aa-from','aa-to'].forEach(m4ClearInput);
+ var am=document.getElementById('aa-module');if(am){am.value='';am.onchange=m4AaPrefill;}
+ var hq=document.getElementById('m4-aa-uq');if(hq)hq.textContent='';
+ m4WhoLine('aa-modal','m4-aa-who','For: '+M4.sel.full_name+' ('+M4.sel.employee_code+')');
+ document.getElementById('aa-modal').classList.add('show');
+};
+function m4AaPrefill(){
+ if(!M4.sel)return;
+ var mod=document.getElementById('aa-module').value;var hq=document.getElementById('m4-aa-uq');
+ var row=mod?M4.live.authority.filter(function(a){return a.employee_code===M4.sel.employee_code&&a.module_code===mod;})[0]:null;
+ if(row){document.getElementById('aa-val').value=row.value_limit;document.getElementById('aa-disc').value=row.discount_limit_pct;
+  document.getElementById('aa-tat').value=(row.tat_hours==null?'':row.tat_hours);
+  document.getElementById('aa-from').value=isoToDMY(row.valid_from);document.getElementById('aa-to').value=isoToDMY(row.valid_to);
+  if(hq)hq.textContent='Save updates the existing authority'+(row.active?'':' and reactivates it')+'.';
+ }else if(hq)hq.textContent='';
+}
+
+window.openDelegModal=function(){
+ if(!M4.sel){toast('Open an employee first.');return;}
+
+ if(M4.sel.status==='Exited'){toast('Exited employee cannot delegate.');return;}
+ ['del-from','del-to-dt'].forEach(m4ClearInput);
+
+ var ds=document.getElementById('del-to-sel');if(ds){ds.innerHTML=m4OptDelegates('Select employee...');ds.value='';}
+ M4.live.modules.forEach(function(m){var cb=document.getElementById('del-mod-'+m.module_code);if(cb)cb.checked=false;});
+ m4WhoLine('deleg-modal','m4-del-who','Delegator: '+M4.sel.full_name+' ('+M4.sel.employee_code+')');
+ document.getElementById('deleg-modal').classList.add('show');
+};
+
+window.openKpiModal=function(){
+ if(!M4.sel){toast('Open an employee first.');return;}
+ if(m4OpFrozen(M4.sel.employee_code))return; 
+ var kt=document.getElementById('kpi-type');if(kt)kt.value='';
+ var kg=document.getElementById('kpi-target');if(kg)kg.value='';
+ var kp=document.getElementById('kpi-period');if(kp)kp.value='Monthly';
+ var kf=document.getElementById('kpi-from');
+ if(kf){var d=new Date();kf.value=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');} 
+ m4WhoLine('kpi-modal','m4-kpi-who','For: '+M4.sel.full_name+' ('+M4.sel.employee_code+')');
+ document.getElementById('kpi-modal').classList.add('show');
+};
+
+window.saveAa=async function(){
+ if(!M4.sel){toast('Open an employee first.');return;}
+ var emp=M4.sel.employee_code;
+
+ var liveEmpAa=M4.live.employees.filter(function(x){return x.employee_code===emp;})[0];
+ if(!liveEmpAa||liveEmpAa.status==='Exited'){toast('Exited employee: no approval authority.');return;}
+ function g(id){var el=document.getElementById(id);return el?String(el.value||'').trim():'';}
+ var mod=g('aa-module'),val=g('aa-val'),disc=g('aa-disc'),tat=g('aa-tat'),from=dmyToIso(g('aa-from'))||null,to=dmyToIso(g('aa-to'))||null;
+ if(!mod){toast('Cannot save - Module is required.');return;}
+ var v=Number(val);
+ if(!val||!isFinite(v)||v<=0){toast('Cannot save - Value Limit must be a number above zero.');return;}
+ var d=Number(disc);
+ if(disc===''||!isFinite(d)||d<0||d>100){toast('Cannot save - Max Discount % must be between 0 and 100.');return;}
+ var t=null;
+ if(tat){t=Number(tat);if(!isFinite(t)||t<=0||Math.floor(t)!==t){toast('TAT hours: a whole number above zero, or blank.');return;}}
+ if(from&&to&&from>to){toast('Cannot save - Valid FROM '+fmtDDMMYYYY(from)+' is after Valid TO '+fmtDDMMYYYY(to)+' (chk_aa_validity mirror, Sr74).');return;}
+ var row=M4.live.authority.filter(function(a){return a.employee_code===emp&&a.module_code===mod;})[0];
+ var payload={value_limit:v,discount_limit_pct:d,tat_hours:t,valid_from:from,valid_to:to,active:true};
+ var r;
+ if(row)r=await m4Child('authority',Object.assign({employee_code:emp,module_code:mod},payload));
+ else r=await m4Child('authority',Object.assign({employee_code:emp,module_code:mod},payload));
+ if(r&&r.error){toast(RKF.errText(r.error,{fallback:'Could not save (nothing was changed).'}));return;}
+ var oldDesc=row?('value '+row.value_limit+' / disc '+row.discount_limit_pct+'% / tat '+(row.tat_hours==null?'-':row.tat_hours)+' / '+m4NDate(row.valid_from)+'..'+m4NDate(row.valid_to)+(row.active?'':' [inactive]')):'no-row';
+ await m4Audit(emp,'authority_'+mod,oldDesc,'value '+v+' / disc '+d+'% / tat '+(t==null?'-':t)+' / '+(from||'')+'..'+(to||''));
+ await m4S6Reload('approval_authority','authority','authority_id,employee_code,module_code,value_limit,discount_limit_pct,tat_hours,valid_from,valid_to,active',true);
+ closeModals();
+ toast('Approval authority saved for '+emp+' @ '+mod+'.');
+};
+
+window.m4AaFlip=async function(mod){
+ if(!M4.sel){toast('Choose an employee first.');return;}
+ var emp=M4.sel.employee_code;
+ var liveEmp=M4.live.employees.filter(function(x){return x.employee_code===emp;})[0];
+ if(!liveEmp||liveEmp.status==='Exited'){toast('Exited employee: authority cannot change.');return;}
+ var row=M4.live.authority.filter(function(a){return a.employee_code===emp&&a.module_code===mod;})[0];
+ if(!row){toast('No authority row for '+mod+'. Reload.');return;}
+ var to=!row.active;
+ var r=await m4Child('authority',{employee_code:emp,module_code:mod,value_limit:row.value_limit,
+  discount_limit_pct:row.discount_limit_pct,tat_hours:row.tat_hours,
+  valid_from:row.valid_from,valid_to:row.valid_to,active:to});
+ if(r&&r.error){toast(RKF.errText(r.error,{fallback:'Could not save (nothing was changed).'}));return;}
+ await m4S6Reload('approval_authority','authority','authority_id,employee_code,module_code,value_limit,discount_limit_pct,tat_hours,valid_from,valid_to,active',true);
+ toast((to?'Reactivated':'Deactivated')+' - '+emp+' @ '+mod+'. The row and its limits are kept; nothing was deleted.',
+  [{label:'Undo',fn:function(){m4AaFlip(mod);}}]);
+};
+
+window.saveDeleg=async function(){
+ if(!M4.sel){toast('Open an employee first.');return;}
+ var emp=M4.sel.employee_code;
+
+ var liveEmpDg=M4.live.employees.filter(function(x){return x.employee_code===emp;})[0];
+ if(!liveEmpDg||liveEmpDg.status==='Exited'){toast('Exited employee cannot delegate.');return;}
+ function g(id){var el=document.getElementById(id);return el?String(el.value||'').trim():'';}
+ var to=g('del-to-sel'),from=dmyToIso(g('del-from')),end=dmyToIso(g('del-to-dt'));
+ if(!to||!from||!end){toast('Cannot save - Delegate, From date and To date are all required.');return;}
+ if(to===emp){toast(emp+' cannot delegate to themselves.');return;}
+
+ var delRow=M4.live.employees.filter(function(e){return e.employee_code===to;})[0];
+ if(!delRow||delRow.status==='Exited'){toast('Cannot delegate to an employee who has exited.');return;}
+ if(!(end>from)){toast('Cannot save - the delegation must end after it starts. '+fmtDDMMYYYY(from)+' to '+fmtDDMMYYYY(end)+' is invalid.');return;}
+ var mods=M4.live.modules.filter(function(m){if(!m.active)return false;var cb=document.getElementById('del-mod-'+m.module_code);return cb&&cb.checked;}).map(function(m){return m.module_code;});
+ if(!mods.length){toast('Cannot save - select at least one module.');return;}
+ var r=await m4Child('delegation',{delegator_code:emp,delegate_code:to,start_date:from,end_date:end,modules:mods,active:true});
+ if(r&&r.error){toast(RKF.errText(r.error,{fallback:'Could not save (nothing was changed).'}));return;}
+ await m4Audit(emp,'delegation_created',null,'-> '+to+' '+from+'..'+end+' ['+mods.join(',')+']');
+ await m4S6Reload('employee_delegations','delegations','delegation_id,delegator_code,delegate_code,start_date,end_date,modules,active',true);
+ closeModals();
+ toast('Delegation created: '+emp+' -> '+to+', '+fmtDDMMYYYY(from)+' to '+fmtDDMMYYYY(end)+' ('+mods.length+' module(s)).');
+};
+
+window.saveKpi=async function(){
+ if(!M4.sel){toast('Open an employee first.');return;}
+ var emp=M4.sel.employee_code;
+ if(m4OpFrozen(emp))return; 
+ function g(id){var el=document.getElementById(id);return el?String(el.value||'').trim():'';}
+ var type=g('kpi-type'),target=g('kpi-target'),period=g('kpi-period'),from=dmyToIso(g('kpi-from'));
+ if(!type){toast('KPI Type is required.');return;}
+ var t=Number(target);
+ if(!target||!isFinite(t)||t<=0){toast('Target Value must be above 0.');return;}
+ if(['Monthly','Quarterly','Annual'].indexOf(period)<0){toast('Cannot save - Period must be Monthly, Quarterly or Annual.');return;}
+ if(!from||isNaN(new Date(from).getTime())){toast('Cannot save - Effective From must be a valid date.');return;}
+ var row=M4.live.kpis.filter(function(k){return k.employee_code===emp&&k.kpi_type===type&&m4NDate(k.effective_from)===from;})[0];
+ var r;
+ if(row)r=await m4Child('kpi',{employee_code:emp,kpi_type:row.kpi_type,effective_from:row.effective_from,target_value:t,target_period:period,active:true});
+ else r=await m4Child('kpi',{employee_code:emp,kpi_type:type,target_value:t,target_period:period,effective_from:from,active:true});
+ if(r&&r.error){toast(RKF.errText(r.error,{fallback:'Could not save (nothing was changed).'}));return;}
+ await m4Audit(emp,'kpi_'+type,row?(row.target_value+' '+row.target_period+' from '+m4NDate(row.effective_from)):'no-row',t+' '+period+' from '+from);
+ await m4S6Reload('employee_kpis','kpis','kpi_id,employee_code,kpi_type,target_value,target_period,effective_from,active',true);
+ closeModals();
+ toast('KPI saved - '+emp+' '+type+' target '+t+' '+period+' from '+fmtDDMMYYYY(from)+'.');
+};
+</script>
+
+<script>
+/* AUTO-BOOT */
+(async function(){var s=await supa.auth.getSession();if(!s.data.session){var bm=document.getElementById('uat-bootmsg'),lf=document.getElementById('uat-loginform');if(bm)bm.style.display='none';if(lf)lf.style.display='block';}if(s.data.session){M4.user=s.data.session.user;await m4LoadActor();await m4Boot();}})();
+</script>
+
+<script>
+
+(function(){
+
+
+ document.addEventListener('input',function(ev){var t=ev.target;if(!t||!t.id)return;
+  if(t.id==='r-mobile'||t.id==='new-mobile'){var d=String(t.value||'').replace(/\D/g,'');if(d.length>10)d=d.slice(-10);if(d!==t.value)t.value=d;}
+
+  if(t.id==='r-email'){var le=document.getElementById('r-login-email');if(le)le.value=String(t.value||'').trim();}
+ },true);
+})();
+</script>
+
+<script>
+
+(function(){
+ var downOnOverlay=null;
+ document.addEventListener('mousedown',function(e){downOnOverlay=(e.target.classList&&e.target.classList.contains('ovl'))?e.target:null;},true);
+ var _cm=window.closeModals;
+ window.closeModals=function(e){
+  if(e&&e.type==='click'){
+   if(!(e.target.classList&&e.target.classList.contains('ovl')))return;      
+   if(downOnOverlay!==e.target)return;                                        
+  }
+  return _cm.apply(this,arguments); 
+ };
+})();
+</script>
+<script>
+
+(function(){
+ window.__uatWrapped=[];
+
+ function wrap(n){var f=window[n];if(typeof f!=='function')return;
+  window[n]=RKF.guard(n,f);
+  window.__uatWrapped.push(n);}
+ window.__uatWrap=wrap;
+ ["saveNewEmp", "saveEmployee", "confirmExit", "saveAa", "saveDeleg", "saveKpi", "m4SaveUnitAccess"].forEach(wrap);
+ var ob=window['m4Boot'];
+ if(typeof ob==='function')window['m4Boot']=function(){
+  RKF.loading(true); 
+  var rm=function(){RKF.loading(false);};
+  var r;try{r=ob.apply(this,arguments);}catch(e){rm();throw e;}
+  if(r&&typeof r.then==='function')return r.then(function(v){rm();return v;},function(e){rm();throw e;});
+  rm();return r;};
+})();
+</script>
+<script>
+
+function uatDupHint(el,msg){return RKF.inputLaw.hint(el,msg);} 
+
+RKF.inputLaw.attach(document,{dupWarnRules:[
+ {id:'new-code',existing:function(val){var v=(val||'').trim().toUpperCase();
+   return (!!v&&((M4.live&&M4.live.employees)||[]).some(function(x){return String(x.employee_code||'').toUpperCase()===v;}))?v:null;},
+  msg:function(v){return v+' already exists - codes must be unique';}},
+ {id:'new-mobile',existing:function(val){var m=(val||'').trim();
+   return m?(((M4.live&&M4.live.employees)||[]).filter(function(x){return String(x.mobile_number||'')===m;})[0]||null):null;},
+  msg:function(own){return 'This mobile belongs to '+own.employee_code+' ('+(own.full_name||'?')+')';}}
+]});
+
+(function(){var f=window.openAddEmp;if(typeof f!=='function')return;
+ window.openAddEmp=function(){var r=f.apply(this,arguments);['new-code','new-mobile'].forEach(function(id){var el=document.getElementById(id);if(el)uatDupHint(el,null);});return r;};})();
+</script>
+<script>
+
+(function(){
+ ['openAddEmp','openAaModal','openDelegModal','openKpiModal'].forEach(function(n){
+  var f=window[n];if(typeof f!=='function')return;
+  window[n]=async function(){
+   try{await m4Load();if(typeof m4RenderModals==='function')m4RenderModals();}
+   catch(e){toast('Lists could not be refreshed.');}
+   return f.apply(this,arguments);
+  };
+ });
+})();
+</script>
+<script>
+
+(function(){
+ RKF.theme.apply(); 
+
+ RKF.modal.a11y();
+ [['new-dept','rk_last_m04_dept'],['new-desig','rk_last_m04_desig']].forEach(function(p){var el=document.getElementById(p[0]);if(el)el.addEventListener('change',function(){try{localStorage.setItem(p[1],el.value);}catch(e){}});}); 
+ if(typeof m4FillRecord==='function'){var _fr=m4FillRecord; 
+  m4FillRecord=function(e){
+   try{var g=document.getElementById('rec-glance');if(g&&e&&window.M4&&M4.live){var c=e.employee_code;
+    var _ro=(M4.live.roleMap||[]).filter(function(r){return r.employee_code===c&&r.active;}).length;
+    var _ua=(M4.live.unitAccess||[]).filter(function(r){return r.employee_code===c&&r.active;}).length;
+    var _dl=(M4.live.delegations||[]).filter(function(r){return (r.delegator_code===c||r.delegate_code===c)&&r.active;}).length;
+    g.innerHTML='<b style="color:var(--ink)">At a glance</b><br>Roles held: <b>'+_ro+'</b><br>Units with access: <b>'+_ua+'</b><br>Delegations active: <b>'+_dl+'</b>';}}catch(e4){}
+   return _fr(e);};}
+})();
+</script>
+<script>
+/* ACCESS */
+M4.authzMods=[]; M4.authzRma=[]; M4.accView='general';
+
+async function m4LoadAuthz(){
+  try{
+
+    var MC=await supa.from('module_catalog').select('module_code,module_name,promoted,list_order').order('list_order',{nullsFirst:false}).order('module_code');
+    if(MC.error)throw new Error(m4Biz('module_catalog')+' could not be loaded');
+    M4.authzMods=MC.data||[];
+    var RA=await supa.from('role_module_access').select('role_code,module_code,access_level').eq('active',true);
+    if(RA.error)throw new Error(m4Biz('role_module_access')+' could not be loaded');
+    M4.authzRma=RA.data||[];
+    m4S6Access();
+  }catch(e){
+    var el=document.getElementById('authz-matrix');
+    if(el)el.innerHTML='<div class="rkf-empty">The access view could not be loaded. '
+      +'<button class="btn btn-g btn-xs" onclick="m4LoadAuthz()">Try again</button></div>';
+  }
+}
+
+window.m4RoleChipToggle=function(el){
+  if(!M4.sel){toast('Choose an employee first.');return;}
+  el.classList.toggle('sel'); m4RoleSoft();
+};
+
+window.m4RoleSoft=function(){
+  var box=document.getElementById('role-soft'); if(!box)return;
+  var rg=document.getElementById('role-grid');
+  var n=rg?rg.querySelectorAll('.role-chip.sel').length:0;
+  box.textContent=n>1?(n+' roles selected. More than one is allowed; check it is meant.'):'';
+};
+window.m4SaveRoles=async function(){
+  var SEL=M4.sel; if(!SEL){toast('Choose an employee first.');return;}
+  var code=SEL.employee_code;
+  if(m4OpFrozen(code))return;
+  var rg=document.getElementById('role-grid'); if(!rg)return;
+  var want={};Array.prototype.slice.call(rg.querySelectorAll('.role-chip.sel')).forEach(function(c){want[c.getAttribute('data-role')]=1;});
+  var have={};m4RolesOf(code).forEach(function(r){have[r]=1;});
+  var add=Object.keys(want).filter(function(r){return !have[r];});
+  var rem=Object.keys(have).filter(function(r){return !want[r];});
+  if(!add.length&&!rem.length){toast('No role changed.');return;}
+  for(var i=0;i<add.length;i++){var ra=await m4RoleAssign(code,add[i]);
+    if(ra&&ra.error){toast(RKF.errText(ra.error,{fallback:'The role could not be added.'}));await m4Reload();return;}}
+  for(var k=0;k<rem.length;k++){var rr=await m4RoleRevoke(code,rem[k]);
+    if(rr&&rr.error){toast(RKF.errText(rr.error,{fallback:'The role could not be removed.'}));await m4Reload();return;}}
+  await m4Reload();
+  toast('Roles saved for '+code+'.'+(add.length?' Added '+add.join(', ')+'.':'')+(rem.length?' Removed '+rem.join(', ')+'.':''),
+    [{label:'Open',fn:function(){m4OpenRecord(code);}}]);
+};
+
+window.m4GroupRole=async function(mode){
+  var rs=document.getElementById('ga-role'); var role=rs?rs.value:'';
+  if(!role){toast('Choose a role first.');return;}
+  var ticks=Array.prototype.slice.call(document.querySelectorAll('.ga-tick:checked')).map(function(c){return c.value;});
+  if(!ticks.length){toast('Tick the employees this applies to.');return;}
+  var done=0,skipped=0;
+  for(var i=0;i<ticks.length;i++){
+    var code=ticks[i], holds=m4RolesOf(code).indexOf(role)>=0;
+    if(mode==='assign'&&holds){skipped++;continue;}
+    if(mode==='revoke'&&!holds){skipped++;continue;}
+    var r=mode==='assign'?await m4RoleAssign(code,role):await m4RoleRevoke(code,role);
+    if(r&&r.error){toast('Stopped at '+code+' - nothing further was changed.');await m4Reload();return;}
+    done++;}
+  await m4Reload();
+  toast(done+(mode==='assign'?' employee(s) now hold ':' employee(s) no longer hold ')+role
+    +(skipped?(' ('+skipped+' already as asked)'):'')+'.');
+};
+
+window.m4OpenRole=function(code){
+ if(!M4.live.roles){toast('The roles are still loading.');return;}
+ var r=code?(M4.live.roles.filter(function(x){return x.role_code===code;})[0]||null):null;
+ var t=document.getElementById('role-modal-title');
+ if(t)t.textContent=r?('Role '+r.role_code):'Add role';
+
+ var gsel=document.getElementById('role-group');
+ if(gsel){
+  var groups=[];(M4.live.roles||[]).forEach(function(x){if(x.role_group&&groups.indexOf(x.role_group)<0)groups.push(x.role_group);});
+  groups.sort();
+  gsel.innerHTML='<option value="">Choose...</option>'+groups.map(function(g){return '<option value="'+m4Esc(g)+'">'+m4Esc(g)+'</option>';}).join('');
+  gsel.value=r?(r.role_group||''):'';
+ }
+ var nm=document.getElementById('role-name');if(nm)nm.value=r?r.role_name:'';
+ var cd=document.getElementById('role-code');
+ if(cd){cd.value=r?r.role_code:'';cd.readOnly=!!r;cd.classList.toggle('readonly',!!r);}
+ var ch=document.getElementById('role-code-hint');
+ if(ch)ch.textContent=r?'A code never changes.':m4NextRoleCodeHint();
+ var sd=document.getElementById('role-sod');if(sd)sd.value=r?(r.sod_class||'none'):'';
+ var aw=document.getElementById('role-active-wrap');if(aw)aw.style.display=r?'':'none';
+ var ac=document.getElementById('role-active');if(ac)ac.checked=r?(r.active!==false):true;
+ var nt=document.getElementById('role-modal-note');if(nt)nt.textContent='';
+ M4.roleEditing=r?r.role_code:'';
+ document.getElementById('role-modal').classList.add('show');
+};
+
+function m4NextRoleCodeHint(){
+ var mx=0;(M4.live.roles||[]).forEach(function(r){var n=parseInt(String(r.role_code).slice(1),10);if(n>mx)mx=n;});
+ var nxt='R'+String(mx+1).padStart(2,'0');
+ return 'Blank = '+nxt;
+}
+window.m4SaveRole=async function(){
+ function g(id){var el=document.getElementById(id);return el?String(el.value||'').trim():'';}
+ var name=g('role-name'), group=g('role-group'), sod=g('role-sod'), code=g('role-code');
+ var note=document.getElementById('role-modal-note');
+ function say(t){if(note)note.textContent=t;}
+ if(!name){say('Give the role a name.');return;}
+ if(!group){say('Choose the group this role belongs to.');return;}
+ if(!sod){say('SoD class is required.');return;}
+ if(code&&!/^R[0-9]{2}$/.test(code)){say('Role code: R and two digits.');return;}
+ var payload={role_name:name,role_group:group,sod_class:sod};
+ if(code)payload.role_code=code;
+ if(M4.roleEditing){
+  var ac=document.getElementById('role-active');
+  payload.active=ac?!!ac.checked:true;
+ }
+ if(M4.roleEditing){
+  var held=M4.roleEditing;
+  var staysAdmin=(group==='Admin')&&(payload.active!==false);
+  if(m4IsAdminRole(held)&&!staysAdmin&&!m4AdminRemains(held,null)){
+   say(held+' is the only active Admin role. Cannot change.');return;}
+ }
+ var r=await m4Env(await supa.rpc('rpc_m04_role_upsert',
+   {p_payload:payload,p_request_id:m4ReqId(),p_by_emp:M4_ACTOR_EMP}));
+ if(r&&r.error){say(RKF.errText(r.error,{fallback:'That could not be saved.'}));return;}
+ closeModals();
+ var RO=await supa.from('roles').select('role_code,role_name,role_group,active,sod_class').eq('active',true).order('role_code');
+ if(RO&&!RO.error)M4.live.roles=RO.data||[];
+ await m4LoadAuthz();
+ var made=r&&r.data&&r.data.data;
+ toast(made&&made.created?('Role '+made.role_code+' added - set what it may reach in the matrix.')
+                          :('Role '+(made?made.role_code:code)+' saved.'));
+};
+
+window.m4SetDefault=async function(sel,role,mod){
+  var val=sel.value, prev=sel.getAttribute('data-prev')||'';
+  if(val===prev)return;
+  try{
+    var r=null;
+    if(!val){ if(prev) r=await m4Env(await supa.rpc('rpc_m04_role_module_remove',
+        {p_payload:{role_code:role,module_code:mod},p_request_id:m4ReqId(),p_by_emp:M4_ACTOR_EMP})); }
+    else r=await m4Child('role_module',{role_code:role,module_code:mod,access_level:val});
+    if(r&&r.error) throw r.error;
+    M4.authzRma=(M4.authzRma||[]).filter(function(x){return !(x.role_code===role&&x.module_code===mod);});
+    if(val)M4.authzRma.push({role_code:role,module_code:mod,access_level:val});
+    sel.setAttribute('data-prev',val);
+    toast(val?(role+' now has '+val.toLowerCase()+' access to '+mod+'.'):(role+' has no recorded access to '+mod+'.'));
+  }catch(e){ toast('That could not be saved.'); sel.value=prev; }
+};
+
+document.addEventListener('click',function(ev){
+  var t=ev.target.closest?ev.target.closest('.mod-tab'):null;
+  if(t&&/Access/i.test(t.textContent)){
+    if(!M4.authzMods.length)m4LoadAuthz();
+    else{ var rs=document.getElementById('ga-role');
+      if(rs&&!rs.options.length)rs.innerHTML=(M4.live.roles||[]).map(function(r){return '<option value="'+m4Esc(r.role_code)+'">'+m4Esc(r.role_code)+' '+m4Esc(r.role_name||'')+'</option>';}).join('');
+      m4S6Access(); }
+  }
+});
+setTimeout(function(){ if(document.getElementById('authz-matrix')&&!M4.authzMods.length) m4LoadAuthz(); }, 900);
+</script>
+<script>
+
+(function(){
+ var _t=window.toggleAccessFields;
+ window.toggleAccessFields=function(){ _t(); };   
+})();
+
+function m4WireKpiTypes(){
+ var sel=document.getElementById('kpi-type'); if(!sel) return;
+ var lists=(M4.live&&M4.live.lists)||{}; var ek=lists.EK||lists.ek;
+ if(ek&&ek.length){ sel.innerHTML='<option value="">Select...</option>'+ek.map(function(v){var lab=v.value||v.name||v.label||v.code;return '<option value="'+m4Esc(v.code||lab)+'">'+m4Esc(lab)+'</option>';}).join(''); }
+}
+
+function m4WireDelegModal(){
+ var sel=document.getElementById('del-to-sel'); if(!sel) return;
+ var me=(M4.sel&&M4.sel.employee_code)||null;
+ var emps=(M4.live.employees||[]).filter(function(e){return e.active!==false && e.employee_code!==me;});
+ sel.innerHTML='<option value="">Select employee...</option>'+emps.map(function(e){return '<option value="'+m4Esc(e.employee_code)+'">'+m4Esc(e.full_name||e.name||e.employee_code)+' ('+m4Esc(e.employee_code)+')</option>';}).join('');
+}
+document.addEventListener('click',function(ev){
+ var t=ev.target; if(!t) return;
+ if(t.closest&&t.closest('[onclick*="kpi-modal"], [id*="kpi"]')) setTimeout(m4WireKpiTypes,150);
+ if(t.closest&&t.closest('[onclick*="deleg-modal"], [id*="deleg"]')) setTimeout(m4WireDelegModal,150);
+});
+setTimeout(function(){ m4WireKpiTypes(); },1600);
+</script>
+<style>
+#deleg-modal label{display:flex;align-items:center;gap:8px;justify-content:flex-start;text-align:left}
+#deleg-modal label *{text-align:left}
+#deleg-modal input[type=checkbox]{flex:0 0 auto;margin:0;width:auto}
+</style>
+<script>
+
+(function(){
+ var _dn=null;
+ document.addEventListener('mousedown',function(e){ _dn=(e.target&&e.target.classList&&e.target.classList.contains('ovl'))?e.target:null; },true);
+ if (typeof window.closeModals==='function'){
+   var _cm=window.closeModals;
+   window.closeModals=function(ev){
+     if(ev&&ev.type==='click'){
+       var onOvl=ev.target&&ev.target.classList&&ev.target.classList.contains('ovl');
+       if(!onOvl || _dn!==ev.target){ _dn=null; return; }   
+     }
+     _dn=null; _cm(ev);
+   };
+ }
+})();
+</script>
+<script>
+
+(function(){
+
+  var _loader=async function(){
+  await m4Reload(); await m4LoadAuthz();
+};
+  var _opts={hold:function(){
+  if(M4_ALOG_ACCESS!=='Read'&&M4_ALOG_ACCESS!=='Full')return true;
+  if(document.querySelector('.ovl.show'))return true;
+  var p=document.getElementById('tab-record');
+  return !!(p&&p.classList.contains('rec-open')&&p.classList.contains('act'));
+}};
+  if(window.RKF&&RKF.live)RKF.live(supa,['employees','roles','employee_role_map','role_module_access','employee_module_override','modules','module_catalog','org_units','reference_values'],_loader,_opts);
+  else if(window.RKF&&RKF.liveMasters)RKF.liveMasters(_loader,_opts);
+})();
+</script>
+</body>
+</html>

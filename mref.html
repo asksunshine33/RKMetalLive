@@ -1,0 +1,1659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>M-REF Referrer Master</title>
+<link rel="stylesheet" href="rk-foundation.css?v=RKF-1.13.0">
+<style>
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--ink);font-size:var(--fs-body);height:100vh;overflow:hidden;display:flex;flex-direction:column}
+.topbar{height:46px;background:var(--navy);display:flex;align-items:center;padding:0 var(--sp-4);gap:var(--sp-3);flex-shrink:0}
+.logo{width:28px;height:28px;border-radius:7px;background:linear-gradient(135deg,var(--accent),#8a2415);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:var(--surface)}
+.tb-name{color:var(--surface);font-weight:700;font-size:var(--fs-emphasis)}.tb-sp{flex:1}
+.tb-chip{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.12);border-radius:7px;padding:var(--sp-1) 10px;font-size:var(--fs-body);color:rgba(255,255,255,.85)}
+.role-sel{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);border-radius:7px;padding:var(--sp-1) var(--sp-2);color:var(--surface);font-size:var(--fs-body);font-family:inherit;outline:none;cursor:pointer}.role-sel option{color:var(--ink)}
+.tb-avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--navy),#0a4b53);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--surface)}
+.shell{flex:1;display:flex;overflow:hidden}
+.rail{width:50px;background:var(--surface);border-right:1px solid var(--line);display:flex;flex-direction:column;align-items:center;padding:var(--sp-2) 0;gap:2px;flex-shrink:0}
+.ri{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--muted);position:relative;cursor:pointer}
+.ri:hover{background:var(--bg);color:var(--navy)}.ri:hover .tt{opacity:1}.ri.act{background:var(--mrefbg);color:var(--mref)}
+.ri .tt{position:absolute;left:44px;top:50%;transform:translateY(-50%);background:var(--ink);color:var(--surface);font-size:11px;font-weight:600;padding:var(--sp-1) 9px;border-radius:6px;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .12s;z-index:var(--z-dropdown)}
+.rsep{width:24px;height:1px;background:var(--line);margin:var(--sp-1) 0}.rail-sp{flex:1}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+
+.mod-badge{font-size:var(--fs-caption);font-weight:800;color:var(--surface);background:var(--mref);padding:3px var(--sp-2);border-radius:5px}
+.mod-title{font-size:var(--fs-emphasis);font-weight:800;color:var(--navy)}.mod-crumb{font-size:var(--fs-caption);color:var(--muted)}
+.scope-chip{font-size:var(--fs-caption);background:var(--mrefbg);color:var(--mref);padding:3px 9px;border-radius:6px;font-weight:700;margin-left:auto}
+.tabs{background:var(--surface);border-bottom:1px solid var(--line);padding:0 18px;display:flex;gap:var(--sp-1);flex-shrink:0}
+.tab{padding:11px var(--sp-4);font-size:var(--fs-body);font-weight:600;color:var(--ink2);cursor:pointer;border-bottom:2.5px solid transparent;margin-bottom:-1px}
+.tab:hover{color:var(--navy)}.tab.act{color:var(--mref);border-bottom-color:var(--mref)}
+.pane{flex:1;display:none;overflow:hidden}.pane.act{display:flex;flex-direction:column}
+.subbar{background:var(--surface);border-bottom:1px solid var(--line);padding:9px 18px;display:flex;gap:var(--sp-3);align-items:center;flex-shrink:0;flex-wrap:wrap}
+.ctrl{display:flex;align-items:center;gap:7px}.ctrl label{font-size:var(--fs-caption);font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+.in{border:1.5px solid var(--line2);border-radius:8px;padding:7px 10px;font-size:var(--fs-body);font-family:inherit;outline:none;background:var(--surface);color:var(--ink)}.in:focus{border-color:var(--mref)}
+.tg-s{font-size:var(--fs-tag);font-weight:800;padding:2px 7px;border-radius:20px;text-transform:uppercase;letter-spacing:.3px;display:inline-block}
+.tg-pend{background:var(--warnbg);color:var(--warn)}.tg-scru{background:var(--orangebg);color:var(--orange)}.tg-act{background:var(--greenbg);color:var(--green)}.tg-ina{background:var(--greybg);color:var(--grey)}.tg-blk{background:var(--accentbg);color:var(--accent)}
+.typetag{font-size:var(--fs-tag);font-weight:800;padding:2px 7px;border-radius:5px;background:var(--mrefbg);color:var(--mref);display:inline-block}
+.legtag{font-size:var(--fs-tag);font-weight:700;padding:1px 5px;border-radius:4px;background:var(--purplebg);color:var(--purple)}
+
+.dir{flex:1;display:flex;overflow:hidden}
+.terr{width:212px;background:var(--surface);border-right:1px solid var(--line);overflow:auto;flex-shrink:0;padding:var(--sp-2)}
+.terr-grp{margin-bottom:10px}
+.terr-h{font-size:var(--fs-caption);font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;padding:5px var(--sp-2)}
+.terr-i{display:flex;align-items:center;padding:6px 9px;border-radius:7px;cursor:pointer;font-size:var(--fs-body);color:var(--ink2)}
+.terr-i:hover{background:var(--surface2)}.terr-i.on{background:var(--mrefbg);color:var(--mref);font-weight:700}
+.terr-i .ct{margin-left:auto;font-size:var(--fs-caption);color:var(--muted);font-family:'Consolas',monospace}.terr-i.on .ct{color:var(--mref)}
+.clist{flex:1;overflow:auto;background:var(--bg);padding:10px}
+.clist .cnt{font-size:var(--fs-caption);color:var(--muted);padding:2px var(--sp-1) var(--sp-2)}
+.crow{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:11px 13px;margin-bottom:7px;cursor:pointer;display:flex;align-items:center;gap:var(--sp-3)}
+.crow:hover{border-color:var(--mref)}.crow.sel{border-color:var(--mref);box-shadow:0 0 0 2px var(--mrefbg)}
+.crow.pending{border-left:4px solid var(--warn)}.crow.scrutiny{border-left:4px solid var(--orange)}.crow.active{border-left:4px solid var(--green)}.crow.inactive{border-left:4px solid var(--grey)}.crow.blocked{border-left:4px solid var(--accent)}
+.crow .nm{font-size:var(--fs-emphasis);font-weight:700;color:var(--navy);display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.crow .meta{font-size:var(--fs-body);color:var(--ink2);margin-top:3px;font-family:'Consolas',monospace}
+.crow .usab{margin-left:auto;text-align:right;flex-shrink:0}
+.crow .usab .st{font-size:var(--fs-caption);font-weight:700}.crow .usab .su{font-size:var(--fs-caption);color:var(--muted)}
+.su.ok{color:var(--green)!important}.su.no{color:var(--muted)!important}
+
+.c360{width:320px;background:var(--surface);border-left:1px solid var(--line);overflow:auto;flex-shrink:0;padding:14px}
+.c360.off{display:none}
+.num{text-align:right}
+.rec-detailcol.off{display:none}
+.c360-x,.rec-x{float:right;cursor:pointer;color:var(--muted);font-size:var(--fs-display);line-height:1}
+.lfbar2{display:flex;gap:9px;flex-wrap:wrap;align-items:flex-end}
+.lfbar2 .ctrl label{font-size:var(--fs-tag)}
+.docup{margin:var(--sp-1) 0 2px}
+.docup-btns{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:var(--sp-2)}
+.doc-chips{display:flex;gap:7px;flex-wrap:wrap}
+.doc-chip{display:inline-flex;align-items:center;gap:6px;background:var(--chip,var(--chip));border:1px solid var(--line);border-radius:14px;padding:3px 10px;font-size:var(--fs-body)}
+.dc-x{cursor:pointer;color:var(--muted);font-weight:700}
+.idc-wrap{background:var(--surface);padding:18px;border-radius:12px;max-width:462px;margin:6vh auto;box-shadow:0 18px 60px rgba(0,0,0,.35)}
+.idc-card{width:424px;max-width:100%;background:var(--surface);border:1px solid #dfe6e2;border-radius:12px;overflow:hidden;color:#12241d}
+.idc-top{background:linear-gradient(135deg,#1f7a5c,#12503b);color:var(--surface);padding:14px 16px}
+.idc-brand{font-weight:800;font-size:16px;letter-spacing:.4px}
+.idc-sub{font-size:11px;opacity:.92;margin-top:2px}
+.idc-mid{display:flex;gap:14px;padding:16px}
+.idc-info{flex:1;min-width:0}
+.idc-nm{font-weight:800;font-size:17px}
+.idc-code{font-family:monospace;font-size:14px;color:#1f7a5c;font-weight:700;margin:2px 0 9px}
+.idc-kv{display:flex;justify-content:space-between;gap:10px;font-size:12px;padding:3px 0;border-bottom:1px dashed var(--chip)}
+.idc-kv span{color:#6b7c76}
+.idc-qr{width:120px;height:120px;flex-shrink:0;display:flex;align-items:center;justify-content:center;border:1px solid var(--chip);border-radius:8px;background:var(--surface)}
+.idc-foot{background:var(--surface2);padding:9px 16px;font-size:10px;color:#5a6b64;border-top:1px solid var(--chip)}
+.idc-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
+@media print{body *{visibility:hidden}#idBd,#idBd *{visibility:visible}#idBd{position:static;background:none}.idc-wrap{box-shadow:none;margin:0;padding:0}.idc-actions{display:none}}
+.c360-empty{color:var(--muted);text-align:center;padding:50px 18px;font-size:var(--fs-body)}
+.pv-nm{font-size:var(--fs-emphasis);font-weight:800;color:var(--navy);display:flex;align-items:center;gap:var(--sp-2);flex-wrap:wrap}
+.pv-code{font-family:'Consolas',monospace;font-size:var(--fs-body);color:var(--muted);margin-top:3px}
+.pv-sec{margin-top:14px;border-top:1px solid var(--line);padding-top:11px}
+.pv-sec .sh{font-size:var(--fs-caption);font-weight:800;color:var(--mref);text-transform:uppercase;letter-spacing:.4px;margin-bottom:7px}
+.pv-line{font-size:var(--fs-body);color:var(--ink2);margin:3px 0}.pv-line b{color:var(--ink)}
+.seeds{background:var(--surface2);border:1px solid var(--line);border-radius:9px;padding:10px var(--sp-3)}
+.seeds .big{font-size:var(--fs-emphasis);font-weight:800;color:var(--navy)}
+.seeds .fk{font-family:'Consolas',monospace;font-size:var(--fs-caption);color:var(--mref);margin-top:3px}
+.pv-btns{display:flex;gap:var(--sp-2);margin-top:14px}
+
+.recwrap{flex:1;overflow:auto;background:var(--bg);padding:var(--sp-4) 20px}
+.rec-tablewrap{flex:1;overflow:auto;background:var(--bg);padding:var(--sp-3) 14px}
+.rec-detailcol{width:470px;flex-shrink:0;border-left:1px solid var(--line);background:var(--surface);overflow:auto;padding:0}
+.rec-detailcol.hidden{display:none}
+.rec-detailcol .rec-card{max-width:none;margin:0;border:none;border-radius:0;box-shadow:none}
+.rec-detailcol .kvgrid{grid-template-columns:1fr}
+.rec-detailcol .hdr-metrics .hm{min-width:64px}
+.d-code{font-family:'Consolas',monospace;color:var(--mref);font-weight:700}
+table.grid tr.selrow td{background:var(--mrefbg)}table.grid tr.selrow td:first-child{box-shadow:inset 3px 0 0 var(--mref)}
+.imp-drop{border:2px dashed var(--line2);border-radius:10px;padding:var(--sp-4);text-align:center;color:var(--muted);font-size:var(--fs-body);background:var(--surface2)}
+.imp-stat{display:flex;gap:10px;margin:var(--sp-3) 0 var(--sp-1)}
+.imp-pill{font-size:var(--fs-caption);font-weight:700;padding:var(--sp-1) 10px;border-radius:20px}
+.imp-pill.ok{background:var(--greenbg);color:var(--green)}.imp-pill.bad{background:var(--accentbg);color:var(--accent)}
+.rlrow{border:1px solid var(--line);border-radius:9px;padding:9px 11px;margin-bottom:6px;cursor:pointer;background:var(--surface)}
+.rlrow:hover{border-color:var(--mref)}.rlrow.sel{border-color:var(--mref);box-shadow:0 0 0 2px var(--mrefbg)}
+.rlrow .rn{font-size:var(--fs-body);font-weight:700;color:var(--navy)}
+.rlrow .rm{font-size:var(--fs-caption);color:var(--muted);font-family:'Consolas',monospace;margin-top:2px}
+.hdr-metrics{display:flex;gap:9px;flex-wrap:wrap;margin-top:var(--sp-3)}
+.hm{background:var(--surface);border:1px solid var(--line2);border-radius:8px;padding:7px 11px;min-width:74px}
+.hm .v{font-size:var(--fs-emphasis);font-weight:800;color:var(--navy)}.hm .l{font-size:var(--fs-tag);color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.3px;margin-top:1px}
+.hm.lc .v{color:var(--mref)}
+.rec-card{background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow-sm);max-width:880px;margin:0 auto;overflow:hidden}
+.rec-hd{padding:var(--sp-4) 20px;border-bottom:1px solid var(--line);background:var(--surface2)}
+.rec-hd .t{font-size:var(--fs-display);font-weight:800;color:var(--navy);display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.rec-idrow{display:flex;gap:var(--sp-2);flex-wrap:wrap;margin-top:9px}
+.idchip{font-size:var(--fs-caption);background:var(--surface);border:1px solid var(--line2);border-radius:7px;padding:var(--sp-1) 9px;color:var(--ink2)}.idchip b{color:var(--ink)}
+.rec-back{font-size:var(--fs-body);color:var(--mref);cursor:pointer;font-weight:700}
+.rec-body{padding:6px 20px 18px}
+.rsec{margin-top:var(--sp-4)}
+.rsec .sh{font-size:var(--fs-caption);font-weight:800;color:var(--mref);text-transform:uppercase;letter-spacing:.4px;margin-bottom:9px;padding-bottom:5px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:var(--sp-2)}
+.kvgrid{display:grid;grid-template-columns:1fr 1fr;gap:6px var(--sp-6)}
+.kv{display:flex;justify-content:space-between;font-size:var(--fs-body);color:var(--ink2);padding:3px 0;border-bottom:1px dashed var(--line)}.kv b{color:var(--ink);font-weight:600}
+.pii{font-family:'Consolas',monospace;letter-spacing:.5px}.pii-lock{font-size:var(--fs-caption);color:var(--muted);font-style:italic}
+.linkrow{display:flex;align-items:center;gap:9px;padding:7px 10px;border:1px solid var(--line);border-radius:8px;margin-bottom:6px;cursor:pointer;font-size:var(--fs-body);background:var(--surface2)}
+.linkrow:hover{border-color:var(--mref);background:var(--mrefbg)}
+.linkrow .li{width:26px;height:26px;border-radius:6px;background:var(--mrefbg);color:var(--mref);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:var(--fs-caption);flex-shrink:0}
+.linkrow .lgo{margin-left:auto;color:var(--mref);font-weight:700}
+.txn-grp{margin-bottom:10px}.txn-grp .gh{font-size:var(--fs-caption);font-weight:800;color:var(--ink2);margin-bottom:5px;display:flex;align-items:center;gap:7px}
+.note-item{border-bottom:1px solid var(--line);padding:7px 0;font-size:var(--fs-body)}.note-item:last-child{border-bottom:none}
+.note-meta{font-size:var(--fs-caption);color:var(--muted);margin-bottom:2px}
+.note-add{display:flex;gap:6px;margin-top:var(--sp-2)}
+.audit-i{display:flex;gap:var(--sp-2);font-size:var(--fs-body);padding:5px 0;border-bottom:1px solid var(--line);color:var(--ink2)}.audit-i:last-child{border-bottom:none}
+.audit-dot{width:7px;height:7px;border-radius:50%;margin-top:5px;flex-shrink:0;background:var(--mref)}
+.status-banner{border-radius:9px;padding:10px 13px;margin-top:11px;font-size:var(--fs-body);font-weight:600;display:flex;align-items:center;gap:var(--sp-2)}
+.sb-act{background:var(--greenbg);color:var(--green)}.sb-pend{background:var(--warnbg);color:var(--warn)}.sb-scru{background:var(--orangebg);color:var(--orange)}.sb-ina{background:var(--greybg);color:var(--grey)}.sb-blk{background:var(--accentbg);color:var(--accent)}
+.pickrow{background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:9px var(--sp-3);margin-bottom:6px;cursor:pointer;font-size:var(--fs-body);max-width:520px}
+.pickrow:hover{border-color:var(--mref)}
+/* actions list */
+.actwrap{flex:1;overflow:auto;background:var(--bg);padding:14px 18px}
+.act-intro{max-width:900px;margin:0 auto var(--sp-3);font-size:var(--fs-body);color:var(--ink2);background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:10px 13px}
+.arow{background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:var(--sp-3) 14px;margin:0 auto 9px;max-width:900px;border-left:4px solid var(--line2)}
+.arow.pending{border-left-color:var(--warn)}.arow.scrutiny{border-left-color:var(--orange)}.arow.active{border-left-color:var(--green)}.arow.inactive{border-left-color:var(--grey)}.arow.blocked{border-left-color:var(--accent)}
+.arow-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.arow .nm{font-size:var(--fs-emphasis);font-weight:700;color:var(--navy)}
+.arow .meta{font-size:var(--fs-caption);color:var(--muted);font-family:'Consolas',monospace}
+.sm-flow{display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin:9px 0}
+.sm-node{font-size:var(--fs-caption);font-weight:800;padding:3px 9px;border-radius:20px;border:1.5px solid var(--line2);color:var(--muted)}
+.sm-node.on{border-color:var(--mref);background:var(--mrefbg);color:var(--mref)}
+.sm-arrow{color:var(--muted);font-size:10px}
+.trans-btn-row{display:flex;gap:var(--sp-2);flex-wrap:wrap;margin-top:6px}
+.no-perm{font-size:var(--fs-caption);color:var(--warn);background:var(--warnbg);border-radius:8px;padding:var(--sp-2) 11px;margin-top:6px;max-width:900px;margin-left:auto;margin-right:auto}
+/* insights */
+.inswrap{flex:1;overflow:auto;background:var(--bg);padding:var(--sp-4) 18px}
+.ins-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;max-width:1200px}
+.ins-card{background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow-sm);overflow:hidden}
+.ins-card.w2{grid-column:span 2}.ins-card.w3{grid-column:1/-1}
+.ins-hd{padding:11px 15px;border-bottom:1px solid var(--line);font-size:var(--fs-caption);font-weight:800;color:var(--navy);text-transform:uppercase;letter-spacing:.4px;display:flex;align-items:center;gap:var(--sp-2)}
+.ins-bd{padding:14px 15px}
+.kpi-row{display:flex;gap:var(--sp-3);flex-wrap:wrap}
+.kpi{flex:1;min-width:88px;background:var(--surface2);border:1px solid var(--line);border-radius:9px;padding:11px 13px}
+.kpi .v{font-size:var(--fs-metric);font-weight:800;color:var(--navy)}.kpi .l{font-size:var(--fs-caption);color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.3px;margin-top:2px}
+.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:var(--sp-2)}.bar-row .bl{font-size:var(--fs-body);font-weight:600;color:var(--ink2);width:120px;flex-shrink:0}
+.bar-track{flex:1;height:17px;background:var(--bg);border-radius:5px;overflow:hidden}.bar-fill{height:100%;border-radius:5px;display:flex;align-items:center;justify-content:flex-end;padding-right:7px;font-size:var(--fs-caption);font-weight:700;color:var(--surface)}
+.p2stub{background:repeating-linear-gradient(45deg,var(--surface2),var(--surface2) 10px,var(--bg) 10px,var(--bg) 20px);border:1px dashed var(--line2);border-radius:9px;padding:var(--sp-4);text-align:center;color:var(--muted);font-size:var(--fs-body)}
+.p2note{font-size:var(--fs-caption);font-weight:700;color:var(--purple);background:var(--purplebg);padding:2px 7px;border-radius:5px}
+/* overlay */
+.ov-bd{position:fixed;inset:0;background:rgba(15,30,45,.4);display:none;z-index:var(--z-modal)}.ov-bd.show{display:block}
+
+.ov{position:fixed;top:0;right:0;height:100vh;width:75vw;max-width:1100px;min-width:640px;background:var(--surface);box-shadow:-6px 0 28px rgba(0,0,0,.2);transform:translateX(100%);transition:transform .22s;z-index:var(--z-modal);display:flex;flex-direction:column}
+.ov.show{transform:translateX(0)}
+.ov-hd{padding:14px 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:11px}
+.ov-hd .t{font-size:var(--fs-title);font-weight:800;color:var(--navy)}.ov-x{margin-left:auto;cursor:pointer;color:var(--muted);font-size:20px;font-weight:700}
+.ov-body{flex:1;overflow:auto;padding:18px 20px}
+
+#ov .ov-body{display:flex;overflow:hidden;padding:0}
+.secmenu{width:200px;border-right:1px solid var(--line);padding:12px 10px;overflow:auto;flex-shrink:0;background:var(--surface2)}
+.secitem{padding:9px 11px;border-radius:8px;cursor:pointer;font-size:var(--fs-body);color:var(--ink2);display:flex;align-items:center;gap:8px;margin-bottom:3px;border:none;background:none;width:100%;text-align:left;font-family:inherit}
+.secitem:hover{background:var(--surface)}.secitem.on{background:var(--mrefbg);color:var(--mref);font-weight:700}
+.secform{flex:1;overflow:auto;padding:18px 20px}
+.regsec{display:none}.regsec.on{display:block}
+.regsec .sec-h{margin-top:0}
+.ov-ft{padding:var(--sp-3) 20px;border-top:1px solid var(--line);display:flex;align-items:center;gap:10px}
+.dedupe-warn{font-size:var(--fs-body);border-radius:8px;padding:var(--sp-2) 11px;margin-top:var(--sp-2);display:none}.dedupe-warn.show{display:block}
+.dedupe-warn.hard{background:var(--accentbg);color:var(--accent);border:1px solid #edb8ae}
+.dedupe-warn.soft{background:var(--warnbg);color:var(--warn);border:1px solid #e7cd8e}
+.fg{display:flex;flex-direction:column;gap:5px}.fr{display:flex;gap:var(--sp-3);flex-wrap:wrap;margin-bottom:var(--sp-3)}.fr:last-child{margin-bottom:0}.fg.gr{flex:1;min-width:150px}
+.fg label{font-size:var(--fs-caption);font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+.fg .lk{font-size:var(--fs-caption);color:var(--muted);font-style:italic}
+.sec-h{font-size:var(--fs-caption);font-weight:800;color:var(--mref);text-transform:uppercase;letter-spacing:.4px;margin:var(--sp-4) 0 9px;padding-bottom:5px;border-bottom:1px solid var(--line)}
+.code-preview{font-family:'Consolas',monospace;font-size:var(--fs-emphasis);font-weight:700;color:var(--mref);background:var(--mrefbg);border:1px solid #b6dfe3;border-radius:9px;padding:9px 13px;letter-spacing:1px;text-align:center}
+.autofield{background:var(--surface2)}
+/* modal */
+.modal-bd{position:fixed;inset:0;background:rgba(15,30,45,.4);display:none;align-items:center;justify-content:center;z-index:var(--z-modal)}.modal-bd.show{display:flex}
+.modal{background:var(--surface);border-radius:14px;box-shadow:var(--shadow-lg);width:480px;max-width:92vw;max-height:88vh;overflow:auto}
+.modal-hd{padding:15px 18px;border-bottom:1px solid var(--line);font-size:var(--fs-emphasis);font-weight:800;color:var(--navy)}
+.modal-b{padding:18px}.modal-ft{padding:13px 18px;border-top:1px solid var(--line);display:flex;gap:9px;justify-content:flex-end}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:var(--sp-2) 13px;border-radius:8px;font-size:var(--fs-body);font-weight:600;cursor:pointer;border:none;font-family:inherit;transition:all .15s;white-space:nowrap}
+.btn-p{background:var(--mref);color:var(--surface);box-shadow:0 1px 4px rgba(15,110,122,.3)}.btn-p:hover{background:#0c5a64}
+.btn-g{background:var(--surface);color:var(--ink2);border:1px solid var(--line2)}.btn-g:hover{background:var(--surface2)}
+.btn-d{background:var(--accentbg);color:var(--accent);border:1px solid #edb8ae}.btn-d:hover{background:#f7d9d3}
+.btn-ok{background:var(--greenbg);color:var(--green);border:1px solid #b6e0c8}.btn-ok:hover{background:#d4edde}
+.btn-warn{background:var(--warnbg);color:var(--warn);border:1px solid #e7cd8e}
+.btn-sm{padding:6px 11px;font-size:var(--fs-body)}.btn:disabled{opacity:.45;cursor:not-allowed;box-shadow:none}
+
+.hint{font-size:var(--fs-caption);color:var(--muted);margin-top:var(--sp-1)}
+
+.state-load,.state-err,.state-empty{padding:18px;display:flex;flex-direction:column;gap:var(--sp-2);align-items:flex-start}
+.state-load .sk{height:11px;border-radius:6px;background:linear-gradient(90deg,var(--line) 25%,var(--surface2) 37%,var(--line) 63%);background-size:400% 100%;animation:sh 1.3s ease infinite;width:100%}
+.state-load .sk:nth-child(2){width:78%}.state-load .sk:nth-child(3){width:56%}
+@keyframes sh{0%{background-position:100% 50%}100%{background-position:0 50%}}
+.state-msg{font-size:var(--fs-body);color:var(--muted);font-weight:600}
+.state-err{color:var(--red);font-size:var(--fs-body);font-weight:600;flex-direction:row;align-items:center;gap:9px}
+.state-err .state-ic{font-size:16px}
+.state-retry{margin-left:var(--sp-2);border:1px solid var(--red);background:var(--surface);color:var(--red);border-radius:6px;padding:2px 9px;font-size:var(--fs-caption);font-weight:700;cursor:pointer}
+.state-empty{align-items:center;text-align:center;gap:6px;color:var(--muted)}
+.state-empty .state-ic{font-size:22px;opacity:.5}.state-empty .state-t{font-size:var(--fs-body);font-weight:700;color:var(--ink2)}
+.state-empty .state-cta{margin-top:var(--sp-1)}
+.dep-block{border:1px solid var(--warn);background:var(--warnbg);border-radius:8px;padding:10px var(--sp-3);font-size:var(--fs-body);color:var(--ink2);display:flex;gap:9px;align-items:flex-start}
+.dep-block b{color:var(--warn)}
+.kpi-strip{display:flex;gap:9px;padding:9px var(--sp-3);background:var(--surface);border-bottom:1px solid var(--line);flex-wrap:wrap;flex-shrink:0}
+.kpi{border:1px solid var(--line2);border-radius:9px;padding:7px 11px;background:var(--surface2);cursor:pointer;min-width:104px}
+.kpi:hover{border-color:var(--navy)}
+.kpi .kv{font-size:var(--fs-title);font-weight:800;color:var(--navy);line-height:1.1}
+.kpi .kl{font-size:var(--fs-caption);font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-top:2px}
+.kpi.warn .kv{color:var(--warn)}.kpi.red .kv{color:var(--red)}
+.pill-bar{display:flex;gap:6px;padding:0 var(--sp-3) var(--sp-2);flex-wrap:wrap}
+.pill{display:inline-flex;align-items:center;gap:6px;background:var(--bluebg);color:var(--blue);border:1px solid var(--blue);border-radius:20px;padding:2px 9px;font-size:var(--fs-caption);font-weight:700}
+.pill .px{cursor:pointer;font-weight:800}
+.qa-bar{display:flex;gap:7px;align-items:center;padding:var(--sp-2) var(--sp-3);border-bottom:1px solid var(--line);background:var(--surface2);flex-shrink:0;position:sticky;top:0;z-index:var(--z-sticky)}
+
+.inh-panel{border:1px dashed var(--line2);background:var(--surface2);border-radius:8px;padding:var(--sp-2) 10px;font-size:var(--fs-caption);color:var(--ink2)}
+.inh-panel .src{font-weight:700;color:var(--navy)}
+.appr-stage{display:inline-flex;align-items:center;gap:7px;font-size:var(--fs-body)}
+.appr-stage .who{font-weight:700;color:var(--navy)}
+
+table.grid{border-collapse:separate;border-spacing:0;background:var(--surface);border:1px solid var(--line);border-radius:10px;overflow:hidden;font-size:var(--fs-body);width:100%}
+table.grid th{background:var(--surface2);text-align:left;padding:9px 11px;font-size:var(--fs-caption);font-weight:800;color:var(--ink2);text-transform:uppercase;letter-spacing:.3px;border-bottom:1px solid var(--line);white-space:nowrap;cursor:pointer;position:sticky;top:0;z-index:var(--z-sticky)}
+table.grid th:hover{color:var(--mref)}
+table.grid td{padding:var(--sp-2) 11px;border-bottom:1px solid var(--line);white-space:nowrap}
+table.grid tr:last-child td{border-bottom:none}
+table.grid tbody tr:hover{background:var(--surface2);cursor:pointer}
+table.grid tr.selrow td{background:var(--mrefbg)}
+table.grid tr.selrow td:first-child{box-shadow:inset 3px 0 0 var(--mref)}
+.num{text-align:right}
+.d-code{font-family:'Consolas',monospace;color:var(--mref);font-weight:700}
+
+.hdr-sp{flex:1}
+.actor-note{font-size:var(--fs-caption);color:var(--ink2);background:var(--greybg);border:1px solid var(--line2);border-radius:7px;padding:var(--sp-1) 9px;font-weight:600}
+.icon-btn{width:30px;height:30px;border-radius:8px;border:1px solid var(--line2);background:var(--surface);color:var(--ink2);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px}
+.icon-btn:hover{border-color:var(--mref);color:var(--mref)}
+.si{position:relative}.si input{width:100%;padding:7px 10px 7px 30px;border:1.5px solid var(--line2);border-radius:8px;font-size:var(--fs-body);font-family:inherit;outline:none}.si input:focus{border-color:var(--mref)}
+.si .mag{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:12px}
+
+.drawer-bd{position:fixed;inset:0;background:rgba(15,30,45,.35);display:none;z-index:var(--z-sticky)}.drawer-bd.show{display:block}
+.drawer{position:fixed;top:0;right:0;height:100vh;width:560px;max-width:96vw;background:var(--surface);box-shadow:-6px 0 24px rgba(0,0,0,.18);transform:translateX(100%);transition:transform .2s;z-index:var(--z-drawer);display:flex;flex-direction:column}
+.drawer.show{transform:translateX(0)}
+.dwr-hd{padding:14px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px}
+.dwr-hd .t{font-size:var(--fs-emphasis);font-weight:800;color:var(--navy)}.dwr-x{margin-left:auto;cursor:pointer;color:var(--muted);font-size:var(--fs-display);font-weight:700}
+.dwr-bd{flex:1;overflow:auto;padding:0}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="logo">RK</div><div class="tb-name">RK Metal Roofings ERP</div>
+  <div class="tb-chip">Partners &rsaquo; Referrer Master</div>
+  <div class="tb-sp"></div>
+
+  <div class="tb-chip" data-shell-identity>Session identity: shell</div>
+</div>
+
+<div class="shell">
+  <div class="rail">
+    <div class="ri" onclick="nav('home')"><span>&#9750;</span><span class="tt">Home (demo shell)</span></div>
+    <div class="rsep"></div>
+    <div class="ri act"><span>R</span><span class="tt">M-REF Referrer</span></div>
+    <div class="ri" onclick="nav('m01')"><span>C</span><span class="tt">M01 Customer</span></div>
+    <div class="rail-sp"></div>
+    <div class="ri" onclick="nav('config')"><span>&#9881;</span><span class="tt">M-CONFIG</span></div>
+  </div>
+
+  <div class="main">
+    <div class="mod-hdr rkf-halfbar">
+      <div class="mod-badge">M-REF</div>
+      <div class="mod-title">Referrer Master</div>
+      <div class="mod-crumb">&rsaquo; Fabricator / Referrer register-once master</div>
+      <div class="hdr-sp"></div>
+      <div class="actor-note" id="actorNote">actor: resolving…</div>
+      <div class="icon-btn" data-history-access id="histBtn" onclick="openHistory()" title="Change history (Alt+H)">&#128339;</div>
+    </div>
+
+    <div class="tabs">
+      <div class="tab act" id="tab-list" onclick="showTab('list')">List</div>
+      <div class="tab" id="tab-rec" onclick="showTab('rec')">Record</div>
+      <div class="tab" id="tab-act" onclick="showTab('act')">Actions</div>
+      <div class="tab" id="tab-ins" onclick="showTab('ins')">Insights</div>
+    </div>
+
+    <div class="pane act" id="pane-list">
+      <div class="subbar">
+        <div class="ctrl"><label>Search</label><input class="in" id="q" oninput="renderClist()" placeholder="Search referrers" style="width:280px"/></div>
+        <div class="hdr-sp"></div>
+        <button class="btn btn-g btn-sm" data-export onclick="exportCSV()">&#8681; Export</button>
+        <button class="btn btn-g btn-sm" id="impBtn" onclick="openImport()">&#8679; Import</button>
+        <button class="btn btn-p btn-sm" id="regBtn" onclick="openRegister()">+ Register Referrer</button>
+      </div>
+      <div class="kpi-strip" data-kpi-strip id="kpiStrip"></div>
+      <div class="pill-bar" data-filter-pills id="pillBar"></div>
+      <div class="dir">
+        <div class="terr" data-tree id="terr"></div>
+        <div class="clist" id="clist"></div>
+        <div class="c360 off" data-detail-off id="c360"></div>
+      </div>
+    </div>
+
+    <div class="pane" id="pane-rec">
+      <div class="subbar lfbar2" data-topfilter>
+        <div class="ctrl"><label>Search all</label><input class="in" id="recPick" oninput="renderRecTable()" placeholder="Any field" style="width:280px"/></div>
+        <div class="ctrl"><label>Status</label><select class="in" id="recStatus" onchange="renderRecTable()"><option value="">All</option><option>Pending</option><option>Scrutiny</option><option>Active</option><option>Inactive</option><option>Blocked</option></select></div>
+        <div class="ctrl"><label>Type</label><select class="in" id="recType" onchange="renderRecTable()"><option value="">All</option></select></div>
+        <div class="ctrl"><label>Legal</label><select class="in" id="recLegal" onchange="renderRecTable()"><option value="">All</option></select></div>
+        <div class="ctrl"><label>Unit</label><select class="in" id="recUnit" onchange="renderRecTable()"><option value="">All</option></select></div>
+        <div class="ctrl"><label>District</label><select class="in" id="recDist" onchange="renderRecTable()"><option value="">All</option></select></div>
+        <div class="ctrl"><label>Aligned exec</label><select class="in" id="recExec" onchange="renderRecTable()"><option value="">All</option></select></div>
+        <div class="ctrl"><label>CCR</label><select class="in" id="recCcr" onchange="renderRecTable()"><option value="">All</option></select></div>
+        <button class="btn btn-g btn-sm" onclick="clearRecFilters()">Clear</button>
+      </div>
+      <div class="recwrap" id="recTableWrap"></div>
+    </div>
+
+    <div class="pane" id="pane-act">
+      <div class="subbar" data-actions-filterbar>
+        <div class="ctrl"><label>Search all</label><input class="in" id="qa" oninput="renderActionsList()" placeholder="Any field" style="width:280px"/></div>
+        <div class="ctrl"><label>Status</label><select class="in" id="actStatus" onchange="renderActionsList()"><option value="">All</option><option>Pending</option><option>Scrutiny</option><option>Active</option><option>Inactive</option><option>Blocked</option></select></div>
+        <div class="ctrl"><label>Type</label><select class="in" id="actType" onchange="renderActionsList()"><option value="">All</option></select></div>
+        <div class="ctrl"><label>Unit</label><select class="in" id="actUnit" onchange="renderActionsList()"><option value="">All</option></select></div>
+        <div class="ctrl"><label>District</label><select class="in" id="actDist" onchange="renderActionsList()"><option value="">All</option></select></div>
+        <div class="ctrl"><label>Aligned exec</label><select class="in" id="actExec" onchange="renderActionsList()"><option value="">All</option></select></div>
+        <div class="ctrl"><label>CCR</label><select class="in" id="actCcr" onchange="renderActionsList()"><option value="">All</option></select></div>
+        <button class="btn btn-g btn-sm" onclick="clearActFilters()">Clear</button>
+        <div class="hdr-sp"></div>
+
+      </div>
+      <div class="appr-stage" data-approval-stage id="apprStage" style="padding:8px 12px">Verify authority: <span class="who" id="apprWho">resolving…</span></div>
+      <div class="recwrap" id="actBody"></div>
+    </div>
+
+    <!-- INSIGHTS -->
+    <div class="pane" id="pane-ins"><div class="inswrap"><div class="ins-grid" id="insBody"></div></div></div>
+  </div>
+</div>
+
+<div class="drawer-bd" id="recDrawerBd" onclick="closeRecDetail()"></div>
+<div class="drawer" id="recDrawer">
+  <div class="dwr-hd"><span class="t" id="recDwrTitle">Referrer record</span><span class="dwr-x" onclick="closeRecDetail()">&times;</span></div>
+  <div class="dwr-bd" id="recBody" data-record-detail-host></div>
+</div>
+
+<!-- Register overlay -->
+<div class="ov-bd" id="ovBd" onclick="overlayClose(event,'ovBd',closeOverlay)"></div>
+<div class="ov" id="ov">
+  <div class="ov-hd"><div class="t" id="ovHdT">Register Referrer</div><div class="ov-x" onclick="closeOverlay()">&times;</div></div>
+  <div class="ov-body">
+   <div class="secmenu" id="secMenu"></div>
+   <div class="secform" id="secForm">
+    <div class="regsec" data-sec="type">
+    <div class="sec-h">Type</div>
+    <div class="fr">
+      <div class="fg gr"><label>Legal type <span class="rkf-req">*</span></label><select class="in" id="rLegal" onchange="onLegal()"></select></div>
+      <div class="fg gr"><label>Referrer type <span class="rkf-req">*</span></label><select class="in" id="rType" onchange="onRefType()"></select></div>
+    </div>
+    </div>
+    <div class="regsec" data-sec="identity">
+    <div class="sec-h">Identity &amp; alignment</div>
+    <div class="fr">
+      <div class="fg gr"><label>Name <span class="rkf-req">*</span></label><input class="in" id="rName" oninput="dedupe()"/></div>
+      <div class="fg gr"><label>Mobile <span class="rkf-req">*</span></label><input class="in" id="rMob" maxlength="10" oninput="dedupe()"/></div>
+    </div>
+    <div class="fr">
+      <div class="fg gr"><label>Email</label><input class="in" id="rEmail"/></div>
+      <div class="fg gr"><label>Aligned Sales Exec <span class="rkf-req">*</span></label><input class="in" data-typeahead id="rExecTa" placeholder="Search employees" oninput="taExec()"/><select class="in" id="rExec" style="margin-top:5px"></select><div class="hint" id="rExecCount"></div></div>
+    </div>
+    <div class="fr">
+      <div class="fg gr"><label>Unit <span class="rkf-req">*</span></label><select class="in" id="rUnit" onchange="previewCode()"></select></div>
+      <div class="fg gr"><label>Code (auto)</label><div class="code-preview" id="codePrev">RK___000</div></div>
+    </div>
+    </div>
+    <div class="regsec" data-sec="address">
+    <div class="sec-h">Address</div>
+    <div class="fr">
+      <div class="fg gr" style="max-width:170px"><label>Pincode</label><input class="in" id="rPin" maxlength="6" oninput="onPin()"/><div class="lk" id="pinResolve"></div></div>
+      <div class="fg gr"><label>Address line</label><input class="in" id="rAddr"/></div>
+    </div>
+    <div class="fr">
+      <div class="fg gr"><label>Area</label><input class="in autofield" id="rArea"/></div>
+      <div class="fg gr"><label>District</label><input class="in autofield" id="rDist"/></div>
+      <div class="fg gr"><label>State</label><input class="in autofield" id="rState"/></div>
+    </div>
+    </div>
+    <div class="regsec" data-sec="kyc">
+    <div class="sec-h">KYC &amp; bank</div>
+    <div class="fr">
+      <div class="fg gr"><label>PAN</label><input class="in" id="rPan" maxlength="10" oninput="dedupe()" style="text-transform:uppercase"/></div>
+      <div class="fg gr"><label>Aadhaar</label><input class="in" id="rAad" maxlength="12" oninput="dedupe()"/></div>
+    </div>
+    <div class="fr" id="firmGst" style="display:none">
+      <div class="fg gr"><label>GSTIN (Firm)</label><input class="in" id="rGst" maxlength="15" style="text-transform:uppercase"/></div>
+    </div>
+    <div class="fr">
+      <div class="fg gr"><label>Registered A/c No.</label><input class="in" id="rAcc" oninput="dedupe()"/></div>
+      <div class="fg gr"><label>IFSC</label><input class="in" id="rIfsc" maxlength="11" style="text-transform:uppercase" oninput="onIfsc()"/><div class="lk" id="ifscResolve"></div></div>
+    </div>
+    </div>
+    <div class="regsec" data-sec="incentive">
+    <div class="sec-h">Incentive default</div>
+    <div class="fr">
+      <div class="fg gr"><label>Default incentive % (of invoice)</label><input class="in" id="rInc"/></div>
+      <div class="fg gr"><label>TDS %</label><input class="in" id="rTds"/></div>
+    </div>
+    </div>
+    <div id="empNote" class="dedupe-warn soft" style="display:none"></div>
+    <div id="authNote" class="dedupe-warn soft" style="display:none"></div>
+
+    <div class="dedupe-warn" id="dw"></div>
+   </div>
+  </div>
+  <div class="ov-ft">
+    <button class="btn btn-p" id="saveBtn" onclick="saveReferrer()">Register &rarr; Pending</button>
+    <button class="btn btn-g" onclick="closeOverlay()">Cancel</button>
+    <div class="hint" id="ovFtNote" style="margin-left:auto"></div>
+  </div>
+</div>
+
+<!-- Import drawer -->
+<div class="ov-bd" id="impBd" onclick="overlayClose(event,'impBd',closeImport)"></div>
+<div class="ov" id="ovImp">
+  <div class="ov-hd"><div class="t">Import Referrers</div><div class="ov-x" onclick="closeImport()">&times;</div></div>
+  <div class="ov-body">
+
+    <div style="margin:14px 0"><button class="btn btn-g btn-sm" onclick="downloadTemplate()">&#8681; Download CSV template</button></div>
+    <div class="imp-drop"><input type="file" id="impFile" accept=".csv" onchange="parseImport()"/></div>
+    <div id="impResult"></div>
+  </div>
+  <div class="ov-ft">
+    <button class="btn btn-p" id="impDoBtn" onclick="doImport()" disabled>Import valid rows &rarr; Pending</button>
+    <button class="btn btn-g" onclick="closeImport()">Cancel</button>
+
+  </div>
+</div>
+
+<!-- Reason modal -->
+<div class="modal-bd" id="modalBd" onclick="overlayClose(event,'modalBd',closeModal)">
+  <div class="modal">
+    <div class="modal-hd" id="mTitle">Confirm transition</div>
+    <div class="modal-b">
+      <div id="mMsg" style="font-size:var(--fs-body);color:var(--ink2);margin-bottom:12px"></div>
+      <div class="fg" id="mReasonWrap"><label>Reason <span class="rkf-req">*</span></label><textarea class="in" id="mReason" rows="3" style="resize:vertical;width:100%"></textarea></div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn btn-g" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-p" id="mConfirm" onclick="confirmTransition()">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bd" id="idBd" onclick="overlayClose(event,'idBd',closeIdCard)">
+  <div class="idc-wrap">
+    <div id="idCardBox" class="idc-card"></div>
+    <div class="idc-actions"><button class="btn btn-p" onclick="doPrintId()">&#128424; Print</button><button class="btn btn-g" onclick="closeIdCard()">Close</button></div>
+  </div>
+</div>
+
+<div class="modal-bd" id="reBd" onclick="overlayClose(event,'reBd',closeReassign)">
+  <div class="modal">
+    <div class="modal-hd">Reassign aligned Sales Exec</div>
+    <div class="modal-b">
+      <div class="fg"><label>New aligned exec</label><select class="in" id="reExec" style="width:100%"></select></div>
+      <div class="fg" style="margin-top:9px"><label>Reason</label><textarea class="in" id="reReason" rows="2" style="width:100%;resize:vertical"></textarea></div>
+
+    </div>
+    <div class="modal-ft"><button class="btn btn-g" onclick="closeReassign()">Cancel</button><button class="btn btn-p" onclick="confirmReassign()">Reassign (audited)</button></div>
+  </div>
+</div>
+
+<div class="state-err" data-error-permission id="permDenied" style="display:none;margin:10px 18px"><div class="state-ic">&#128274;</div><div id="permMsg">Not permitted for your role.</div></div>
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="rk-foundation.js?v=RKF-1.13.0"></script>
+<script>
+/* M-REF Referrer Master */
+var SB = (window.supabase && window.RKF && RKF.client) ? RKF.client('https://ntymdsbezetobrnjqqvl.supabase.co','sb_publishable_nev1rE7tHlu-bOWOm1JpXw_jd40773y')
+        : (window.supabase ? window.supabase.createClient('https://ntymdsbezetobrnjqqvl.supabase.co','sb_publishable_nev1rE7tHlu-bOWOm1JpXw_jd40773y') : null);
+
+(function(){ if(new URLSearchParams(location.search).get('embed')!=='1')return;
+  var st=document.createElement('style'); st.textContent='.topbar{display:none!important}.rail{display:none!important}'; document.head.appendChild(st); })();
+
+var LEGAL=[], RTYPES=[], UNITS=[], EXECS=[];
+
+var SALESPOOL=[];
+var LEGALMAP={}, RTYPEMAP={}, UNITMAP={}, EMPMAP={};
+var rows=[], total=0, page=0, PAGE=50;
+var selId=null, previewOpen=false, facet={status:'',type:'',exec:'',dist:''};
+var actorEmp=null, actorName=null, actorCode=null;
+
+var SCOPE=null;
+var detail={addr:[],notes:[],docs:[],audit:[],cust:0,quotes:0,sos:0,approval:null};
+
+var MREF_ACTS=null;
+var pendingTrans=null, booted=false, seriesPattern='';
+
+var _dn=null,_up=null;
+document.addEventListener('mousedown',function(e){_dn=e.target;},true);
+document.addEventListener('mouseup',function(e){_up=e.target;},true);
+function overlayClose(e,id,closeFn){
+  if(e && e.target && e.target.id===id && _dn && _dn.id===id && _up && _up.id===id){ closeFn(); }
+}
+function $id(x){ return document.getElementById(x); }
+function yesno(v){ return v?'Yes':'No'; }
+
+function nav(x){ var f={home:'index.html',m01:'m01.html',config:'mconfig.html'}[x];
+  if(f) location.href=f; }
+
+function dbErr(e,where){ var m=RKF.errText(e,{fallback:where+' could not be completed.'});
+  toast(m,'err'); return m; }
+
+var STATE_SURFACES=[
+  {id:'clist',        wrap:'div',  what:'referrers'},
+  {id:'terr',         wrap:'div',  what:'facets'},
+  {id:'recTableWrap', wrap:'div',  what:'the referrer table'},
+  {id:'actBody',      wrap:'div',  what:'the actions list'},
+  {id:'insBody',      wrap:'div',  what:'insights'},
+  {id:'kpiStrip',     wrap:'div',  what:'portfolio KPIs'}
+];
+function stateBox(kind,msg,cta){
+  if(kind==='load') return '<div class="state-load" data-loading-state><div class="sk"></div><div class="sk"></div><div class="sk"></div><div class="state-msg">'+esc(msg)+'</div></div>';
+  if(kind==='empty') return '<div class="state-empty" data-empty-state><div class="state-ic">&#9744;</div><div class="state-t">'+esc(msg)+'</div>'+(cta?'<div class="state-cta">'+cta+'</div>':'')+'</div>';
+  return '<div class="state-err" data-error-state><div class="state-ic">&#9888;</div><div>'+esc(msg)+' <button class="state-retry" onclick="boot()">Retry</button></div></div>';
+}
+function paintState(kind,msg){ STATE_SURFACES.forEach(function(s){ var el=$id(s.id); if(el) el.innerHTML=stateBox(kind,(kind==='load'?('Loading '+s.what+'…'):msg)); }); }
+function bootLoading(){ paintState('load'); }
+function bootError(m){ paintState('err', m||'Could not load referrer data.'); }
+
+async function loadActor(){
+  try{
+    var u=await SB.auth.getUser(); var em=u&&u.data&&u.data.user?u.data.user.email:null;
+    if(em){
+      var e=await SB.from('employees').select('id,employee_code,full_name,status,active').eq('email',em).maybeSingle();
+      if(e.data){ actorEmp=e.data.id; actorName=e.data.full_name; actorCode=e.data.employee_code; }
+    }
+    if(!actorEmp){ $id('actorNote').textContent='actor: not mapped — writes disabled'; }
+    else{ $id('actorNote').textContent='actor: '+actorName+' ('+actorCode+')'; }
+
+    var sc=await SB.rpc('mref_effective_scope');
+    if(sc.error) throw sc.error;
+    SCOPE=(sc.data&&sc.data.length)?sc.data[0]:sc.data;
+    if(!SCOPE) throw new Error('the server returned no capability decision');
+  }catch(e){
+
+    SCOPE=null;
+    $id('actorNote').textContent=(actorName||'unresolved')+' — view-only';
+  }
+}
+
+function cap(k){ return !!(SCOPE&&SCOPE[k]); }
+
+function kycVisible(){ return cap('kyc_visible'); }
+function piiCell(v){ return kycVisible()? esc(v||'—') : '<span class="pii-lock">restricted</span>'; }
+
+/* governed catalogues */
+async function loadCatalogues(){
+  var rv=await SB.from('reference_values').select('code,label,list_id,sort_order,active').in('list_id',['RL','RT']).order('sort_order');
+  if(rv.error) throw rv.error;
+  LEGAL=rv.data.filter(function(r){return r.list_id==='RL'&&r.active!==false;});
+  RTYPES=rv.data.filter(function(r){return r.list_id==='RT'&&r.active!==false;});
+  LEGAL.forEach(function(r){ LEGALMAP[r.code]=r.label; }); RTYPES.forEach(function(r){ RTYPEMAP[r.code]=r.label; });
+  var rl=await SB.from('reference_lists').select('list_id,name,owner').in('list_id',['RL','RT']);
+  if(rl.error) throw rl.error;
+  var ou=await SB.from('org_units').select('unit_code,unit_name,active,is_deleted').order('unit_code');
+  if(ou.error) throw ou.error;
+  UNITS=ou.data.filter(function(u){ return !u.is_deleted; }); UNITS.forEach(function(u){ UNITMAP[u.unit_code]=u.unit_name; });
+  var em=await SB.from('employees').select('id,employee_code,full_name,status,active,is_deleted').order('full_name');
+  if(em.error) throw em.error;
+  EXECS=em.data.filter(function(e){ return e.active&&!e.is_deleted; }); EXECS.forEach(function(e){ EMPMAP[e.id]={code:e.employee_code,name:e.full_name}; });
+
+  SALESPOOL=(SCOPE&&SCOPE.sales_pool)||[];
+
+  try{ var wm=await SB.from('workflow_module_map').select('module_code,act_labels,live_status_values,active').eq('module_code','M-REF').maybeSingle();
+    if(!wm.error&&wm.data&&wm.data.active){
+      if(Array.isArray(wm.data.act_labels)) MREF_ACTS=wm.data.act_labels;
+      var sv=wm.data.live_status_values;
+      var words=Array.isArray(sv)?sv:String(sv||'').split(',').map(function(x){return x.trim();}).filter(Boolean);
+      if(words.length) ['recStatus','actStatus'].forEach(function(i){ var e=$id(i); if(!e) return;
+        var keep=e.value; e.innerHTML='<option value="">All</option>'+words.map(function(w){return '<option>'+esc(w)+'</option>';}).join(''); e.value=keep; });
+    }
+  }catch(e){ MREF_ACTS=null; }
+  var ns=await SB.from('number_series').select('id,series_code,label,scope,active').eq('series_code','REF').maybeSingle();
+  if(!ns.error&&ns.data){
+    var sg=await SB.from('number_series_segments').select('ordinal,seg_type,seg_value,pad').eq('series_id',ns.data.id).order('ordinal');
+    if(!sg.error&&sg.data) seriesPattern=sg.data.map(function(s){ return s.seg_type==='text'?s.seg_value:(s.seg_type==='seq'?('#'.repeat(s.pad||6)):('{'+s.seg_type+'}')); }).join('');
+  }
+}
+function taExec(){
+  var t=($id('rExecTa')&&$id('rExecTa').value||'').toLowerCase().trim();
+
+  var list=SALESPOOL.filter(function(e){ return !t || (e.full_name+' '+e.employee_code).toLowerCase().indexOf(t)>=0; });
+  fillOpt('rExec',list,function(a){return a.id;},function(a){return a.full_name+' ('+a.employee_code+')';});
+  var c=$id('rExecCount'); if(c) c.textContent=list.length+' of '+SALESPOOL.length+' sales employees match'+(list.length>10?' — keep typing to narrow':'');
+}
+function paintApprovalStage(){
+  var w=$id('apprWho'); if(!w) return;
+  w.textContent = !SCOPE ? ((actorName||'you')+' — capabilities unavailable; view-only')
+                : cap('can_verify') ? (actorName+' ('+actorCode+') — authorised to verify')
+                : ((actorName||'you')+' — no active M-REF authority row; view-only');
+}
+function permDenied(msg){ var b=$id('permDenied'); if(!b) return; if(msg) $id('permMsg').textContent=msg; b.style.display=''; }
+function roleName(id){ return id&&EMPMAP[id]?EMPMAP[id].name:'—'; }
+function roleTag(id){ return id&&EMPMAP[id]?EMPMAP[id].code:''; }
+function legalName(c){ return LEGALMAP[c]||c||'—'; }
+function rtypeName(c){ return RTYPEMAP[c]||c||'—'; }
+function unitName(c){ return UNITMAP[c]||c||'—'; }
+
+function activeFilters(){
+  var f=[]; var q=($id('q')&&$id('q').value||'').trim();
+  if(q) f.push({k:'q',label:'Search: '+q,clear:function(){ $id('q').value=''; }});
+  if(facet.status) f.push({k:'status',label:'Status: '+facet.status,clear:function(){ facet.status=''; }});
+  if(facet.type) f.push({k:'type',label:'Type: '+rtypeName(facet.type),clear:function(){ facet.type=''; }});
+  if(facet.exec) f.push({k:'exec',label:'Exec: '+roleName(facet.exec),clear:function(){ facet.exec=''; }});
+  if(facet.dist) f.push({k:'dist',label:'District: '+facet.dist,clear:function(){ facet.dist=''; }});
+  return f;
+}
+
+var PII_SEARCH_COLS=['pan','aadhaar','gstin','reg_account','ifsc'];
+function searchCols(){
+  var base=['id','name','mobile','email','tally_alias'];
+  return kycVisible()? base.concat(PII_SEARCH_COLS) : base;
+}
+function orIlike(t){
+  var like='%'+String(t).replace(/[%,()]/g,'')+'%';
+  return searchCols().map(function(c){ return c+'.ilike.'+like; }).join(',');
+}
+function matchRef(r,q){
+  var t=String(q||'').trim().toLowerCase(); if(!t) return true;
+  var parts=[ r.id, r.name, r.mobile, r.email, r.tally_alias, r.status,
+              rtypeName(r.referrer_type), legalName(r.legal_type), unitName(r.unit),
+              roleName(r.aligned_exec_emp), roleTag(r.aligned_exec_emp),
+              roleName(r.ccr_emp), roleTag(r.ccr_emp),
+              r.__district, r.__area, r.__pincode, r.__state ];
+  if(kycVisible()) parts=parts.concat([r.pan,r.aadhaar,r.gstin,r.reg_account,r.ifsc]);
+  return parts.filter(function(x){ return x!=null&&x!==''; })
+              .join('\n').toLowerCase().indexOf(t)>=0;
+}
+
+async function searchIdSet(t){
+  var q=String(t||'').trim().toLowerCase(); if(!q) return [];
+  var ids={};
+  try{
+    var like='%'+q.replace(/[%,()]/g,'')+'%';
+    var a=await SB.from('referrer_addresses').select('referrer_id')
+      .or('district.ilike.'+like+',area.ilike.'+like+',state.ilike.'+like+',pincode.ilike.'+like+',address_line.ilike.'+like);
+    if(!a.error) (a.data||[]).forEach(function(r){ ids[r.referrer_id]=1; });
+  }catch(e){}
+
+  var execIds=EXECS.filter(function(e){ return (e.full_name+' '+e.employee_code).toLowerCase().indexOf(q)>=0; }).map(function(e){return e.id;});
+  var typeCodes=RTYPES.filter(function(r){ return String(r.label||'').toLowerCase().indexOf(q)>=0; }).map(function(r){return r.code;});
+  var legalCodes=LEGAL.filter(function(r){ return String(r.label||'').toLowerCase().indexOf(q)>=0; }).map(function(r){return r.code;});
+  var unitCodes=UNITS.filter(function(u){ return (u.unit_code+' '+u.unit_name).toLowerCase().indexOf(q)>=0; }).map(function(u){return u.unit_code;});
+  var extra=[];
+  if(execIds.length)  extra.push({col:'aligned_exec_emp',vals:execIds},{col:'ccr_emp',vals:execIds});
+  if(typeCodes.length)  extra.push({col:'referrer_type',vals:typeCodes});
+  if(legalCodes.length) extra.push({col:'legal_type',vals:legalCodes});
+  if(unitCodes.length)  extra.push({col:'unit',vals:unitCodes});
+  for(var i=0;i<extra.length;i++){
+    try{ var r2=await SB.from('referrers').select('id').in(extra[i].col,extra[i].vals);
+         if(!r2.error) (r2.data||[]).forEach(function(x){ ids[x.id]=1; }); }catch(e){}
+  }
+  return Object.keys(ids);
+}
+function csvIn(list){ return '('+(list||[]).map(function(x){ return '"'+String(x).replace(/"/g,'')+'"'; }).join(',')+')'; }
+
+async function listSearchInputs(searchTerm){
+  var t=(searchTerm||'').trim();
+  return { term:t,
+           distIds: facet.dist ? await referrerIdsInDistrict(facet.dist) : null,
+           extraIds: t ? await searchIdSet(t) : [] };
+}
+function applyServerFilters(qy,pre){
+  pre=pre||{term:'',distIds:null,extraIds:[]};   
+  if(facet.status) qy=qy.eq('status',facet.status);
+  if(facet.type) qy=qy.eq('referrer_type',facet.type);
+  if(facet.exec) qy=qy.eq('aligned_exec_emp',facet.exec);
+
+  if(pre.distIds) qy=qy.in('id',pre.distIds);
+  if(pre.term){
+    var clause=orIlike(pre.term);
+    if(pre.extraIds.length) clause+=',id.in.'+csvIn(pre.extraIds);
+    qy=qy.or(clause);
+  }
+  return qy;
+}
+/* ADDRESS ATTACH */
+async function attachAddresses(list){
+  if(!list||!list.length) return list;
+  var ids=list.map(function(x){ return x.id; });
+  var a=await SB.from('referrer_addresses').select('referrer_id,pincode,area,district,state,is_default').in('referrer_id',ids);
+  if(a.error) throw a.error;                       
+  var best={};
+  (a.data||[]).forEach(function(r){ if(!best[r.referrer_id]||r.is_default) best[r.referrer_id]=r; });
+  list.forEach(function(x){ var b=best[x.id]||{};
+    x.__pincode=b.pincode||''; x.__area=b.area||''; x.__district=b.district||''; x.__state=b.state||''; });
+  return list;
+}
+
+async function referrerIdsInDistrict(dist){
+  if(!dist) return null;
+  var a=await SB.from('referrer_addresses').select('referrer_id').eq('district',dist);
+  if(a.error) throw a.error;
+  return [...new Set((a.data||[]).map(function(r){ return r.referrer_id; }))];
+}
+async function loadReferrers(searchTerm){
+  var pre=await listSearchInputs(searchTerm);          
+  var qy=SB.from('referrers').select('id,legal_type,referrer_type,name,mobile,email,aligned_exec_emp,ccr_emp,unit,status,pan,aadhaar,gstin,reg_account,ifsc,incentive_pct,tds_pct,employee_id,tally_alias,created_at,updated_at,created_by,version,is_deleted',{count:'exact'}).eq('is_deleted',false);
+  qy=applyServerFilters(qy,pre);                        
+  qy=qy.order('id').range(page*PAGE,page*PAGE+PAGE-1);
+  var r=await qy; if(r.error) throw r.error;
+  rows=await attachAddresses(r.data||[]); total=(r.count==null?rows.length:r.count);
+}
+async function loadDetail(id){
+  detail={addr:[],notes:[],docs:[],audit:[],cust:0,quotes:0,sos:0,approval:null};
+
+  try{ var ap=await SB.rpc('fn_workflow_queue');
+    if(!ap.error&&Array.isArray(ap.data)){
+      var mine=ap.data.filter(function(a){
+        return a && a.module_code==='M-REF' && a.document_id===id && !a.decided_at
+            && (a.status==='Pending'||a.status==='Escalated'); });
+
+      mine.sort(function(x,y){ return String(y.raised_at||'').localeCompare(String(x.raised_at||'')); });
+      if(mine.length) detail.approval=mine[0];
+    }
+  }catch(e){ detail.approval=null; }
+  var a=await SB.from('referrer_addresses').select('address_id,referrer_id,pincode,area,district,state,address_line,is_default,created_at,created_by').eq('referrer_id',id); if(!a.error) detail.addr=a.data||[];
+  var n=await SB.from('referrer_notes').select('referrer_id,by_emp,at,text').eq('referrer_id',id).order('at',{ascending:false}); if(!n.error) detail.notes=n.data||[];
+  var d=await SB.from('referrer_documents').select('referrer_id,doc_type,storage_path,created_at,created_by').eq('referrer_id',id); if(!d.error) detail.docs=d.data||[];
+  var s=await SB.from('referrer_status_audit').select('id,referrer_id,from_status,to_status,by_emp,at,reason').eq('referrer_id',id).order('at',{ascending:false}); if(!s.error) detail.audit=s.data||[];
+  var c=await SB.from('customers').select('id',{count:'exact',head:true}).eq('referrer_id',id); if(!c.error) detail.cust=c.count||0;
+  var q=await SB.from('quotes').select('id',{count:'exact',head:true}).eq('referrer_id',id); if(!q.error) detail.quotes=q.count||0;
+  var so=await SB.from('sales_orders').select('id',{count:'exact',head:true}).eq('referrer_id',id); if(!so.error) detail.sos=so.count||0;
+}
+
+/* status presentation */
+
+function statusClass(s){ return ({Pending:'tg-pend',Scrutiny:'tg-scru',Active:'tg-act',Inactive:'tg-ina',Blocked:'tg-blk'})[s]||'tg-ina'; }
+function statusTag(s){ return '<span class="tg-s '+statusClass(s)+'" data-status-chip>'+esc(s)+'</span>'; }
+function usableText(s){ return s==='Active'?'<span class="su ok">usable downstream</span>':'<span class="su no">not usable downstream</span>'; }
+
+/* tabs */
+function showTab(t){
+  ['list','rec','act','ins'].forEach(function(x){
+    var p=$id('pane-'+x), b=$id('tab-'+x);
+    if(p) p.className='pane'+(x===t?' act':''); if(b) b.className='tab'+(x===t?' act':'');
+  });
+  location.hash=t;
+  if(t==='rec') renderRecTable(); if(t==='act') renderActionsList(); if(t==='ins') renderInsights();
+}
+
+/* LIST */
+async function renderKpis(){
+  try{
+    var counts={}; var st=await SB.from('referrers').select('status',{count:'exact',head:false}).eq('is_deleted',false);
+    if(st.error) throw st.error;
+    (st.data||[]).forEach(function(r){ counts[r.status]=(counts[r.status]||0)+1; });
+
+    var k=[['Total',(st.data||[]).length,''],['Active',counts.Active||0,''],['Awaiting scrutiny',(counts.Pending||0)+(counts.Scrutiny||0),'warn'],['Blocked',counts.Blocked||0,'red']];
+    $id('kpiStrip').innerHTML=k.map(function(x,i){
+      return '<div class="kpi '+x[2]+'" onclick="kpiFilter('+i+')"><div class="kv">'+x[1]+'</div><div class="kl">'+esc(x[0])+'</div></div>';
+    }).join('');
+  }catch(e){ $id('kpiStrip').innerHTML=stateBox('err','KPIs unavailable.'); }
+}
+function kpiFilter(i){ facet.status=[ '', 'Active','', 'Blocked','' ][i]||''; if(i===2){ facet.status='Pending'; } refresh(); }
+
+/* LIST */
+async function renderTerr(){
+  try{
+    var all=await SB.from('referrers').select('id,status,referrer_type,aligned_exec_emp').eq('is_deleted',false);
+    if(all.error) throw all.error;
+    var byS={},byT={},byE={},byD={};
+    (all.data||[]).forEach(function(r){ byS[r.status]=(byS[r.status]||0)+1; byT[r.referrer_type]=(byT[r.referrer_type]||0)+1; byE[r.aligned_exec_emp]=(byE[r.aligned_exec_emp]||0)+1; });
+
+    try{
+      var ad=await SB.from('referrer_addresses').select('referrer_id,district,is_default');
+      if(!ad.error){
+        var live={}; (all.data||[]).forEach(function(r){ live[r.id]=1; });
+        var best={};
+        (ad.data||[]).forEach(function(a){ if(!live[a.referrer_id]) return;
+          if(!best[a.referrer_id]||a.is_default) best[a.referrer_id]=a; });
+        Object.keys(best).forEach(function(k){ var d=(best[k].district||'').trim(); if(d) byD[d]=(byD[d]||0)+1; });
+      }
+    }catch(e){}
+    function grp(title,map,key,nameFn){
+      var items=Object.keys(map).map(function(k){
+        return '<div class="terr-i'+(facet[key]===k?' on':'')+'" onclick="setFacet(\''+key+'\',\''+esc(k)+'\')"><span>'+esc(nameFn(k))+'</span><span class="ct">'+map[k]+'</span></div>';
+      }).join('');
+      return '<div class="terr-grp"><div class="terr-h">'+title+'</div>'+(items||'<div class="terr-i">none</div>')+'</div>';
+    }
+    $id('terr').innerHTML=
+      '<div class="terr-i'+(!facet.status&&!facet.type&&!facet.exec&&!facet.dist?' on':'')+'" onclick="setFacet(\'all\',\'\')"><span>All referrers</span><span class="ct">'+(all.data||[]).length+'</span></div>'
+      +grp('By status',byS,'status',function(k){return k;})
+      +grp('By type',byT,'type',rtypeName)
+      +grp('Aligned to',byE,'exec',roleName)
+      +grp('By district',byD,'dist',function(k){return k;});
+  }catch(e){ $id('terr').innerHTML=stateBox('err','Filters unavailable.'); }
+}
+function setFacet(k,v){ if(k==='all'){ facet={status:'',type:'',exec:'',dist:''}; } else { facet[k]=(facet[k]===v?'':v); } page=0; refresh(); }
+
+/* LIST */
+function renderPills(){
+  var f=activeFilters();
+  $id('pillBar').innerHTML=f.length? f.map(function(x,i){ return '<span class="pill">'+esc(x.label)+'<span class="px" onclick="clearPill('+i+')">&times;</span></span>'; }).join('')
+    +' <span class="pill" style="background:var(--greybg);color:var(--ink2);border-color:var(--line2)" onclick="setFacet(\'all\',\'\')"><span class="px">clear all</span></span>' : '';
+}
+function clearPill(i){ var f=activeFilters(); if(f[i]){ f[i].clear(); page=0; refresh(); } }
+function renderClist(){ page=0; refresh(); }
+function paintCards(){
+  var el=$id('clist'); if(!el) return;
+  if(!rows.length){ el.innerHTML=stateBox('empty','No referrer matches these filters.','<button class="btn btn-p btn-sm" onclick="openRegister()">+ Register Referrer</button>'); return; }
+  el.innerHTML=rows.map(function(r){
+    return '<div class="crow '+String(r.status||'').toLowerCase()+(selId===r.id?' sel':'')+'" onclick="selectRef(\''+esc(r.id)+'\')">'
+      +'<div class=""><div class="nm">'+esc(r.name)+'</div>'+statusTag(r.status)
+      +'</div>'   
+      +'<div class="meta"><span class="pii">'+esc(r.id)+'</span> &middot; '+esc(rtypeName(r.referrer_type))+' &middot; '+esc(unitName(r.unit))
+      +' &middot; '+esc((detailDistrict(r)||'—'))+' &middot; '+esc(roleName(r.aligned_exec_emp))+'</div>'
+      +'<div class="usab">'+usableText(r.status)+'</div></div>';
+  }).join('')+'<div class="hint" style="padding:8px 4px">Showing '+rows.length+' of '+total+' page '+(page+1)+''
+    +(total>PAGE?' <button class="btn btn-g btn-sm" onclick="pageMove(-1)">&laquo;</button> <button class="btn btn-g btn-sm" onclick="pageMove(1)">&raquo;</button>':'')+'</div>';
+}
+function detailDistrict(r){ return r.__district||''; }
+function pageMove(d){ var max=Math.max(0,Math.ceil(total/PAGE)-1); page=Math.min(max,Math.max(0,page+d)); refresh(); }
+
+/* LIST */
+async function selectRef(id){ selId=id; previewOpen=true; await loadDetail(id); pushRecent(id); paintCards(); renderPreview(); }
+function closePreview(){ previewOpen=false; renderPreview(); paintCards(); }
+function renderPreview(){
+  var el=$id('c360'); if(!el) return;
+  var r=rows.filter(function(x){return x.id===selId;})[0];
+  if(!previewOpen||!r){ el.className='c360 off'; el.innerHTML=''; return; }
+  el.className='c360';
+  el.innerHTML='<div class="pv-sec"><div class="pv-nm">'+esc(r.name)+'</div><div class="ov-x" onclick="closePreview()">&times;</div></div>'
+    +'<div class="">'
+    +'<div class="kv"><span>Code</span><b class="pii">'+esc(r.id)+'</b></div>'
+    +'<div class="kv"><span>Status</span>'+statusTag(r.status)+'</div>'
+    +'<div class="kv"><span>Aligned exec</span><b>'+esc(roleName(r.aligned_exec_emp))+'</b></div>'
+    +'<div class="kv"><span>CCR</span><b>'+esc(roleName(r.ccr_emp))+'</b></div>'
+    +'<div class="kv"><span>Unit</span><b>'+esc(unitName(r.unit))+'</b></div>'
+    +'<div class="seeds" data-seed-m01><div class="sh">Seeds to Customer Master</div>'
+
+    +'<div class="kv"><span>Referred customers</span><b>'+detail.cust+'</b></div></div>'
+    +'<div class="pv-btns"><button class="btn btn-p btn-sm" onclick="openFullRecord(\''+esc(r.id)+'\')">Open full record</button>'
+    +'<button class="btn btn-g btn-sm" onclick="gotoActions(\''+esc(r.id)+'\')">Actions</button></div></div>';
+}
+function openFullRecord(id){ selId=id; showTab('rec'); loadDetail(id).then(function(){ pushRecent(id); renderRecTable(); renderRecord(); }); }
+function gotoActions(id){ selId=id; showTab('act'); }
+
+/* RECORD */
+function clearRecFilters(){ ['recPick','recStatus','recType','recLegal','recUnit','recDist','recExec','recCcr'].forEach(function(i){ var e=$id(i); if(e) e.value=''; }); renderRecTable(); }
+function recFilterVals(){
+  return {q:($id('recPick')&&$id('recPick').value||'').trim(),status:$id('recStatus')?$id('recStatus').value:'',type:$id('recType')?$id('recType').value:'',
+          legal:$id('recLegal')?$id('recLegal').value:'',unit:$id('recUnit')?$id('recUnit').value:'',dist:$id('recDist')?$id('recDist').value:'',
+          exec:$id('recExec')?$id('recExec').value:'',ccr:$id('recCcr')?$id('recCcr').value:''};
+}
+async function renderRecTable(){
+  var el=$id('recTableWrap'); if(!el) return;
+  var f=recFilterVals();
+  el.innerHTML=stateBox('load','Loading the referrer table…');
+  try{
+    var qy=SB.from('referrers').select('id,legal_type,referrer_type,name,mobile,email,aligned_exec_emp,ccr_emp,unit,status,pan,aadhaar,gstin,reg_account,ifsc,incentive_pct,tds_pct,employee_id,tally_alias,created_at,updated_at,created_by,version,is_deleted',{count:'exact'}).eq('is_deleted',false);
+    if(f.status) qy=qy.eq('status',f.status); if(f.type) qy=qy.eq('referrer_type',f.type);
+    if(f.legal) qy=qy.eq('legal_type',f.legal); if(f.unit) qy=qy.eq('unit',f.unit);
+    if(f.exec) qy=qy.eq('aligned_exec_emp',f.exec); if(f.ccr) qy=qy.eq('ccr_emp',f.ccr);
+
+    var distIds=await referrerIdsInDistrict(f.dist);
+    if(distIds){ if(!distIds.length){ el.innerHTML=stateBox('empty','No referrer has an address in that district.','<button class="btn btn-g btn-sm" onclick="clearRecFilters()">Clear filters</button>'); return; } qy=qy.in('id',distIds); }
+
+    if(f.q){ var clause=orIlike(f.q); var ex=await searchIdSet(f.q);
+             if(ex.length) clause+=',id.in.'+csvIn(ex); qy=qy.or(clause); }
+    var r=await qy.order('id').range(0,199); if(r.error) throw r.error;
+    var d=await attachAddresses(r.data||[]);
+    if(f.q) d=d.filter(function(x){ return matchRef(x,f.q); });
+    if(!d.length){ el.innerHTML=stateBox('empty','No referrer matches these filters.','<button class="btn btn-g btn-sm" onclick="clearRecFilters()">Clear filters</button>'); return; }
+    REC_D=d; REC_COUNT=r.count; paintRecTable();
+  }catch(e){ el.innerHTML=stateBox('err','Could not load the table.'); }
+}
+var REC_D=[], REC_COUNT=null, recSort=RKF.sort.state('id',1);
+function recVal(x,k){
+  switch(k){
+    case 'type': return (rtypeName(x.referrer_type)||'').toLowerCase();
+    case 'legal': return (legalName(x.legal_type)||'').toLowerCase();
+    case 'unit': return (unitName(x.unit)||'').toLowerCase();
+    case 'dist': return (x.__district||'').toLowerCase();
+    case 'exec': return (roleName(x.aligned_exec_emp)||'').toLowerCase();
+    case 'ccr': return (roleName(x.ccr_emp)||'').toLowerCase();
+    case 'mobile': return x.mobile||'';
+    case 'status': return x.status||'';
+    case 'name': return (x.name||'').toLowerCase();
+    default: return x.id||'';
+  }
+}
+function recSortBy(k){ RKF.sort.toggle(recSort,k); paintRecTable(); }
+function paintRecTable(){
+  var el=$id('recTableWrap'); if(!el) return;
+  var d=RKF.sort.rows(REC_D.slice(),recSort,recVal);
+    el.innerHTML='<table class="grid"><thead><tr>'
+      +[['id','Code'],['name','Name'],['type','Type'],['legal','Legal'],['unit','Unit'],['dist','District'],['exec','Aligned Exec'],['ccr','CCR'],['mobile','Mobile'],['status','Status']].map(function(c){return RKF.sort.th(recSort,c[0],c[1],"recSortBy('"+c[0]+"')",null,null,'rth-');}).join('')
+      +'</tr></thead><tbody>'
+      +d.map(function(x){ return '<tr'+(selId===x.id?' class="selrow"':'')+' onclick="selectRec(\''+esc(x.id)+'\')">'
+        +'<td class="d-code">'+esc(x.id)+'</td><td><b>'+esc(x.name)+'</b></td><td><span class="typetag">'+esc(rtypeName(x.referrer_type))+'</span></td><td><span class="legtag">'+esc(legalName(x.legal_type))+'</span></td>'
+        +'<td>'+esc(unitName(x.unit))+'</td><td>'+esc(x.__district||'—')+'</td><td>'+esc(roleName(x.aligned_exec_emp))+'</td><td>'+esc(roleName(x.ccr_emp))+'</td>'
+        +'<td class="num pii">'+esc(x.mobile)+'</td><td>'+statusTag(x.status)+'</td></tr>'; }).join('')
+      +'</tbody></table><div class="hint" style="padding:8px">'+d.length+' of '+(REC_COUNT==null?d.length:REC_COUNT)+' rows</div>';
+}
+async function selectRec(id){ selId=id; await loadDetail(id); pushRecent(id); renderRecTable(); renderRecord(); }
+
+function pushRecent(id){
+  try{
+    var r=rows.filter(function(x){return x.id===id;})[0];
+    var label=(r&&r.name)? (r.name+' ('+id+')') : id;
+    if(window.RKF && RKF.recents && RKF.recents.push) RKF.recents.push('M-REF', id, label);   
+  }catch(e){}
+}
+function closeRecDetail(){ selId=null; var dw=$id('recDrawer'), bd=$id('recDrawerBd');
+  if(dw) dw.className='drawer'; if(bd) bd.className='drawer-bd';
+  var el=$id('recBody'); if(el){ el.removeAttribute('data-record-detail'); el.innerHTML=''; } renderRecTable(); }
+async function renderRecord(){
+  var el=$id('recBody'); if(!el) return;
+  var r=null; try{ var g=await SB.from('referrers').select('id,legal_type,referrer_type,name,mobile,email,aligned_exec_emp,ccr_emp,unit,status,pan,aadhaar,gstin,reg_account,ifsc,incentive_pct,tds_pct,employee_id,tally_alias,created_at,updated_at,created_by,version,is_deleted').eq('id',selId).maybeSingle(); r=g.data; }catch(e){}
+  if(!r){ closeRecDetail(); return; }
+
+  var dw=$id('recDrawer'), bd=$id('recDrawerBd');
+  if(dw) dw.className='drawer show'; if(bd) bd.className='drawer-bd show';
+  var ti=$id('recDwrTitle'); if(ti) ti.textContent=r.name||'Referrer record';
+  el.setAttribute('data-record-detail','');
+  var tiles=[['Referrals',detail.cust],['Customers',detail.cust],['Quotes',detail.quotes],['Sales Orders',detail.sos],];
+  el.innerHTML=
+    '<div class="qa-bar" data-quick-actions>'
+      +(canVerify(r)||mayMove(r,'Scrutiny')?'<button class="btn btn-p btn-sm" onclick="gotoActions(\''+esc(r.id)+'\')">Update status</button>':'')
+
+      +'<button class="btn btn-g btn-sm" onclick="openEdit(\''+esc(r.id)+'\')">Edit</button>'
+      +'<button class="btn btn-g btn-sm" onclick="printIdCard(\''+esc(r.id)+'\')">ID card</button>'
+      +(canReassign()?'<button class="btn btn-g btn-sm" onclick="openReassign(\''+esc(r.id)+'\')">Reassign exec</button>':'')
+      +'<button class="btn btn-g btn-sm" onclick="openHistory()">History</button>'
+      +'<div class="hdr-sp"></div><div class="ov-x" onclick="closeRecDetail()">&times;</div></div>'
+    +'<div class="rec-hd" data-record-header><div class="t">'+esc(r.name)+'</div>'
+      +'<div class="rec-idrow">'
+      +'<div class="idchip">Code <b class="pii">'+esc(r.id)+'</b></div>'
+      +'<div class="idchip">Mobile <b>'+esc(r.mobile)+'</b></div>'
+      +'<div class="idchip">Unit <b>'+esc(unitName(r.unit))+'</b></div>'
+      +'<div class="idchip">Sales <b>'+esc(roleName(r.aligned_exec_emp))+'</b></div>'
+      +'<div class="idchip">CCR <b>'+esc(roleName(r.ccr_emp))+'</b></div></div></div>'
+
+    +'<div class="rec-body" id="recGrid">'
+    +'<div class="status-banner '+({Active:'sb-act',Pending:'sb-pend',Scrutiny:'sb-scru',Inactive:'sb-ina',Blocked:'sb-blk'}[r.status]||'sb-ina')+'">'+statusTag(r.status)
+      +(r.status==='Active'?'Usable in Quote / SO / LC':'Not usable until Active')+'</div>'
+
+    +(detail.approval?('<div class="rsec"><div class="sh">Approval waiting</div>'
+      +'<div class="kv"><span>Approval</span><b class="pii">'+esc(detail.approval.approval_no||detail.approval.approval_id)+'</b></div>'
+      +'<div class="kv"><span>State</span>'+statusTag(detail.approval.status)+'</div>'
+      +'<div class="kv"><span>Why it routed</span><b>'+esc(detail.approval.why_routed||'no reason recorded')+'</b></div>'
+      +(cap('can_verify')?'<div id="mrefDecide" style="margin-top:8px"></div>'
+        :'<div class="hint">You cannot decide this approval.</div>')
+      +'</div>'):'')
+    +'<div class="hdr-metrics" data-metric-tiles data-derived-counts>'+tiles.map(function(t){ return '<div class="hm"><div class="v">'+t[1]+'</div><div class="l">'+t[0]+'</div></div>'; }).join('')+'</div>'
+    +'<div class="rsec"><div class="sh">Address</div><div class="kvgrid">'+(detail.addr.length? detail.addr.map(function(a){
+        return '<div class="kv"><span>'+(a.is_default?'Default':'Address')+'</span><b>'+esc([a.address_line,a.area,a.district,a.state,a.pincode].filter(Boolean).join(', '))+'</b></div>'; }).join('')
+        : stateBox('empty','No address recorded yet.'))+'</div></div>'
+    +'<div class="rsec"><div class="sh">KYC &amp; bank</div><div class="kvgrid">'
+      +'<div class="kv"><span>PAN</span><b>'+piiCell(r.pan)+'</b></div>'
+      +'<div class="kv"><span>Aadhaar</span><b>'+piiCell(r.aadhaar)+'</b></div>'
+      +'<div class="kv"><span>GSTIN</span><b>'+piiCell(r.gstin)+'</b></div>'
+      +'<div class="kv"><span>A/c</span><b>'+piiCell(r.reg_account)+'</b></div>'
+      +'<div class="kv"><span>IFSC</span><b>'+piiCell(r.ifsc)+'</b></div>'
+      +(kycVisible()?'':'<div class="hint">Hidden for your role.</div>')+'</div>'
+    +'<div class="rsec"><div class="sh">Incentive</div>'
+      +'<div class="kv"><span>Incentive %</span><b>'+esc(r.incentive_pct)+'</b></div><div class="kv"><span>TDS %</span><b>'+esc(r.tds_pct)+'</b></div>'
+
+    +'<div class="rsec"><div class="sh">Mapped transactions</div><div data-mapped-txns>'
+      +'<div class="kv"><span>Quotes</span><b>'+detail.quotes+'</b></div><div class="kv"><span>Sales Orders</span><b>'+detail.sos+'</b></div>'
+      +'</div></div>'
+    +'<div class="rsec"><div class="sh">Referred customers</div><div class="kv"><span>Seeded to M01</span><b>'+detail.cust+'</b></div>'
+      +'</div>'
+    +'<div class="rsec"><div class="sh">Documents</div>'+(detail.docs.length? detail.docs.map(function(d){ return '<div class="kv"><span>'+esc(d.doc_type)+'</span><b>'+esc(d.storage_path)+'</b></div>'; }).join('')
+      : '')+'</div>'
+    +'<div class="rsec"><div class="sh">Status audit</div>'+(detail.audit.length? '<div class="appr-stage">'+esc(detail.audit.length)+' transition(s) &middot; latest by <span class="who">'+esc(roleName(detail.audit[0].by_emp))+'</span></div>'
+      +detail.audit.map(function(a){ return '<div class="audit-i"><div class="audit-dot"></div><div>'+esc((a.from_status||'—')+' \u2192 ')+'<b>'+esc(a.to_status)+'</b> \u00b7 '+esc(RKF.fmtIST(a.at,true))+(a.reason?(' · '+a.reason):'')+'</div></div>'; }).join('')
+      : stateBox('empty','No transition recorded yet.'))+'</div>'
+    +'<div class="rsec"><div class="sh">Notes</div><div data-notes-thread>'+(detail.notes.length? detail.notes.map(function(n){
+        return '<div class="note-item"><div class="note-meta">'+esc(roleName(n.by_emp))+' &middot; '+esc(RKF.fmtIST(n.at,true))+'</div><div>'+esc(n.text)+'</div></div>'; }).join('')
+        : stateBox('empty','No notes yet.'))
+      +'<div class="fg" style="margin-top:8px"><textarea class="in" id="noteTxt" rows="2"></textarea>'
+      +'<button class="btn btn-g btn-sm" style="margin-top:6px" id="mConfirmNote" onclick="addNote()">Add note</button></div></div></div>';
+
+  if(detail.approval&&cap('can_verify')&&window.RKF&&RKF.decidePanel){
+    RKF.decidePanel($id('mrefDecide'),{ client:SB, approval:detail.approval, acts:MREF_ACTS||[],
+      onDone:async function(env){
+        var d=(env&&env.data)||{};
+        toast('Approval '+(d.approval_no||'')+' - '+(d.status||'decided')+(d.status_output?(' · '+d.status_output):''),'ok');
+        await loadDetail(selId); await refresh(); renderRecord(); renderActionsList();
+      }});
+  }
+}
+function canVerify(r){ return cap('can_verify'); }
+function canReassign(){ return cap('can_reassign'); }
+
+/* ACTIONS */
+
+var TRANS_LABEL={Scrutiny:'Send to scrutiny',Active:'Approve → Active',
+  Inactive:'Deactivate',Blocked:'Block'};
+function servedMoves(from){
+  var m=(SCOPE&&SCOPE.transitions)||{}; var list=m[from]||[];
+  return list.map(function(e){
+
+    return [e.to, (TRANS_LABEL[e.to]||e.to), !!e.reason];
+  });
+}
+
+function mayMove(row,to){
+  if(cap('can_verify')) return true;
+  if(row&&row.status==='Pending'&&to==='Scrutiny')
+    return cap('can_scrutiny')||(!!actorEmp&&row.created_by===actorEmp);
+  return false;
+}
+function clearActFilters(){ ['qa','actStatus','actType','actUnit','actDist','actExec','actCcr'].forEach(function(i){ var e=$id(i); if(e) e.value=''; }); renderActionsList(); }
+async function renderActionsList(){
+  var el=$id('actBody'); if(!el) return;
+  el.innerHTML=stateBox('load','Loading the actions list…');
+  try{
+    var q=($id('qa')&&$id('qa').value||'').trim();
+    var qy=SB.from('referrers').select('id,legal_type,referrer_type,name,mobile,email,aligned_exec_emp,ccr_emp,unit,status,pan,aadhaar,gstin,reg_account,ifsc,incentive_pct,tds_pct,employee_id,tally_alias,created_at,updated_at,created_by,version,is_deleted').eq('is_deleted',false);
+    var s=$id('actStatus')?$id('actStatus').value:''; if(s) qy=qy.eq('status',s);
+    var t=$id('actType')?$id('actType').value:''; if(t) qy=qy.eq('referrer_type',t);
+    var u=$id('actUnit')?$id('actUnit').value:''; if(u) qy=qy.eq('unit',u);
+    var x=$id('actExec')?$id('actExec').value:''; if(x) qy=qy.eq('aligned_exec_emp',x);
+
+    var cc=$id('actCcr')?$id('actCcr').value:''; if(cc) qy=qy.eq('ccr_emp',cc);
+    var dv=$id('actDist')?$id('actDist').value:'';
+    if(dv){ var dIds=await referrerIdsInDistrict(dv);
+      if(dIds){ if(!dIds.length){ el.innerHTML=stateBox('empty','No referrer has an address in that district.'); return; } qy=qy.in('id',dIds); } }
+    if(q){ var clause=orIlike(q); var ex=await searchIdSet(q);
+           if(ex.length) clause+=',id.in.'+csvIn(ex); qy=qy.or(clause); }
+    var r=await qy.order('id').range(0,199); if(r.error) throw r.error;
+    var d=await attachAddresses(r.data||[]);
+    if(q) d=d.filter(function(z){ return matchRef(z,q); });
+    if(!d.length){ el.innerHTML=stateBox('empty','Nothing to action for these filters.'); return; }
+    el.innerHTML='<table class="grid"><thead><tr><th>Code</th><th>Name</th><th>Status</th><th>Transitions</th></tr></thead><tbody>'
+      +d.map(function(z){
+
+        var offered=servedMoves(z.status).filter(function(t2){ return mayMove(z,t2[0]); });
+        var btns=offered.map(function(t2){
+          return '<button class="btn btn-g btn-sm" onclick="event.stopPropagation();askTransition(\''+esc(z.id)+'\',\''+t2[0]+'\','+(t2[2]?'true':'false')+','+(z.created_by===actorEmp?'true':'false')+')">'+esc(t2[1])+'</button>';
+        }).join(' ');
+        return '<tr onclick="openFullRecord(\''+esc(z.id)+'\')"><td class="pii">'+esc(z.id)+'</td><td>'+esc(z.name)+'</td><td>'+statusTag(z.status)+'</td>'
+          +'<td>'+(!SCOPE? '<span class="hint">view-only</span>'
+                 : btns|| (servedMoves(z.status).length? '<span class="hint">'+(cap('can_verify')?'no further move':'Not yours to decide.')+'</span>'
+                                                       : '<span class="hint">terminal for this state</span>'))+'</td></tr>';
+      }).join('')+'</tbody></table>';
+  }catch(e){ el.innerHTML=stateBox('err','Could not load actions.'); }
+}
+
+/* ---------- INSIGHTS ---------- */
+async function renderInsights(){
+  var el=$id('insBody'); if(!el) return;
+  el.innerHTML=stateBox('load','Loading insights…');
+  try{
+    var a=await SB.from('referrers').select('status,referrer_type,unit').eq('is_deleted',false); if(a.error) throw a.error;
+    var d=a.data||[];
+    if(!d.length){ el.innerHTML=stateBox('empty','No referrers registered yet.'); return; }
+    function tally(k,nameFn){ var m={}; d.forEach(function(r){ m[r[k]]=(m[r[k]]||0)+1; });
+      return Object.keys(m).map(function(x){ return '<div class="kv"><span>'+esc(nameFn?nameFn(x):x)+'</span><b>'+m[x]+'</b></div>'; }).join(''); }
+
+    var card=function(title,body,wide){ return '<div class="ins-card'+(wide?' w3':'')+'"><div class="ins-hd">'+title+'</div><div class="ins-bd">'+body+'</div></div>'; };
+    el.innerHTML=card('Referrer portfolio',
+        '<div class="kpi-row" data-metric-tiles>'
+        +'<div class="kpi"><div class="v">'+d.length+'</div><div class="l">Total referrers</div></div>'
+        +'<div class="kpi"><div class="v">'+d.filter(function(r){return r.status==='Active';}).length+'</div><div class="l">Active</div></div>'
+        +'<div class="kpi"><div class="v">'+d.filter(function(r){return r.status==='Pending';}).length+'</div><div class="l">Pending</div></div>'
+        +'</div>', true)   
+      +card('By status','<div class="kvgrid">'+tally('status')+'</div>')
+      +card('By type','<div class="kvgrid">'+tally('referrer_type',rtypeName)+'</div>')
+      +card('By unit','<div class="kvgrid">'+tally('unit',unitName)+'</div>')
+
+      ;
+  }catch(e){ el.innerHTML=stateBox('err','Insights unavailable.'); }
+}
+
+function normNoSpace(id){ var e=$id(id); if(!e) return; var p=e.selectionStart; e.value=String(e.value||'').replace(/\s+/g,''); try{ e.setSelectionRange(p,p); }catch(_){ } }
+function normDigits(id,max){ var e=$id(id); if(!e) return; e.value=String(e.value||'').replace(/\D/g,'').slice(0,max||64); }
+function fieldErr(id,msg){ var e=$id(id); if(!e) return; var h=$id(id+'Err');
+  if(!h){ h=document.createElement('div'); h.id=id+'Err'; h.className='hint'; h.style.color='var(--accent)'; e.parentNode.appendChild(h); }
+  h.textContent=msg||''; e.style.borderColor=msg?'var(--accent)':''; }
+function normPct(id,label){ var e=$id(id); if(!e) return true; var raw=String(e.value||'').trim();
+  if(raw===''){ fieldErr(id,''); return true; }
+  if(!/^\d{1,3}(\.\d{1,2})?$/.test(raw)){ fieldErr(id,label+' must be a number (max 2 decimals)'); return false; }
+  var n=parseFloat(raw); if(n<0||n>100){ fieldErr(id,label+' must be between 0 and 100'); return false; }
+  fieldErr(id,''); return true; }
+
+var FIELD_RULES_WIRED=false;
+function wireFieldRules(){
+  if(FIELD_RULES_WIRED) return;   
+  FIELD_RULES_WIRED=true;
+  [['rPan',10],['rGst',15],['rIfsc',11]].forEach(function(x){ var e=$id(x[0]); if(e) e.addEventListener('input',function(){ normNoSpace(x[0]); }); });
+  [['rMob',10],['rAad',12],['rPin',6],['rAcc',20]].forEach(function(x){ var e=$id(x[0]); if(e) e.addEventListener('input',function(){ normDigits(x[0],x[1]); }); });
+  var inc=$id('rInc'); if(inc) inc.addEventListener('blur',function(){ normPct('rInc','Incentive %'); });
+  var tds=$id('rTds'); if(tds) tds.addEventListener('blur',function(){ normPct('rTds','TDS %'); });
+}
+
+/* ---------- REGISTER overlay ---------- */
+
+var REF_SECS=[{k:'type',l:'Type'},{k:'identity',l:'Identity & alignment'},{k:'address',l:'Address'},{k:'kyc',l:'KYC & bank'},{k:'incentive',l:'Incentive default'}];
+var REF_SEC_OF={rLegal:'type',rType:'type',rName:'identity',rMob:'identity',rEmail:'identity',rExec:'identity',rExecTa:'identity',rUnit:'identity',rPin:'address',rAddr:'address',rArea:'address',rDist:'address',rState:'address',rPan:'kyc',rAad:'kyc',rGst:'kyc',rAcc:'kyc',rIfsc:'kyc',rInc:'incentive',rTds:'incentive'};
+var refSec='type';
+function renderRefSecMenu(){ var m=$id('secMenu'); if(!m) return;
+  m.innerHTML=REF_SECS.map(function(s){ return '<button type="button" class="secitem'+(s.k===refSec?' on':'')+'" data-sec="'+s.k+'" onclick="refShowSec(\''+s.k+'\')">'+esc(s.l)+'</button>'; }).join(''); }
+function refShowSec(k){ refSec=k;
+  [].slice.call(document.querySelectorAll('#secForm .regsec')).forEach(function(d){ d.classList.toggle('on',d.getAttribute('data-sec')===k); });
+  renderRefSecMenu(); }
+function refSecFor(fieldId){ return REF_SEC_OF[fieldId]||null; }
+async function fillDistricts(){
+  try{
+    var r=await SB.from('referrer_addresses').select('district');
+    if(r.error) throw r.error;
+    var seen={}, list=[];
+    (r.data||[]).forEach(function(a){ var d=(a.district||'').trim(); if(d&&!seen[d]){ seen[d]=1; list.push({district:d}); } });
+    list.sort(function(a,b){ return a.district.localeCompare(b.district,undefined,{numeric:true,sensitivity:'base'}); });
+
+    ['recDist','actDist'].forEach(function(i){ fillOpt(i,list,function(a){return a.district;},function(a){return a.district;},true); });
+  }catch(e){  }
+}
+function fillOpt(sel,arr,valFn,lblFn,keep){ var e=$id(sel); if(!e) return; var cur=keep?e.value:'';
+  e.innerHTML=(keep?'<option value="">All</option>':'')+arr.map(function(a){ return '<option value="'+esc(valFn(a))+'">'+esc(lblFn(a))+'</option>'; }).join(''); if(keep) e.value=cur; }
+function fillOverlaySelects(){
+  fillOpt('rLegal',LEGAL,function(a){return a.code;},function(a){return a.label;});
+  fillOpt('rType',RTYPES,function(a){return a.code;},function(a){return a.label;});
+  fillOpt('rUnit',UNITS,function(a){return a.unit_code;},function(a){return a.unit_code+' — '+a.unit_name;});
+
+  fillOpt('rExec',SALESPOOL,function(a){return a.id;},function(a){return a.full_name+' ('+a.employee_code+')';});
+  fillOpt('reExec',SALESPOOL,function(a){return a.id;},function(a){return a.full_name+' ('+a.employee_code+')';});
+  ['recType','actType'].forEach(function(i){ fillOpt(i,RTYPES,function(a){return a.code;},function(a){return a.label;},true); });
+  fillOpt('recLegal',LEGAL,function(a){return a.code;},function(a){return a.label;},true);
+  ['recUnit','actUnit'].forEach(function(i){ fillOpt(i,UNITS,function(a){return a.unit_code;},function(a){return a.unit_code;},true); });
+  ['recExec','recCcr','actExec','actCcr'].forEach(function(i){ fillOpt(i,EXECS,function(a){return a.id;},function(a){return a.full_name;},true); });
+
+  fillDistricts();
+}
+
+function resetRegisterForm(){
+  ['rName','rMob','rEmail','rPan','rAad','rGst','rAcc','rIfsc','rInc','rTds','rPin','rArea','rDist','rState','rAddr','rExecTa']
+    .forEach(function(i){ var e=$id(i); if(e){ e.value=''; e.disabled=false; e.style.borderColor=''; e.classList.remove('rkf-derived'); e.title=''; }
+      var h=$id(i+'Err'); if(h) h.textContent='';    });
+  ['rLegal','rType','rUnit','rExec'].forEach(function(i){ var e=$id(i); if(e) e.selectedIndex=0; });
+  var dw=$id('dw'); if(dw){ dw.innerHTML=''; dw.style.display='none'; }          /* stale duplicate warning */
+  var lk=$id('ifscResolve'); if(lk) lk.textContent='';   
+  var pk=$id('pinResolve');  if(pk) pk.textContent=''; /* stale pincode resolve */
+  var ec=$id('rExecCount');  if(ec) ec.textContent='';
+  var dc=$id('regDocChips'); if(dc) dc.innerHTML='';
+  var sb=$id('saveBtn'); if(sb){ sb.disabled=false; sb.textContent='Register → Pending'; }
+}
+function openRegister(){ if(!actorEmp){ toast('Your login is not mapped to an employee. Saving is disabled.','err'); return; }
+  editing=null; resetRegisterForm();
+  fillOverlaySelects(); wireFieldRules(); onLegal(); onRefType(); previewCode(); applyFieldAuthority();
+  $id('ovHdT').textContent='Register Referrer';
+  $id('saveBtn').textContent='Register → Pending';
+  $id('ovFtNote').innerHTML='';   
+  refShowSec('type');                                               
+  $id('ovBd').className='ov-bd show'; $id('ov').className='ov show'; setTimeout(function(){ var n=$id('rName'); if(n) n.focus(); },60); }
+function closeOverlay(){ $id('ovBd').className='ov-bd'; $id('ov').className='ov'; editing=null; }
+
+var editing=null;
+var BANK_FIELDS=['rPan','rAad','rGst','rAcc','rIfsc'];
+var ACCT_FIELDS=['rInc','rTds'];
+function lockField(id,locked,why){
+  var e=$id(id); if(!e) return;
+  e.disabled=!!locked;
+
+  if(locked) e.classList.add('rkf-derived'); else e.classList.remove('rkf-derived');
+  e.title = locked ? (why||'') : '';
+}
+function applyFieldAuthority(){
+
+  var saAlreadyLocked={};
+  ['rPan','rAad','rAcc','rIfsc'].forEach(function(i){ var e=$id(i); if(e&&e.disabled) saAlreadyLocked[i]=true; });
+  function lockOnly(id,locked,why){ if(saAlreadyLocked[id]) return; lockField(id,locked,why); }
+
+  if(!editing){ BANK_FIELDS.concat(ACCT_FIELDS).forEach(function(i){ lockOnly(i,false); }); return; }
+  var bankOk=cap('is_admin'), acctOk=cap('acct_edit');
+  BANK_FIELDS.forEach(function(i){ lockOnly(i,!bankOk,'Admin only'); });
+  ACCT_FIELDS.forEach(function(i){ lockOnly(i,!acctOk,'Accounts or Admin only'); });
+  var n=$id('authNote');
+  if(n){
+    var msg=[];
+    if(!bankOk) msg.push('bank and KYC fields are Admin-only');
+    if(!acctOk) msg.push('commission and TDS are Accounts-only');
+    n.textContent=msg.length? ('For your login, '+msg.join('; ')+'.') : '';
+    n.style.display=msg.length?'':'none';
+  }
+}
+async function openEdit(id){
+  if(!requireActor()) return;
+  if(!SCOPE){ toast('Your access could not be read. Reload.','err'); return; }
+  var g=await SB.from('referrers').select('id,legal_type,referrer_type,name,mobile,email,aligned_exec_emp,ccr_emp,unit,status,pan,aadhaar,gstin,reg_account,ifsc,incentive_pct,tds_pct,employee_id,tally_alias,created_at,updated_at,created_by,version,is_deleted').eq('id',id).maybeSingle();   
+  if(g.error||!g.data){ dbErr(g.error||new Error('not found'),'Opening the record'); return; }
+  var r=g.data;
+  var a=await SB.from('referrer_addresses').select('address_id,referrer_id,pincode,area,district,state,address_line,is_default,created_at,created_by').eq('referrer_id',id).order('is_default',{ascending:false});
+  var ad=(a.data&&a.data[0])||{};
+  editing={id:r.id, version:r.version, before:r, beforeAddr:ad};
+  resetRegisterForm(); fillOverlaySelects(); wireFieldRules();
+  function set(i,v){ var e=$id(i); if(e) e.value=(v==null?'':String(v)); }
+  set('rLegal',r.legal_type); set('rType',r.referrer_type);
+  set('rName',r.name); set('rMob',r.mobile); set('rEmail',r.email);
+  set('rExec',r.aligned_exec_emp); set('rUnit',r.unit);
+  set('rPan',r.pan); set('rAad',r.aadhaar); set('rGst',r.gstin);
+  set('rAcc',r.reg_account); set('rIfsc',r.ifsc);
+  set('rInc',r.incentive_pct); set('rTds',r.tds_pct);
+  set('rPin',ad.pincode); set('rArea',ad.area); set('rDist',ad.district); set('rState',ad.state); set('rAddr',ad.address_line);
+  onLegal(); onRefType();          
+  applyFieldAuthority();           
+
+  normEditForm();
+  editing.before=Object.assign({}, editing.before, {
+    name:$id('rName').value, email:$id('rEmail').value, pan:$id('rPan').value,
+    gstin:$id('rGst')?$id('rGst').value:'', ifsc:$id('rIfsc').value });
+  editing.beforeAddr=Object.assign({}, editing.beforeAddr, {
+    area:$id('rArea').value, district:$id('rDist').value,
+    state:$id('rState').value, address_line:$id('rAddr').value });
+  $id('ovHdT').textContent='Edit Referrer — '+r.id;
+  $id('codePrev').textContent=r.id;
+  $id('saveBtn').textContent='Save changes';
+  $id('ovFtNote').innerHTML='Editing <b>'+esc(r.id)+'</b> · version '+esc(r.version);
+  refShowSec('type');                                               
+  $id('ovBd').className='ov-bd show'; $id('ov').className='ov show';
+  setTimeout(function(){ var n=$id('rName'); if(n) n.focus(); },60);
+}
+
+function editPatch(){
+  if(!editing) return {};   
+  var b=editing.before, ad=editing.beforeAddr||{}, p={};
+  function cmp(key,id,was){ var e=$id(id); if(!e||e.disabled) return;
+    var now=String(e.value==null?'':e.value).trim();
+    var old=String(was==null?'':was).trim();
+    if(now!==old) p[key]=now; }
+  cmp('legal_type','rLegal',b.legal_type); cmp('referrer_type','rType',b.referrer_type);
+  cmp('name','rName',b.name); cmp('mobile','rMob',b.mobile); cmp('email','rEmail',b.email);
+  cmp('unit','rUnit',b.unit);
+  cmp('pan','rPan',b.pan); cmp('aadhaar','rAad',b.aadhaar); cmp('gstin','rGst',b.gstin);
+  cmp('reg_account','rAcc',b.reg_account); cmp('ifsc','rIfsc',b.ifsc);
+  cmp('incentive_pct','rInc',b.incentive_pct); cmp('tds_pct','rTds',b.tds_pct);
+  cmp('pincode','rPin',ad.pincode); cmp('area','rArea',ad.area);
+  cmp('district','rDist',ad.district); cmp('state','rState',ad.state);
+  cmp('address_line','rAddr',ad.address_line);
+  return p;
+}
+function onLegal(){ var v=$id('rLegal')?$id('rLegal').value:''; var firm=(LEGALMAP[v]||'').toLowerCase().indexOf('firm')>=0; var g=$id('firmGst'); if(g) g.style.display=firm?'':'none'; }
+function onRefType(){ var v=$id('rType')?$id('rType').value:''; var lbl=(RTYPEMAP[v]||'').toLowerCase();
+  var emp=lbl.indexOf('employee')>=0; var n=$id('empNote'); if(n) n.style.display=emp?'':'none';
+  ['rPan','rAad','rAcc','rIfsc'].forEach(function(i){ var e=$id(i); if(e){ e.disabled=emp; if(emp) e.value=''; } });  
+}
+function previewCode(){ var e=$id('codePrev'); if(e) e.textContent=seriesPattern? seriesPattern.replace(/#/g,'0') : 'allocated on save'; }
+async function onPin(){
+  var p=($id('rPin')&&$id('rPin').value||'').trim(); var lk=$id('pinResolve'); if(!lk) return;
+  if(p.length!==6){ lk.textContent=''; return; }
+  lk.textContent='Looking up…';
+  try{ var r=await SB.from('pincode_master').select('pincode,city,taluk,district,state_name,state_code,created_at,created_by,updated_at,active').eq('pincode',p).limit(1); if(r.error) throw r.error;
+    if(!r.data||!r.data.length){ lk.textContent='Pincode not found'; return; }
+    var d=r.data[0];
+
+    if($id('rArea')) $id('rArea').value=d.taluk||d.city||''; if($id('rDist')) $id('rDist').value=d.district||''; if($id('rState')) $id('rState').value=d.state_name||'';
+    lk.textContent='';
+  }catch(e){ lk.textContent='The lookup could not be completed.'; }
+}
+
+async function ifscAdvice(){
+  var el=$id('rIfsc'); var v=(el&&el.value||'').trim().toUpperCase();
+  var lk=$id('ifscResolve');
+  if(!v){ if(lk) lk.textContent=''; return true; }
+  try{
+    var r=await SB.from('ifsc_master').select('bank_name,branch_name').eq('ifsc',v).limit(1);
+    if(r.error) throw r.error;
+    if(lk) lk.textContent=(r.data&&r.data.length)
+      ? ((r.data[0].bank_name||'')+' — '+(r.data[0].branch_name||''))
+      : 'Not in the bank master';
+  }catch(e){ if(lk) lk.textContent='Bank check unavailable'; }
+  return true;   
+}
+async function onIfsc(){
+  var v=($id('rIfsc')&&$id('rIfsc').value||'').trim().toUpperCase(); var lk=$id('ifscResolve'); if(!lk) return;
+  if(v.length!==11){ lk.textContent='Bank / branch auto-fill'; return; }
+  try{ var r=await SB.from('ifsc_master').select('ifsc,bank_name,branch_name,city,state_name,created_at,created_by,updated_at,active').eq('ifsc',v).limit(1); if(r.error) throw r.error;
+
+    lk.textContent=(r.data&&r.data.length)? ((r.data[0].bank_name||'')+' — '+(r.data[0].branch_name||'')) : 'Not in the bank master';
+  }catch(e){ lk.textContent='Bank check unavailable - saved as entered'; }
+}
+async function dedupe(){
+  var w=$id('dw'); if(!w) return; var pan=($id('rPan')&&$id('rPan').value||'').trim().toUpperCase();
+  var aad=($id('rAad')&&$id('rAad').value||'').trim(); var mob=($id('rMob')&&$id('rMob').value||'').trim();
+  var acc=($id('rAcc')&&$id('rAcc').value||'').trim(); var typ=$id('rType')?$id('rType').value:'';
+  var hits=[];
+
+  var selfId=editing?editing.id:null;
+  function q(base){ return selfId? base.neq('id',selfId) : base; }
+  try{
+    if(pan.length===10){ var a=await q(SB.from('referrers').select('id,name').eq('pan',pan)).limit(1); if(a.data&&a.data.length) hits.push('PAN belongs to '+a.data[0].id+' — '+a.data[0].name); }
+    if(aad.length===12){ var b=await q(SB.from('referrers').select('id,name').eq('aadhaar',aad)).limit(1); if(b.data&&b.data.length) hits.push('Aadhaar belongs to '+b.data[0].id+' — '+b.data[0].name); }
+    if(mob.length===10&&typ){ var c=await q(SB.from('referrers').select('id,name').eq('mobile',mob).eq('referrer_type',typ)).limit(1); if(c.data&&c.data.length) hits.push('Mobile+type belongs to '+c.data[0].id+' — '+c.data[0].name); }
+    if(acc){ var d=await q(SB.from('referrers').select('id,name').eq('reg_account',acc)).limit(1); if(d.data&&d.data.length) hits.push('Account belongs to '+d.data[0].id+' — '+d.data[0].name); }
+  }catch(e){}
+  w.innerHTML=hits.length? '<b>Duplicate - this '+(editing?'change':'registration')+' will be refused:</b><br>'+hits.map(esc).join('<br>') : '';
+
+  w.className='dedupe-warn'+(hits.length?' show':'');
+  var sb=$id('saveBtn'); if(sb) sb.disabled=hits.length>0;
+  return hits.length>0;
+}
+
+/* EXPORT */
+var EXPORT_COLS=[['code','id'],['legal_type_code','legal_type'],['legal_type_desc','legal_type',legalName],['referrer_type_code','referrer_type'],
+ ['referrer_type_desc','referrer_type',rtypeName],['name','name'],['mobile','mobile'],['email','email'],['aligned_exec_code','aligned_exec_emp',roleTag],
+ ['aligned_exec_name','aligned_exec_emp',roleName],['ccr_code','ccr_emp',roleTag],['ccr_name','ccr_emp',roleName],['unit_code','unit'],['unit_name','unit',unitName],
+ ['status','status'],['pan','pan'],['aadhaar','aadhaar'],['gstin','gstin'],['reg_account','reg_account'],['ifsc','ifsc'],['incentive_pct','incentive_pct'],
+ ['tds_pct','tds_pct'],['employee_internal','employee_id',function(v){return yesno(!!v);}],['tally_alias','tally_alias'],
+ ['created_at','created_at'],['updated_at','updated_at'],['version','version'],['pincode','__pincode'],['area','__area'],['district','__district']];
+var PII_COLS=['pan','aadhaar','gstin','reg_account','ifsc'];
+function csvCell(v){ v=(v==null?'':String(v)); return /[",\n]/.test(v)?('"'+v.replace(/"/g,'""')+'"'):v; }
+async function buildExportCSV(){
+  var r=await SB.from('referrers').select('id,legal_type,referrer_type,name,mobile,email,aligned_exec_emp,ccr_emp,unit,status,pan,aadhaar,gstin,reg_account,ifsc,incentive_pct,tds_pct,employee_id,tally_alias,created_at,updated_at,created_by,version,is_deleted').eq('is_deleted',false).order('id'); if(r.error) throw r.error;
+
+  var exportRows=await attachAddresses(r.data||[]);
+  var head=EXPORT_COLS.map(function(c){return c[0];}).join(',');
+  var body=exportRows.map(function(x){
+    return EXPORT_COLS.map(function(c){
+      if(PII_COLS.indexOf(c[1])>=0 && !kycVisible()) return csvCell('[restricted]');
+      var raw=x[c[1]]; return csvCell(c[2]?c[2](raw):raw);
+    }).join(',');
+  }).join('\n');
+  return head+'\n'+body;
+}
+function triggerDownload(name,text){ var b=new Blob([text],{type:'text/csv'}); var u=URL.createObjectURL(b); var a=document.createElement('a'); a.href=u; a.download=name; a.click(); URL.revokeObjectURL(u); }
+async function exportCSV(){ try{ triggerDownload('mref_referrers.csv',await buildExportCSV()); toast('Exported.','ok'); }catch(e){ dbErr(e,'Export'); } }
+
+/* IMPORT */
+var IMPORT_COLS=['legal_type','referrer_type','name','mobile','email','aligned_exec_code','ccr_code','unit','pan','aadhaar','gstin','reg_account','ifsc','incentive_pct','tds_pct','pincode','area','district','state','address_line'];
+var impRows=[];
+
+function resetImportForm(){
+  var f=$id('impFile'); if(f) f.value='';
+  var res=$id('impResult'); if(res) res.innerHTML='';
+  impRows=[];
+  var b=$id('impDoBtn'); if(b){ b.disabled=true; b.textContent='Import valid rows → Pending'; }
+}
+function openImport(){ resetImportForm(); $id('impBd').className='ov-bd show'; $id('ovImp').className='ov show'; }
+function closeImport(){ $id('impBd').className='ov-bd'; $id('ovImp').className='ov'; }
+function downloadTemplate(){ triggerDownload('mref_import_template.csv',IMPORT_COLS.join(',')+'\n'); }
+function parseImportText(txt){
+  var lines=txt.split(/\r?\n/).filter(function(l){return l.trim();}); if(!lines.length) return [];
+  var head=lines[0].split(',').map(function(h){return h.trim();});
+  return lines.slice(1).map(function(l){ var c=l.split(','); var o={}; head.forEach(function(h,i){ o[h]=(c[i]||'').trim(); }); return o; });
+}
+async function validateImportRow(o){
+  var errs=[];
+  if(!o.name) errs.push('name required');
+  if(!/^[6-9][0-9]{9}$/.test(o.mobile||'')) errs.push('mobile must be 10 digits starting 6-9');
+  if(!o.legal_type||!LEGALMAP[o.legal_type]) errs.push('legal_type is not a valid RL code');
+  if(!o.referrer_type||!RTYPEMAP[o.referrer_type]) errs.push('referrer_type is not a valid RT code');
+  if(!o.unit||!UNITMAP[o.unit]) errs.push('unit is not a known unit');
+  if(o.pan&&!/^[A-Z]{5}[0-9]{4}[A-Z]$/.test(o.pan)) errs.push('PAN format');
+  if(o.aadhaar&&!/^[0-9]{12}$/.test(o.aadhaar)) errs.push('Aadhaar format');
+  if((LEGALMAP[o.legal_type]||'').toLowerCase().indexOf('firm')>=0 && !o.gstin) errs.push('GSTIN required for a Firm');
+
+  if(o.ifsc){ try{ var fk=await SB.from('ifsc_master').select('ifsc').eq('ifsc',String(o.ifsc).toUpperCase()).limit(1);
+    if(!fk.error && (!fk.data||!fk.data.length)) o.__note='IFSC not in the bank master';
+  }catch(e){} }
+  try{ if(o.pan){ var a=await SB.from('referrers').select('id').eq('pan',o.pan).limit(1); if(a.data&&a.data.length) errs.push('duplicate PAN ('+a.data[0].id+')'); }
+       if(o.mobile&&o.referrer_type){ var c=await SB.from('referrers').select('id').eq('mobile',o.mobile).eq('referrer_type',o.referrer_type).limit(1); if(c.data&&c.data.length) errs.push('duplicate mobile+type ('+c.data[0].id+')'); }
+  }catch(e){}
+  return errs;
+}
+async function parseImport(){
+  var f=$id('impFile'); if(!f||!f.files||!f.files[0]) return;
+  var txt=await f.files[0].text(); impRows=parseImportText(txt);
+  var out=$id('impResult'); out.innerHTML=stateBox('load','Validating '+impRows.length+' row(s) against the live values…');
+  var valid=0, html='';
+  for(var i=0;i<impRows.length;i++){ var e=await validateImportRow(impRows[i]); impRows[i].__errs=e; if(!e.length) valid++;
+    html+='<div class="kv"><span>'+esc(impRows[i].name||('row '+(i+1)))+'</span><b>'+(e.length?('<span style="color:var(--red)">blocked: '+esc(e.join('; '))+'</span>'):'<span style="color:var(--green)">valid</span>')+(impRows[i].__note?' <span class="hint">('+esc(impRows[i].__note)+')</span>':'')+'</b></div>'; }
+  out.innerHTML='<div class="rsec"><div class="sh">'+valid+' valid / '+(impRows.length-valid)+' blocked</div>'+html+'</div>';
+  var b=$id('impDoBtn'); if(b) b.disabled=valid===0;
+}
+
+function closeIdCard(){ $id('idBd').className='modal-bd'; }
+async function printIdCard(id){
+  var g=await SB.from('referrers').select('id,legal_type,referrer_type,name,mobile,email,aligned_exec_emp,ccr_emp,unit,status,pan,aadhaar,gstin,reg_account,ifsc,incentive_pct,tds_pct,employee_id,tally_alias,created_at,updated_at,created_by,version,is_deleted').eq('id',id).maybeSingle(); var r=g.data; if(!r) return;
+
+  var idcDist=''; try{ await attachAddresses([r]); idcDist=r.__district||''; }catch(e){ idcDist='(unavailable)'; }
+  var box=$id('idCardBox');
+
+  box.innerHTML='<div class="idc-top"><div class="idc-brand">RK METAL ROOFINGS</div><div class="idc-sub">Referrer / Fabricator Identity Card</div></div>'
+    +'<div class="idc-mid"><div class="idc-info">'
+    +'<div class="idc-nm">'+esc(r.name)+'</div><div class="idc-code">'+esc(r.id)+'</div>'
+    +'<div class="idc-kv"><span>Type</span><b>'+esc(rtypeName(r.referrer_type))+'</b></div>'
+    +'<div class="idc-kv"><span>Mobile</span><b>'+esc(r.mobile)+'</b></div>'
+    +'<div class="idc-kv"><span>Unit</span><b>'+esc(unitName(r.unit))+'</b></div>'
+
+    +'<div class="idc-kv"><span>District</span><b>'+esc(idcDist||'—')+'</b></div>'
+    +'<div class="idc-kv"><span>Aligned exec</span><b>'+esc(roleName(r.aligned_exec_emp))+'</b></div>'
+    +'</div><div class="idc-qr" id="idcQr"></div></div>'
+    +'<div class="idc-foot">Referrer '+esc(r.id)+'</div>';
+  var q=$id('idcQr'); q.innerHTML='';
+
+  if(window.QRCode){ try{ new QRCode(q,{text:r.id,width:92,height:92}); }catch(e){ q.innerHTML=qrFallback(r.id); } } else { q.innerHTML=qrFallback(r.id); }
+  $id('idBd').className='modal-bd show';
+}
+function qrFallback(code){
+  var n=21,cell=6,seed=7,i;
+  for(i=0;i<code.length;i++){ seed=(seed*31+code.charCodeAt(i))>>>0; }
+  function rnd(){ seed=(seed*1103515245+12345)&0x7fffffff; return seed/0x7fffffff; }
+  var sq='';
+  for(var yy=0;yy<n;yy++){ for(var xx=0;xx<n;xx++){
+    var inF=(xx<7&&yy<7)||(xx>=n-7&&yy<7)||(xx<7&&yy>=n-7);
+    if(inF) continue;
+    if(rnd()>0.5) sq+='<rect x="'+(xx*cell)+'" y="'+(yy*cell)+'" width="'+cell+'" height="'+cell+'" fill="#111"/>';
+  } }
+  function fnd(fx,fy){ return '<rect x="'+(fx*cell)+'" y="'+(fy*cell)+'" width="'+(7*cell)+'" height="'+(7*cell)+'" fill="#111"/>'
+    +'<rect x="'+((fx+1)*cell)+'" y="'+((fy+1)*cell)+'" width="'+(5*cell)+'" height="'+(5*cell)+'" fill="#fff"/>'
+    +'<rect x="'+((fx+2)*cell)+'" y="'+((fy+2)*cell)+'" width="'+(3*cell)+'" height="'+(3*cell)+'" fill="#111"/>'; }
+  var sz=n*cell;
+  return '<svg width="110" height="110" viewBox="0 0 '+sz+' '+sz+'" xmlns="http://www.w3.org/2000/svg">'
+    +'<rect width="'+sz+'" height="'+sz+'" fill="#fff"/>'+sq+fnd(0,0)+fnd(n-7,0)+fnd(0,n-7)+'</svg>';
+}
+function doPrintId(){ window.print(); }
+
+/* history */
+function openHistory(){
+  RKF.history.open(selId
+    ? { client:SB, module_code:'M-REF', record_entity:'referrer', record_key:selId,
+        title:selId, focus:'histBtn', emptyMessage:'No changes recorded' }
+    : { empty:'Open a referrer first.' });
+}
+function closeHistory(){ RKF.history.close(); }
+
+/* keyboard contract */
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape'){ 
+    if($id('idBd').className.indexOf('show')>=0) return closeIdCard();
+    if($id('reBd').className.indexOf('show')>=0) return closeReassign();
+    if($id('modalBd').className.indexOf('show')>=0) return closeModal();
+    if($id('ovImp').className.indexOf('show')>=0) return closeImport();
+    if($id('ov').className.indexOf('show')>=0) return closeOverlay();
+    if(previewOpen) return closePreview(); }
+  if(e.ctrlKey&&e.key.toLowerCase()==='k'){ e.preventDefault(); var q=$id('q'); if(q){ showTab('list'); q.focus(); } }
+  if(e.ctrlKey&&e.key.toLowerCase()==='s'){ if($id('ov').className.indexOf('show')>=0){ e.preventDefault(); saveReferrer(); } }
+  if(e.altKey&&e.key.toLowerCase()==='h'){ e.preventDefault(); openHistory(); }
+});
+
+async function refresh(){
+  try{
+    await loadReferrers(($id('q')&&$id('q').value)||'');
+    paintCards(); renderPills(); renderPreview(); renderTerr(); renderKpis();
+  }catch(e){ $id('clist').innerHTML=stateBox('err','Could not load referrers.'); }
+}
+async function boot(){
+  bootLoading();
+  try{
+
+    var LVL=await RKF.accessGate('M-REF',{client:SB});
+    if(LVL!=='Read'&&LVL!=='Full') return;
+    await loadActor();
+    await loadCatalogues();
+    fillOverlaySelects(); taExec(); paintApprovalStage();
+    await refresh();
+    var hash=(location.hash||'').replace('#',''); showTab(['list','rec','act','ins'].indexOf(hash)>=0?hash:'list');
+    booted=true;
+    toast('Loaded '+total+' referrer(s).','ok');
+  }catch(e){ booted=false; bootError('This screen could not be loaded.'); }
+}
+if(SB) boot(); else bootError('Connection unavailable.');
+
+function setSaveBusy(btn,on,label){ var b=$id(btn); if(!b) return; b.disabled=on; b.textContent=on?'Saving…':label; }
+function requireActor(){ if(!actorEmp){ permDenied('Your login is not mapped to an employee. Saving is disabled.'); return false; } return true; }
+
+function normEditForm(){
+  ['rPan','rGst','rIfsc'].forEach(function(i){ normNoSpace(i); });
+}
+async function saveReferrer(){
+  if(!requireActor()) return;
+
+  normEditForm();
+
+  var _miss=[['rLegal','Legal type'],['rType','Referrer type'],['rName','Name'],['rMob','Mobile'],['rExec','Aligned Sales Exec'],['rUnit','Unit']].filter(function(f){ var e=$id(f[0]); return e && !String(e.value||'').trim(); });
+  if(_miss.length){ var _sk=refSecFor(_miss[0][0]); if(_sk) refShowSec(_sk); toast(_miss[0][1]+' is required - see '+(REF_SECS.filter(function(s){return s.k===_sk;})[0]||{l:''}).l,'err'); var _e=$id(_miss[0][0]); if(_e) try{_e.focus();}catch(x){} return; }
+  if(!normPct('rInc','Incentive %') || !normPct('rTds','TDS %')){ refShowSec('incentive'); toast('Fix the highlighted percentage.','err'); return; }
+
+  await ifscAdvice();   
+  if(await dedupe()){ toast('Duplicate detected.','err'); return; }
+  if(editing) return saveEdit();
+  var payload={ legal_type:$id('rLegal').value, referrer_type:$id('rType').value, name:$id('rName').value,
+    mobile:$id('rMob').value, email:$id('rEmail').value, aligned_exec_emp:$id('rExec').value, unit:$id('rUnit').value,
+    pan:$id('rPan').value, aadhaar:$id('rAad').value, gstin:$id('rGst')?$id('rGst').value:'', reg_account:$id('rAcc').value,
+    ifsc:$id('rIfsc').value, incentive_pct:$id('rInc').value||0, tds_pct:$id('rTds').value||0,
+    pincode:$id('rPin').value, area:$id('rArea').value, district:$id('rDist').value, state:$id('rState').value, address_line:$id('rAddr').value };
+  setSaveBusy('saveBtn',true,'Register → Pending');
+  try{
+    var r=await SB.rpc('ref_register',{ p:payload, p_by_emp:actorEmp });
+    if(r.error) throw r.error;
+    var id=r.data;
+    var back=await SB.from('referrers').select('id,status').eq('id',id).maybeSingle();   
+    if(back.error||!back.data) throw (back.error||new Error('registered id '+id+' could not be read back'));
+    closeOverlay(); await refresh();
+    toast('Referrer '+back.data.id+' created · status '+back.data.status+' · awaiting Accounts scrutiny','ok','Open',function(){ openFullRecord(back.data.id); });
+  }catch(e){ dbErr(e,'Registration refused'); }
+  finally{ setSaveBusy('saveBtn',false,'Register → Pending'); }
+}
+
+async function saveEdit(){
+  var p=editPatch();
+  if(!Object.keys(p).length){ toast('Nothing was changed.','err'); return; }
+  setSaveBusy('saveBtn',true,'Save changes');
+  try{
+    var r=await SB.rpc('ref_update',{ p_id:editing.id, p_expected_version:editing.version, p:p, p_by_emp:actorEmp });
+    if(r.error) throw r.error;
+    var back=await SB.from('referrers').select('id,version').eq('id',editing.id).maybeSingle();   
+    if(back.error||!back.data) throw (back.error||new Error('referrer '+editing.id+' could not be read back'));
+    if(back.data.version<=editing.version) throw new Error('the record did not change on read-back (version still '+back.data.version+')');
+    var id=editing.id, n=Object.keys(p).length;
+    closeOverlay();
+    if(selId===id) await loadDetail(id);
+    await refresh(); renderRecTable(); renderRecord();
+    toast(id+' updated · '+n+' field'+(n===1?'':'s')+' changed','ok');
+  }catch(e){
+
+    var m=dbErr(e,'The change');
+    var w=$id('dw'); if(w){ w.innerHTML='<b>Refused:</b><br>'+esc(m); w.className='dedupe-warn hard show'; }
+  }
+  finally{ setSaveBusy('saveBtn',false,'Save changes'); }
+}
+
+async function addNote(){
+  if(!requireActor()) return;
+  var t=($id('noteTxt')&&$id('noteTxt').value||'').trim();
+  if(!t){ toast('Enter the note text first.','err'); return; }
+  setSaveBusy('mConfirmNote',true,'Add note');
+  try{
+    var r=await SB.rpc('ref_note_add',{ p_id:selId, p_text:t, p_by_emp:actorEmp });
+    if(r.error) throw r.error;
+    await loadDetail(selId); renderRecord();
+    toast('Note added.','ok');
+  }catch(e){ dbErr(e,'Note refused'); }
+  finally{ setSaveBusy('mConfirmNote',false,'Add note'); }
+}
+
+async function confirmTransition(){
+  if(!pendingTrans) return;
+  if(!requireActor()) return;
+
+  var t0=pendingTrans;
+  var allowed=cap('can_verify')||(t0.to==='Scrutiny'&&(cap('can_scrutiny')||t0.mine));
+  if(!allowed){ permDenied(SCOPE? 'Not yours to decide.'
+                                : 'Your access could not be read. Reload.'); closeModal(); return; }
+  var reason=($id('mReason')&&$id('mReason').value||'').trim();
+  if(pendingTrans.reasonReq && !reason){ toast('A reason is required.','err'); return; }
+  setSaveBusy('mConfirm',true,'Confirm');
+  var t=pendingTrans;
+  try{
+    var r=await SB.rpc('ref_transition',{ p_id:t.id, p_to:t.to, p_reason:reason||null, p_by_emp:actorEmp });
+    if(r.error) throw r.error;
+    var back=await SB.from('referrers').select('id,status').eq('id',t.id).maybeSingle();
+    if(back.error||!back.data||back.data.status!==t.to) throw (back.error||new Error('status did not move to '+t.to+' on read-back'));
+    closeModal(); if(selId===t.id) await loadDetail(t.id);
+    await refresh(); renderActionsList(); renderRecord();
+    toast(t.id+' → '+back.data.status,'ok');
+  }catch(e){ dbErr(e,'Transition refused'); }
+  finally{ setSaveBusy('mConfirm',false,'Confirm'); }
+}
+
+async function confirmReassign(){
+  if(!requireActor()) return;
+  var id=$id('reBd').dataset.ref, ex=$id('reExec').value, why=($id('reReason').value||'').trim();
+  if(!why){ toast('A reason is required.','err'); return; }
+  try{
+    var r=await SB.rpc('ref_reassign_exec',{ p_id:id, p_new_exec:ex, p_reason:why, p_by_emp:actorEmp });
+    if(r.error) throw r.error;
+    var back=await SB.from('referrers').select('aligned_exec_emp').eq('id',id).maybeSingle();
+    if(back.error||!back.data||back.data.aligned_exec_emp!==ex) throw (back.error||new Error('exec did not change on read-back'));
+    closeReassign(); if(selId===id) await loadDetail(id);
+    await refresh(); renderRecord();
+    toast('Aligned exec reassigned to '+roleName(ex),'ok');
+  }catch(e){ dbErr(e,'Reassignment refused'); }
+}
+
+async function doImport(){
+  if(!requireActor()) return;
+  var valid=impRows.filter(function(r){ return r.__errs && !r.__errs.length; });
+  if(!valid.length){ toast('No valid row to import.','err'); return; }
+  setSaveBusy('impDoBtn',true,'Import valid rows → Pending');
+  try{
+    var payload=valid.map(function(r){ var o={}; IMPORT_COLS.forEach(function(c){ o[c]=r[c]||''; });
+      o.aligned_exec_emp=(EXECS.filter(function(e){return e.employee_code===r.aligned_exec_code;})[0]||{}).id||'';
+      o.ccr_emp=(EXECS.filter(function(e){return e.employee_code===r.ccr_code;})[0]||{}).id||''; return o; });
+    var r2=await SB.rpc('ref_import',{ p_rows:payload, p_by_emp:actorEmp });
+    if(r2.error) throw r2.error;
+    var res=r2.data||{};
+    closeImport(); await refresh();
+    toast('Import: '+(res.created||0)+' created, '+(res.refused||0)+' refused'+((res.errors&&res.errors.length)?(' — first refusal: '+(res.errors[0].error||'')):''), (res.refused?'err':'ok'));
+  }catch(e){ dbErr(e,'Import refused'); }
+  finally{ setSaveBusy('impDoBtn',false,'Import valid rows → Pending'); }
+}
+
+function askTransition(id,to,reasonReq,mine){
+  pendingTrans={id:id,to:to,reasonReq:!!reasonReq,mine:!!mine};
+  $id('mTitle').textContent='Confirm transition → '+to;
+  $id('mMsg').innerHTML='Referrer <b class="pii">'+esc(id)+'</b> will move to <b>'+esc(to)+'</b>.'
+    +(reasonReq?' A reason is <b>mandatory</b>.':'');
+  $id('mReasonWrap').style.display=reasonReq?'':'none';
+  $id('mReason').value=''; $id('modalBd').className='modal-bd show';
+}
+function closeModal(){ $id('modalBd').className='modal-bd'; pendingTrans=null; }
+function openReassign(id){ if(!canReassign()){ permDenied('Reassignment is restricted to L2 / Admin.'); return; }
+  fillOverlaySelects(); $id('reReason').value=''; $id('reBd').className='modal-bd show'; $id('reBd').dataset.ref=id; }
+function closeReassign(){ $id('reBd').className='modal-bd'; }
+
+(function(){
+ ['openRegister','openEdit','openReassign','openImport'].forEach(function(n){
+  var f=window[n];if(typeof f!=='function')return;
+  window[n]=async function(){
+   var args=arguments;
+   try{ await loadCatalogues(); fillOverlaySelects(); }
+   catch(e){ toast('Lists could not be refreshed.','err'); }
+   return f.apply(this,args);
+  };
+ });
+})();
+</script>
+<script>
+
+(function(){
+
+  var _loader=async function(){
+  await loadCatalogues(); fillOverlaySelects(); await refresh();
+  renderRecTable(); renderActionsList(); renderInsights();
+  if(selId){ await loadDetail(selId); renderRecord(); }
+};
+  var _opts={hold:function(){
+  if(!booted)return true;
+  return ['idBd','reBd','modalBd','ovImp','ov'].some(function(id){
+    var e=document.getElementById(id); return !!e&&e.className.indexOf('show')>=0; });
+}};
+  if(window.RKF&&RKF.live)RKF.live(SB,['referrers','reference_values','org_units','employees'],_loader,_opts);
+  else if(window.RKF&&RKF.liveMasters)RKF.liveMasters(_loader,_opts);
+})();
+</script>
+</body>
+</html>

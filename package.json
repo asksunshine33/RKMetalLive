@@ -1,0 +1,14 @@
+{
+  "name": "rk-erp-uat",
+  "private": true,
+  "version": "1.0.0",
+  "description": "RK Metal Roofings ERP - UAT app. Static screens plus the one shared PDF engine (T-010).",
+  "engines": {
+    "node": "22.x"
+  },
+  "dependencies": {
+    "@sparticuz/chromium": "131.0.1",
+    "pdf-lib": "1.17.1",
+    "playwright-core": "1.49.1"
+  }
+}

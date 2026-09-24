@@ -1,0 +1,2329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>M05 Lead Management</title>
+<link rel="stylesheet" href="rk-foundation.css?v=RKF-1.13.0">
+<style>
+
+body{--m05:var(--green);--m05bg:var(--greenbg)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--ink);font-size:var(--fs-body);height:100vh;overflow:hidden;display:flex;flex-direction:column}
+.topbar{height:46px;background:var(--navy);display:flex;align-items:center;padding:0 16px;gap:12px;flex-shrink:0}
+.logo{width:28px;height:28px;border-radius:7px;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff}
+.tb-name{color:#fff;font-weight:700;font-size:var(--fs-emphasis)}.tb-sp{flex:1}
+.tb-chip{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.12);border-radius:7px;padding:4px 10px;font-size:var(--fs-body);color:rgba(255,255,255,.85)}
+.tb-avatar{width:28px;height:28px;border-radius:50%;background:var(--m05);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff}
+.shell{flex:1;display:flex;overflow:hidden}
+.rail{width:50px;background:var(--surface);border-right:1px solid var(--line);display:flex;flex-direction:column;align-items:center;padding:8px 0;gap:2px;flex-shrink:0}
+.ri{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--muted);position:relative;cursor:pointer}
+.ri:hover{background:var(--bg);color:var(--navy)}.ri:hover .tt{opacity:1}.ri.act{background:var(--m05bg);color:var(--m05)}
+.ri .tt{position:absolute;left:44px;top:50%;transform:translateY(-50%);background:var(--ink);color:#fff;font-size:11px;font-weight:600;padding:4px 9px;border-radius:6px;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .12s;z-index:var(--z-dropdown)}
+.rsep{width:24px;height:1px;background:var(--line);margin:4px 0}.rail-sp{flex:1}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+
+.mod-badge{font-size:var(--fs-caption);font-weight:800;color:#fff;background:var(--m05);padding:3px 8px;border-radius:5px}
+.mod-title{font-size:var(--fs-emphasis);font-weight:800;color:var(--navy)}.mod-crumb{font-size:var(--fs-caption);color:var(--muted)}
+.scope-chip{font-size:var(--fs-caption);background:var(--m05bg);color:var(--m05);padding:3px 9px;border-radius:6px;font-weight:700;margin-left:auto}
+.tabs{background:var(--surface);border-bottom:1px solid var(--line);padding:0 18px;display:flex;gap:4px;flex-shrink:0}
+.tab{padding:11px 16px;font-size:var(--fs-body);font-weight:600;color:var(--ink2);cursor:pointer;border-bottom:2.5px solid transparent;margin-bottom:-1px}
+.tab:hover{color:var(--navy)}.tab.act{color:var(--m05);border-bottom-color:var(--m05)}
+.subbar{background:var(--surface);border-bottom:1px solid var(--line);padding:9px 18px;display:flex;gap:12px;align-items:center;flex-shrink:0;flex-wrap:wrap}
+.si{position:relative;max-width:560px}.si input{width:100%;padding:9px 12px 9px 36px;border:1.5px solid var(--line2);border-radius:9px;font-size:var(--fs-body);font-family:inherit;outline:none}
+.si input:focus{border-color:var(--m05)}.si .mag{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:14px}
+.in{border:1.5px solid var(--line2);border-radius:8px;padding:7px 10px;font-size:var(--fs-body);font-family:inherit;outline:none;background:var(--surface);color:var(--ink)}.in:focus{border-color:var(--m05)}
+.hint{font-size:var(--fs-caption);color:var(--muted);margin-top:4px}.req-star,.rq{color:var(--accent)}
+.p2note{font-size:var(--fs-caption);font-weight:700;color:var(--purple);background:var(--purplebg);padding:2px 7px;border-radius:5px}
+
+.terr{width:215px;background:var(--surface);border-right:1px solid var(--line);overflow:auto;flex-shrink:0;padding:8px}
+.terr-grp{margin-bottom:10px}
+.terr-h{font-size:var(--fs-caption);font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;padding:5px 8px}
+.terr-i{display:flex;align-items:center;padding:6px 9px;border-radius:7px;cursor:pointer;font-size:var(--fs-body);color:var(--ink2)}
+.terr-i:hover{background:var(--surface2)}.terr-i.on{background:var(--m05bg);color:var(--m05);font-weight:700}
+.terr-i .ct{margin-left:auto;font-size:var(--fs-caption);color:var(--muted);font-family:'Consolas',monospace}.terr-i.on .ct{color:var(--m05)}
+.terr-i.flag{color:var(--accent)}.terr-i.flag .ct{color:var(--accent)}
+/* workzone */
+.workzone{flex:1;display:flex;overflow:hidden}
+.center{flex:1;display:flex;flex-direction:column;overflow:hidden;background:var(--bg);min-width:0}
+.kb{flex:1;display:flex;gap:10px;overflow-x:auto;padding:12px}
+.kb-col{width:224px;flex-shrink:0;background:var(--surface2);border:1px solid var(--line);border-radius:10px;display:flex;flex-direction:column;max-height:100%}
+.kb-head{padding:9px 11px;font-size:var(--fs-caption);font-weight:800;color:var(--navy);text-transform:uppercase;letter-spacing:.3px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:6px}
+.kb-head .dot{width:8px;height:8px;border-radius:50%}.kb-head .ct{margin-left:auto;font-size:var(--fs-caption);color:var(--muted);font-family:'Consolas',monospace}
+.kb-head .sum{font-size:var(--fs-tag);color:var(--muted);font-weight:600}
+.kb-body{padding:8px;overflow:auto;flex:1;display:flex;flex-direction:column;gap:7px}
+.kb-card{background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:9px 11px;cursor:pointer}
+.kb-card:hover{border-color:var(--m05)}.kb-card.sel{border-color:var(--m05);box-shadow:0 0 0 2px var(--m05bg)}
+.kb-card .cn{font-size:var(--fs-body);font-weight:700;color:var(--navy)}
+.kb-card .cm{font-size:var(--fs-caption);color:var(--ink2);margin-top:2px}
+.kb-card .cf{display:flex;align-items:center;gap:6px;margin-top:6px;flex-wrap:wrap}
+.kb-empty{font-size:var(--fs-caption);color:var(--muted);text-align:center;padding:14px 6px}
+.pri{font-size:var(--fs-tag);font-weight:800;padding:1px 6px;border-radius:4px;background:var(--greybg);color:var(--grey)}
+.pri.LP01{background:var(--accentbg);color:var(--accent)}.pri.LP02{background:var(--warnbg);color:var(--warn)}.pri.LP03{background:var(--greybg);color:var(--grey)}
+.fu{font-size:var(--fs-caption);font-weight:700}.fu-over{color:var(--accent)}.fu-today{color:var(--warn)}.fu-week{color:var(--orange)}.fu-future{color:var(--muted)}.fu-none{color:var(--muted)}
+.srcpill{font-size:var(--fs-tag);font-weight:700;padding:1px 6px;border-radius:4px;background:var(--m05bg);color:var(--m05)}
+.refchip{font-size:var(--fs-tag);font-weight:700;padding:1px 6px;border-radius:4px;background:var(--purplebg);color:var(--purple)}
+.viachip{font-size:var(--fs-tag);font-weight:700;padding:1px 6px;border-radius:4px;background:var(--bluebg);color:var(--blue)}
+.tg-s{display:inline-block;font-size:var(--fs-tag);font-weight:800;padding:2px 7px;border-radius:5px;text-transform:uppercase;letter-spacing:.3px;background:var(--greybg);color:var(--grey)}
+.tg-New{background:var(--m05bg);color:var(--m05)}.tg-Contacted{background:var(--warnbg);color:var(--warn)}.tg-Qualified{background:var(--orangebg);color:var(--orange)}.tg-Quoted{background:var(--purplebg);color:var(--purple)}.tg-Won{background:var(--greenbg);color:var(--green)}.tg-Lost{background:var(--accentbg);color:var(--accent)}.tg-Under-Follow-Up{background:var(--warnbg);color:var(--warn)}.tg-Hold{background:var(--greybg);color:var(--grey)}.tg-Dropped{background:var(--greybg);color:var(--grey)}.tg-Cancelled{background:var(--greybg);color:var(--grey)}
+.tg-pend{background:var(--warnbg);color:var(--warn)}
+/* list */
+.lfbar{display:flex;gap:9px;flex-wrap:wrap;align-items:flex-end;padding:9px 14px;border-bottom:1px solid var(--line);background:var(--surface2)}
+.lff{display:flex;flex-direction:column;gap:3px}
+.lff label{font-size:var(--fs-tag);font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.3px}
+.lfbar select,.lfbar input{font-size:var(--fs-caption);padding:5px 8px;border:1px solid var(--line2);border-radius:6px;background:var(--surface);color:var(--ink)}
+.lfbar .clr{margin-left:auto;align-self:center}
+.recwrap{flex:1;overflow:auto;background:var(--bg);padding:12px}
+table.grid{border-collapse:separate;border-spacing:0;background:var(--surface);border:1px solid var(--line);border-radius:10px;overflow:hidden;font-size:var(--fs-body);width:100%}
+table.grid th{background:var(--surface2);text-align:left;padding:9px 11px;font-size:var(--fs-caption);font-weight:800;color:var(--ink2);text-transform:uppercase;letter-spacing:.3px;border-bottom:1px solid var(--line);white-space:nowrap;cursor:pointer;position:sticky;top:0;z-index:var(--z-sticky)}
+table.grid th:hover{color:var(--m05)}
+table.grid td{padding:8px 11px;border-bottom:1px solid var(--line);white-space:nowrap}
+table.grid tr:last-child td{border-bottom:none}table.grid tbody tr:hover{background:var(--surface2);cursor:pointer}
+table.grid tr.sel td{background:var(--m05bg)}
+td.num,th.num{text-align:right;font-family:'Consolas',monospace}
+.d-code{font-family:'Consolas',monospace;color:var(--m05);font-weight:700}
+
+.c360{width:340px;flex-shrink:0;border-left:1px solid var(--line);background:var(--surface);overflow:auto;padding:14px}
+.c360.off{display:none}
+.c360-x{float:right;cursor:pointer;color:var(--muted);font-size:var(--fs-display);line-height:1}
+.c360-hd{font-size:var(--fs-emphasis);font-weight:800;color:var(--navy)}.c360-sub{font-size:var(--fs-body);color:var(--muted);margin-top:2px}
+.c360-sec{margin-top:14px;border-top:1px solid var(--line);padding-top:12px}
+.c360-sec .sh{font-size:var(--fs-caption);font-weight:800;color:var(--m05);text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px}
+.kv{display:flex;justify-content:space-between;font-size:var(--fs-body);padding:3px 0;gap:8px}.kv span{color:var(--muted)}.kv b{text-align:right}
+.link-btn{font-size:var(--fs-caption);color:var(--m05);font-weight:700;cursor:pointer;background:none;border:none;font-family:inherit;padding:0}
+.fu-item{border-bottom:1px solid var(--line);padding:6px 0;font-size:var(--fs-body)}.fu-item:last-child{border-bottom:none}
+.fu-meta{font-size:var(--fs-caption);color:var(--muted)}
+.hist-item{font-size:var(--fs-caption);color:var(--ink2);padding:3px 0;border-left:2px solid var(--line2);padding-left:8px;margin-bottom:2px}
+.hist-item .hm{color:var(--muted);font-size:var(--fs-caption)}
+.q-link{display:flex;align-items:center;gap:7px;padding:6px 9px;border:1px solid var(--line);border-radius:7px;margin-bottom:5px;font-size:var(--fs-body);cursor:pointer;background:var(--surface2)}
+.q-link:hover{border-color:var(--m05)}.q-link .go{margin-left:auto;color:var(--m05);font-weight:700}
+.att-chip{display:inline-flex;align-items:center;gap:5px;font-size:var(--fs-caption);background:var(--surface2);border:1px solid var(--line);border-radius:20px;padding:3px 9px;margin:3px 4px 0 0}
+/* action bar */
+.actionbar{background:var(--surface);border-top:1px solid var(--line);padding:10px 18px;display:flex;gap:9px;flex-shrink:0;align-items:center;flex-wrap:wrap}
+.ctx{font-size:var(--fs-body);color:var(--ink2);display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.cfg-note{font-size:var(--fs-caption);color:var(--muted);background:var(--surface2);border:1px dashed var(--line2);border-radius:7px;padding:6px 9px;margin-top:8px}
+/* insights */
+.inswrap{flex:1;overflow:auto;background:var(--bg);padding:16px 18px}
+.ins-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;max-width:1500px}
+.ins-card{background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow-sm);overflow:hidden}
+.ins-card.w2{grid-column:span 2}.ins-card.w3{grid-column:1/-1}
+.ins-hd{padding:11px 15px;border-bottom:1px solid var(--line);font-size:var(--fs-caption);font-weight:800;color:var(--navy);text-transform:uppercase;letter-spacing:.4px}
+.ins-bd{padding:14px 15px}
+.kpi-row{display:flex;gap:12px;flex-wrap:wrap}
+.kpi{flex:1;min-width:88px;background:var(--surface2);border:1px solid var(--line);border-radius:9px;padding:11px 13px}
+.kpi .v{font-size:var(--fs-metric);font-weight:800;color:var(--navy)}.kpi .l{font-size:var(--fs-caption);color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.3px;margin-top:2px}
+.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}.bar-row .bl{font-size:var(--fs-body);font-weight:600;color:var(--ink2);width:150px;flex-shrink:0}
+.bar-track{flex:1;height:17px;background:var(--bg);border-radius:5px;overflow:hidden}.bar-fill{height:100%;border-radius:5px;display:flex;align-items:center;justify-content:flex-end;padding-right:7px;font-size:var(--fs-caption);font-weight:700;color:#fff}
+.mtag{font-size:var(--fs-caption);font-weight:700;padding:2px 7px;border-radius:5px}.mtag.ok{background:var(--greenbg);color:var(--green)}.mtag.bad{background:var(--accentbg);color:var(--accent)}.mtag.warn{background:var(--warnbg);color:var(--warn)}
+
+.dedupe-warn{font-size:var(--fs-body);border-radius:8px;padding:8px 11px;margin-top:6px;display:none}.dedupe-warn.show{display:block}
+.dedupe-warn.hard{background:var(--accentbg);color:var(--accent);border:1px solid var(--accent)}
+.dedupe-warn.soft{background:var(--warnbg);color:var(--warn);border:1px solid var(--warn)}
+.dupbanner{font-size:var(--fs-caption);background:var(--warnbg);color:var(--warn);border:1px solid var(--warn);border-radius:8px;padding:8px 11px;margin:0 0 11px;display:none}
+.dupbanner.show{display:block}
+.surf{color:var(--muted);text-align:center;padding:40px 20px;font-size:var(--fs-body)}
+.surf.err{color:var(--accent)}
+
+.ovwrap{position:fixed;inset:0;z-index:var(--z-drawer);visibility:hidden;pointer-events:none}
+.ovwrap.show{visibility:visible;pointer-events:auto}
+.ov-bd{position:absolute;inset:0;background:rgba(15,30,45,.4);opacity:0;transition:opacity .2s ease-out}
+.ovwrap.show .ov-bd{opacity:1}
+.ov{position:absolute;top:0;right:0;height:100vh;width:508px;max-width:96vw;background:var(--surface);box-shadow:var(--shadow-lg);transform:translateX(100%);transition:transform .22s ease-out;display:flex;flex-direction:column}
+.ovwrap.show .ov{transform:translateX(0)}
+.ov-hd{padding:14px 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:11px}
+.ov-hd .t{font-size:var(--fs-title);font-weight:800;color:var(--navy)}.ov-x{margin-left:auto;cursor:pointer;color:var(--muted);font-size:20px;font-weight:700}
+.ov-body{flex:1;overflow-y:auto;padding:18px 22px}
+.ov-ft{padding:12px 20px;border-top:1px solid var(--line);display:flex;align-items:center;gap:10px}
+.lsec{font-size:var(--fs-caption);font-weight:800;color:var(--m05);text-transform:uppercase;letter-spacing:.5px;margin:16px 0 9px;padding-bottom:5px;border-bottom:1px solid var(--line)}
+.lsec:first-child{margin-top:0}
+.lrow{display:flex;gap:11px;margin-bottom:11px}
+.lf{flex:1;display:flex;flex-direction:column;gap:5px;min-width:0}
+.lf label{font-size:var(--fs-tag);font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.3px}
+.lf .in,.lf input,.lf select,.lf textarea{width:100%}
+.int-row{display:flex;gap:7px;align-items:center;margin-bottom:6px}
+.attbox{border:1.5px dashed var(--line2);border-radius:9px;padding:11px;background:var(--surface2)}
+.attbtn{font-size:var(--fs-caption);font-weight:700;padding:4px 10px;border-radius:6px;border:1px solid var(--line2);background:var(--surface);cursor:pointer;margin-right:6px;display:inline-block}
+.hits{border:1px solid var(--line2);border-radius:8px;margin-top:3px;max-height:150px;overflow:auto;background:var(--surface);position:relative;z-index:var(--z-dropdown)}
+.hit{padding:7px 10px;cursor:pointer;font-size:var(--fs-body);border-bottom:1px solid var(--line)}
+.hit:hover{background:var(--surface2)}
+.hit.mk{color:var(--m05);font-weight:700}
+
+.modal-bd{position:fixed;inset:0;background:rgba(15,30,45,.4);display:none;align-items:center;justify-content:center;z-index:var(--z-modal)}.modal-bd.show{display:flex}
+.modal{background:var(--surface);border-radius:14px;box-shadow:var(--shadow-lg);width:560px;max-width:92vw;max-height:88vh;overflow:auto}
+.modal.s{width:480px}
+.modal-hd{padding:15px 18px;border-bottom:1px solid var(--line);font-size:var(--fs-emphasis);font-weight:800;color:var(--navy)}
+.modal-b{padding:18px}.modal-ft{padding:13px 18px;border-top:1px solid var(--line);display:flex;gap:9px;justify-content:flex-end;position:sticky;bottom:0;background:var(--surface)}
+.imp-drop{border:2px dashed var(--line2);border-radius:10px;padding:16px;text-align:center;color:var(--muted);font-size:var(--fs-body);background:var(--surface2)}
+.imp-pill{font-size:var(--fs-caption);font-weight:700;padding:4px 10px;border-radius:20px}.imp-pill.ok{background:var(--greenbg);color:var(--green)}.imp-pill.bad{background:var(--accentbg);color:var(--accent)}
+.fg{display:flex;flex-direction:column;gap:5px;margin-bottom:11px}.fg label{font-size:var(--fs-caption);font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+.fr{display:flex;gap:11px}.fr .fg{flex:1;min-width:0}
+
+.btn{display:inline-flex;align-items:center;gap:5px;padding:8px 13px;border-radius:8px;font-size:var(--fs-body);font-weight:600;cursor:pointer;border:none;font-family:inherit;transition:background .15s;white-space:nowrap}
+.btn-p{background:var(--accent);color:#fff}.btn-p:hover{background:var(--navy)}
+.btn-g{background:var(--surface);color:var(--ink2);border:1px solid var(--line2)}.btn-g:hover{background:var(--surface2)}
+.btn-d{background:var(--accentbg);color:var(--accent);border:1px solid var(--accent)}.btn-d:hover{background:var(--redbg)}
+.btn-sm{padding:6px 11px;font-size:var(--fs-body)}.btn:disabled{opacity:.45;cursor:not-allowed}
+@media (prefers-reduced-motion:reduce){.ov,.ov-bd,.btn,.ri .tt{transition:none}}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="logo">RK</div><div class="tb-name">RK Metal Roofings ERP</div>
+  <div class="tb-chip">Sales &rsaquo; Lead Management</div>
+  <div class="tb-sp"></div>
+  <div class="tb-chip" id="buildStamp">build: -</div>
+  <div class="tb-chip" id="actorNote">actor: resolving&hellip;</div>
+  <div class="tb-avatar" id="avatar">&ndash;</div>
+</div>
+
+<div class="shell">
+  <div class="rail">
+    <div class="ri" onclick="nav('home')" tabindex="0"><span>&#9750;</span><span class="tt">Home dashboard</span></div>
+    <div class="rsep"></div>
+    <div class="ri act"><span>L</span><span class="tt">M05 Lead</span></div>
+    <div class="ri" onclick="nav('m06')" tabindex="0"><span>Q</span><span class="tt">M06 Quote</span></div>
+    <div class="ri" onclick="nav('m01')" tabindex="0"><span>C</span><span class="tt">M01 Customer</span></div>
+    <div class="ri" onclick="nav('mref')" tabindex="0"><span>R</span><span class="tt">M-REF Referrer</span></div>
+    <div class="rail-sp"></div>
+    <div class="ri" onclick="nav('config')" tabindex="0"><span>&#9881;</span><span class="tt">M-CONFIG</span></div>
+  </div>
+
+  <div class="main">
+    <div class="mod-hdr rkf-halfbar">
+      <div class="mod-badge">M05</div><div class="mod-title">Lead Management</div>
+      <div class="mod-crumb">Sales &rsaquo; Lead Management</div>
+      <div class="scope-chip" id="scopeChip">Scope: resolving&hellip;</div>
+    </div>
+    <div class="tabs">
+
+      <div class="tab act" id="tab-list" onclick="showTab('list')" tabindex="0">List</div>
+      <div class="tab" id="tab-ws" onclick="showTab('ws')" tabindex="0">Lead workspace</div>
+      <div class="tab" id="tab-ins" onclick="showTab('ins')" tabindex="0">Insights</div>
+    </div>
+    <div id="catErrSlot"></div>
+    <div class="subbar" id="subbar">
+      <div class="si" style="max-width:340px"><span class="mag">&#9906;</span><input id="q" oninput="listFilterChanged()" placeholder="Search leads" style="padding-left:30px;width:100%"/></div>
+      <div style="flex:1"></div>
+      <button class="btn btn-g btn-sm" id="expBtn" onclick="exportLeads()">&#8682; Export</button>
+      <button class="btn btn-g btn-sm" id="impBtn" onclick="openImport()">&#8681; Import</button>
+    </div>
+
+    <div class="lfbar" id="lfbar" style="display:none">
+      <div class="lff"><label>CCR</label><select id="fCcr" onchange="listFilterChanged()"><option value="">All</option></select></div>
+      <div class="lff"><label>Salesperson</label><select id="fSales" onchange="listFilterChanged()"><option value="">All</option></select></div>
+      <div class="lff"><label>District</label><select id="fDist" onchange="listFilterChanged()"><option value="">All</option></select></div>
+      <div class="lff"><label>Unit</label><select id="fUnit" onchange="listFilterChanged()"><option value="">All</option></select></div>
+      <div class="lff"><label>Customer</label><select id="fCustR" onchange="listFilterChanged()"><option value="">All</option></select></div>
+      <div class="lff"><label>Period</label><select id="fPeriod" onchange="listFilterChanged()"><option value="">Any</option><option value="Day">Day</option><option value="Week">Week</option><option value="Month">Month</option></select></div>
+      <div class="lff"><label>From</label><div id="fFromSlot"></div></div>
+      <div class="lff"><label>To</label><div id="fToSlot"></div></div>
+      <button class="btn btn-g btn-sm clr" onclick="clearListFilters()">Clear</button>
+    </div>
+
+    <div class="workzone" id="workzone">
+
+      <div class="terr" id="filters" style="display:none"></div>
+      <div class="center" id="center"></div>
+      <div class="c360 off" id="lead360"></div>
+    </div>
+    <div class="actionbar" id="actions"></div>
+    <div class="inswrap" id="insZone" style="display:none"></div>
+  </div>
+</div>
+
+<div class="ovwrap" id="ovWrap" data-rkf-dialog>
+  <div class="ov-bd" onclick="closeDrawer()"></div>
+  <div class="ov" id="ov">
+    <div class="ov-hd"><div class="t" id="ovTitle">New Lead</div><div class="ov-x" onclick="closeDrawer()" tabindex="0">&times;</div></div>
+    <div class="ov-body">
+
+      <div id="editMeta" style="display:none"></div>
+      <div class="lsec">Customer</div>
+      <div class="lrow"><div class="lf"><label>Customer / prospect <span class="rq">*</span></label>
+        <input class="in" id="lCust" oninput="custType()" placeholder="Customer name or code" autocomplete="off"/>
+        <div id="custHits" class="hits" style="display:none"></div>
+        <div class="hint" id="custPick"></div>
+        <div id="custEditNote" style="display:none;margin-top:6px"></div></div></div>
+      <div class="dupbanner" id="dupWarn"></div>
+      <div class="lrow"><div class="lf"><label>Contact / mobile</label><input class="in" id="lContact"/><div class="hint" id="contactHint"></div></div></div>
+
+      <div class="lsec">Ownership</div>
+      <div class="lrow">
+        <div class="lf"><label>Sales employee <span class="rq">*</span></label>
+          <span id="salesSlot"><input class="in" id="lSalesD" readonly style="background:var(--surface2)"/></span>
+          <div class="hint" id="salesHint"></div></div>
+        <div class="lf"><label>Manager <span class="hint" style="text-transform:none;font-weight:400">&#128274; derived (M04)</span></label><input class="in" id="lMgrD" readonly style="background:var(--surface2)" placeholder="From reporting line"/>
+          <div class="hint" id="mgrHint"></div></div>
+      </div>
+      <div class="lrow"><div class="lf"><label>CCR <span class="rq">*</span></label>
+        <span id="ccrSlot"><select class="in" id="lCcr"><option value="">- select -</option></select></span>
+        <div class="hint" id="ccrHint"></div></div></div>
+
+      <div class="lsec">Enquiry</div>
+      <div class="lrow">
+        <div class="lf"><label>Source <span class="rq">*</span></label><select class="in" id="lSource" onchange="onSource()"></select></div>
+        <div class="lf"><label>Priority</label><select class="in" id="lPri"></select></div>
+      </div>
+      <div class="lrow" id="refWrap" style="display:none"><div class="lf"><label>Referrer (Active only)</label><select class="in" id="lRef"></select><div class="hint">Carries into Convert &rarr; Quote for commission.</div></div></div>
+      <div class="lrow">
+        <div class="lf"><label>Est. value (&#8377;)</label><input type="number" min="0" step="1" inputmode="numeric" class="in" id="lEst"/></div>
+        <div class="lf"><label>Competitor (if any)</label><input class="in" id="lComp"/></div>
+      </div>
+      <div class="lrow">
+        <div class="lf"><label>Pincode</label><input class="in" id="lPin" inputmode="numeric" maxlength="6" oninput="this.value=this.value.replace(/[^0-9]/g,'');pinLookup()" placeholder="6-digit (first digit 1-9)"/><div class="hint" id="pinMsg"></div></div>
+        <div class="lf"><label>Area</label><span id="areaSlot"><select class="in" id="lArea"><option value="">--</option></select></span></div>
+      </div>
+      <div class="lrow">
+        <div class="lf"><label>District <span class="hint" style="text-transform:none;font-weight:400">&#128274; derived</span></label><input class="in" id="lDistD" readonly style="background:var(--surface2)" placeholder="From pincode"/></div>
+        <div class="lf"><label>State <span class="hint" style="text-transform:none;font-weight:400">&#128274; derived</span></label><input class="in" id="lState" readonly style="background:var(--surface2)"/></div>
+      </div>
+      <div class="lrow"><div class="lf"><label>Address line 1 (optional)</label><input class="in" id="lAddr1"/></div></div>
+      <div class="lrow"><div class="lf"><label>Address line 2 (optional)</label><input class="in" id="lAddr2"/></div>
+        <div class="lf"><label>Site (optional)</label><input class="in" id="lSite"/></div></div>
+
+      <div class="lrow" id="fuEditRow" style="display:none"><div class="lf"><label>Next follow-up date</label><div id="lFuNextSlot"></div>
+        </div></div>
+
+      <div class="lsec">Products of interest <span class="hint" style="text-transform:none;font-weight:400">&mdash; at least one, quantity mandatory</span></div>
+      <div id="intRows"></div>
+      <button class="btn btn-g btn-sm" onclick="addInterest()">+ Add product</button>
+
+      <div class="lsec">Attachments &amp; notes</div>
+      <div class="attbox">
+        <div><span class="attbtn" onclick="pickAtt('BOM')" tabindex="0">+ BOM</span><span class="attbtn" onclick="pickAtt('Image')" tabindex="0">+ Image</span><span class="attbtn" onclick="pickAtt('Document')" tabindex="0">+ Document</span>
+          <input type="file" id="attFile" multiple style="display:none" onchange="attPicked()"/></div>
+        <div id="attList" style="margin-top:8px"></div>
+                <textarea class="in" id="lNotes" rows="2" style="width:100%;margin-top:9px;resize:vertical"></textarea>
+        <div class="hint" id="notesHint"></div>
+      </div>
+      <div class="hint" id="ownerHint" style="margin-top:12px"></div>
+    </div>
+    <div class="ov-ft">
+      <span class="hint" id="ovProg" style="margin:0"></span><div style="flex:1"></div>
+      <button class="btn btn-g" onclick="closeDrawer()">Cancel</button>
+      <button class="btn btn-p" id="ovSaveBtn" onclick="saveLead()">Save lead &rarr; New</button>
+    </div>
+  </div>
+</div>
+
+<!-- Import modal -->
+<div class="modal-bd" id="impBd" data-rkf-dialog>
+  <div class="modal">
+    <div class="modal-hd">Import leads</div>
+    <div class="modal-b">
+            <div style="margin:12px 0"><button class="btn btn-g btn-sm" onclick="dlTemplate()">&#8681; Download template</button></div>
+
+      <div class="fg" style="margin:12px 0">
+        <label class="fgl" for="impDefSales">Batch-default salesperson</label>
+        <select class="in" id="impDefSales" onchange="onImpDefSales()" style="width:100%"></select>
+              </div>
+      <div class="imp-drop"><input type="file" id="impFile" accept=".csv" onchange="parseLeads()"/></div>
+      <div id="impRes"></div>
+    </div>
+    <div class="modal-ft"><button class="btn btn-g" onclick="closeImp()">Close</button><button class="btn btn-p" id="impDo" onclick="doImport()" disabled>Import valid &rarr; New</button></div>
+  </div>
+</div>
+
+<!-- Set customer code modal -->
+<div class="modal-bd" id="csBd" data-rkf-dialog>
+  <div class="modal">
+    <div class="modal-hd">Set customer code</div>
+    <div class="modal-b">
+      <div class="hint" style="font-size:var(--fs-body)"></div>
+      <input class="in" id="csSearch" oninput="csType()" placeholder="Search customers" style="width:100%;margin:11px 0"/>
+      <div id="csHits"></div>
+    </div>
+    <div class="modal-ft"><button class="btn btn-g" onclick="closeCs()">Cancel</button></div>
+  </div>
+</div>
+
+<!-- Follow-up modal -->
+<div class="modal-bd" id="fuBd" data-rkf-dialog>
+  <div class="modal">
+    <div class="modal-hd" id="fuTitle">Log follow-up</div>
+    <div class="modal-b">
+      <div class="lf" style="margin-bottom:11px"><label>Outcome <span class="rq">*</span></label><textarea class="in" id="fuOut" rows="2" style="width:100%;resize:vertical"></textarea></div>
+      <div class="fr">
+        <div class="fg"><label>Move to</label><select class="in" id="fuStatus" onchange="fuStatusChange()"></select><div class="hint" id="fuMoveHint"></div></div>
+        <div class="fg"><label>Next follow-up date</label><div id="fuNextSlot"></div></div>
+      </div>
+      <div class="dupbanner" id="rcaWrap" style="background:var(--accentbg);color:var(--accent);border-color:var(--accent)"><b>RCA required to close</b>
+        <div class="fr" style="margin-top:6px"><div class="fg"><label>RCA 1 &middot; Primary</label><select class="in" id="rca1" onchange="rca2fill()"></select></div><div class="fg"><label>RCA 2 &middot; Sub-reason</label><select class="in" id="rca2"></select></div></div>
+        <div class="hint" id="rcaProv"></div></div>
+      <div class="cfg-note" id="tatNote"></div>
+    </div>
+    <div class="modal-ft"><button class="btn btn-g" onclick="closeFu()">Cancel</button><button class="btn btn-p" id="fuSaveBtn" onclick="saveFu()">Save</button></div>
+  </div>
+</div>
+
+<div class="modal-bd" id="modalBd" data-rkf-dialog><div class="modal"><div class="modal-hd" id="modalTitle"></div><div class="modal-b" id="modalBody"></div><div class="modal-ft" id="modalFoot"></div></div></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="rk-foundation.js?v=RKF-1.13.0"></script>
+<script>
+
+(function(){ if(new URLSearchParams(location.search).get('embed')!=='1')return;
+  var st=document.createElement('style'); st.textContent='.topbar{display:none!important}.rail{display:none!important}'; document.head.appendChild(st); })();
+
+var BUILD_STAMP = 'M05 · 2026-07-29 · S4-3';           
+
+var SB = (window.supabase && window.RKF && RKF.client) ? RKF.client('https://ntymdsbezetobrnjqqvl.supabase.co','sb_publishable_nev1rE7tHlu-bOWOm1JpXw_jd40773y')
+        : (window.supabase ? window.supabase.createClient('https://ntymdsbezetobrnjqqvl.supabase.co','sb_publishable_nev1rE7tHlu-bOWOm1JpXw_jd40773y') : null);
+
+/* lifecycle */
+var STATUSSET=null;                      
+var PIPE   = ["New","Contacted","Qualified","Quoted","Won"];
+var OFFPIPE= ["Under-Follow-Up","Hold","Lost","Dropped","Cancelled"];
+var TERMINAL=["Won","Lost","Dropped","Cancelled"];            
+
+var EDITABLE=["New","Contacted","Qualified","Under-Follow-Up","Hold","Quoted"];
+var RCA_STATUSES=["Lost","Dropped"];                          
+var STCOL={New:"var(--m05)",Contacted:"var(--warn)",Qualified:"var(--orange)",Quoted:"var(--purple)",Won:"var(--green)"};
+
+var leads=[];                                   
+var SRC=[], PRI=[], RCA1=[], RCA2=[];           /* governed reference_values by list_id */
+var SRCMAP={}, PRIMAP={}, RCAMAP={};            
+var PROV={};                                    
+var CT=[], CP=[];                               
+var CUSTS=[], CUSTMAP={}, ITEMS=[], ITEMMAP={}, UOMS=[], REFERRERS=[], REFMAP={};
+var EMPS=[], EMPMAP={}, EMPBYCODE={}, TEAM=[];
+var CCRS=[], ccrErr=null;                       
+var SALESREPS=[], salesErr=null;                
+var CUSTADDR={};                                
+var TAT=null, SERIES=null;
+var GATE={};                                    
+var actorEmp=null, actorName=null, actorCode=null, actorUnit=null, actorRoles=[];
+var SCOPE=null;                                 
+var selId=null, paneOpen=false, curTab="list";   
+var WSQ={lead:null,rows:null,err:null};          
+var FCH={lead:null,rows:null,err:null};          
+var listSort=RKF.sort.state("fu",1);
+var loadErr={list:null,cat:null};
+var catBlocked=false, booted=false, rtState="connecting";
+var convertBusy={};                             
+var TODAY_ISO=null;                             
+
+var LOAD_PAGE=1000;                             
+var loadCap=LOAD_PAGE;                          
+var totalLeads=null;                            
+var LIST_PAGE=200, listShown=LIST_PAGE;         /* List windowing */
+
+var windowBusy=false;                           /* one window re-query in flight */
+function resetWindows(){ listShown=LIST_PAGE; }
+
+/* ---------- helpers ---------- */
+function rs(n){return (n===null||n===undefined||n==="")?"—":"₹"+Number(n||0).toLocaleString("en-IN");}
+function isoToday(){var d=new Date();function z(n){return(n<10?'0':'')+n;}return d.getFullYear()+'-'+z(d.getMonth()+1)+'-'+z(d.getDate());}
+
+function stampOf(ts){if(!ts)return "—";return (window.RKF&&RKF.fmtIST)?RKF.fmtIST(ts,true):String(ts);}
+function dDiff(a,b){return Math.round((Date.parse(b+"T00:00:00")-Date.parse(a+"T00:00:00"))/86400000);}
+function isTerminal(s){return TERMINAL.indexOf(s)>=0;}
+function canEdit(l){return !!l&&EDITABLE.indexOf(l.status)>=0;}
+function editBlockReason(l){
+  if(!l)return "Select a lead first.";
+  return isTerminal(l.status)
+    ? ("Lead is "+l.status+" — read-only.")
+    : ("Not editable in status "+l.status+".");}
+function srcName(c){return c?(SRCMAP[c]||c):"—";}
+function priName(c){return c?(PRIMAP[c]||c):"";}
+function rcaName(c){return c?(RCAMAP[c]||c):"";}
+function empName(id){return id&&EMPMAP[id]?EMPMAP[id].full_name:(id?"?":"—");}
+function empCode(id){return id&&EMPMAP[id]?EMPMAP[id].employee_code:"";}
+function refName(id){return id?(REFMAP[id]?REFMAP[id].name:id):"—";}
+function itemName(code){return code?(ITEMMAP[code]?ITEMMAP[code].description:code):"";}
+function custOf(l){return l.customerId?CUSTMAP[l.customerId]:null;}
+function custLabel(l){var c=custOf(l);return c?c.name:(l.prospect||"—");}
+function custCode(l){var c=custOf(l);return c?c.customer_code:"";}
+function isProspect(l){return !l.customerId;}
+function statusTag(s){return '<span class="tg-s tg-'+esc(s)+'">'+esc(s)+'</span>';}
+function priTag(code){return code?'<span class="pri '+esc(code)+'">'+esc(priName(code))+'</span>':'';}
+function provChip(list){return PROV[list]?' <span class="p2note" title="Provisional value">provisional</span>':'';}
+function uuid4(){ if(window.crypto&&crypto.randomUUID)return crypto.randomUUID();
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,function(c){var r=Math.random()*16|0,v=c==='x'?r:(r&0x3|0x8);return v.toString(16);});}
+
+/* customer transaction gate */
+function isHold(c){return !!(c&&(c.credit_hold||(Number(c.credit_limit||0)>0&&Number(c.credit_used||0)>=Number(c.credit_limit||0))));}
+function blockLevel(state,stage){var g=GATE[state];return g?(g[stage]||"ok"):"ok";}
+function gateWord(l){return l==="block"?"blocked":l==="warn"?"warn":"allowed";}
+function txnGate(c,stage){var out=[];if(!c)return out;
+  if(isHold(c)){var l1=blockLevel("Credit-hold",stage);if(l1!=="ok")out.push({state:"Credit-hold",level:l1});}
+  if(c.status!=="Active"&&c.status!=="Credit-hold"){var l2=blockLevel(c.status,stage);if(l2!=="ok")out.push({state:c.status,level:l2});}
+  return out;}
+
+
+/* follow-up classes */
+function fuClass(l){
+  if(isTerminal(l.status)||l.status==="Hold")return "fu-none";
+  if(!l.fuNext)return "fu-none";
+  var d=dDiff(TODAY_ISO,l.fuNext);
+  if(d<0)return "fu-over"; if(d===0)return "fu-today"; if(d<=7)return "fu-week"; return "fu-future";}
+function fuText(l){var c=fuClass(l);
+  if(!l.fuNext)return '<span class="fu fu-none">no follow-up</span>';
+  var lbl=c==="fu-over"?("overdue "+fmtDate(l.fuNext)):c==="fu-today"?"today":c==="fu-week"?("this week · "+fmtDate(l.fuNext)):fmtDate(l.fuNext);
+  return '<span class="fu '+c+'">'+esc(lbl)+'</span>';}
+
+function tatBreach(l){
+  if(!TAT||!TAT.tat_minutes||!l.fuNext||isTerminal(l.status))return false;
+  var due=Date.parse(l.fuNext+"T00:00:00")+Number(TAT.tat_minutes)*60000;
+  return Date.parse(TODAY_ISO+"T00:00:00")>due;}
+
+/* roles / scope */
+function R(){
+  if(!SCOPE||!SCOPE.bound)
+    return {admin:false,gm:false,l2:false,ccr:false,sales:false,see:'none',
+            create:false,reassign:false,cancel:false,groups:[],scope:'not signed in'};
+  var rc=SCOPE.role_codes||[];
+  return {admin:rc.indexOf('R19')>=0, gm:rc.indexOf('R03')>=0, l2:rc.indexOf('R02')>=0,
+          ccr:rc.indexOf('R05')>=0, sales:rc.indexOf('R01')>=0,
+          see:SCOPE.see,
+          create:!!SCOPE.can_create,                 
+          reassign:!!SCOPE.can_reassign, cancel:!!SCOPE.can_cancel,   
+          groups:SCOPE.groups||[],
+          scope:(actorName?actorName+' · ':'')+String(SCOPE.see).toUpperCase()+(actorUnit?' · '+actorUnit:'')};}
+
+function inScope(l){var r=R();
+  if(!actorEmp)return false;
+  if(r.see==='all')return true;
+  if(r.see==='derived')return TEAM.indexOf(l.salesEmp)>=0||TEAM.indexOf(l.createdBy)>=0||l.ccrEmp===actorEmp||l.mgrEmp===actorEmp;
+  return false;}
+function scoped(){var s=R().see;return (actorEmp&&(s==='all'||s==='derived'))?leads:[];} /* 2026-09-21 one screen touch: the list shows what the server sends - the row rule has one home, the server (665). */
+
+/* tri-state surfaces */
+function surfLoading(id,msg){var e=document.getElementById(id);if(e)RKF.triState(e,'loading',msg||'Loading…');}
+function surfError(id,msg){var e=document.getElementById(id);if(e)e.innerHTML='<div class="surf err">Load failed: '+esc(msg)+' — reload to retry.</div>';}
+function notSignedIn(){return '<div class="dedupe-warn soft show" style="margin:20px">Not signed in — data loads only for authenticated users. Open the ERP shell and sign in first; search, filters and every list stay empty without a session.</div>';}
+
+/* BOOT ladder */
+async function boot(){
+  var bs=document.getElementById('buildStamp'); if(bs)bs.textContent='build: '+BUILD_STAMP;
+  TODAY_ISO=isoToday();
+  surfLoading('center','Loading leads…'); surfLoading('filters',''); surfLoading('lead360','');
+  if(!SB){ surfError('center','Connection unavailable.'); return; }
+
+  var GLVL=await RKF.accessGate('M05',{client:SB});
+  if(GLVL!=='Read'&&GLVL!=='Full')return;
+
+  try{
+    var sc=await SB.rpc('m05_effective_scope');
+    if(sc.error)throw sc.error;
+    var an=document.getElementById('actorNote');
+    if(sc.data&&sc.data.bound){
+      SCOPE=sc.data;
+      actorEmp=SCOPE.emp_id; actorName=SCOPE.emp_name; actorCode=SCOPE.emp_code; actorUnit=SCOPE.unit;
+      actorRoles=SCOPE.role_codes||[];
+      if(an)an.textContent='actor: '+actorName+' ('+actorCode+')';
+      var av=document.getElementById('avatar'); if(av)av.textContent=(actorName||'?').split(' ').map(function(w){return w[0];}).join('').slice(0,2).toUpperCase();
+      if(!actorRoles.length&&an)an.textContent=actorName+' ('+actorCode+') · no role';
+    }else{
+      if(an)an.textContent='actor: '+((sc.data&&sc.data.reason)||'not mapped')+' — writes disabled';
+    }
+  }catch(ex){ var an2=document.getElementById('actorNote'); if(an2)an2.textContent='actor: unresolved ('+(ex.message||ex)+')'; }
+  await loadCatalogs();
+  await loadLeads();
+  var r=R();
+  var sc=document.getElementById('scopeChip'); if(sc)sc.textContent='Scope: '+(actorEmp?r.scope:'not signed in');
+  var bi=document.getElementById('impBtn'); if(bi)bi.style.display=(r.create&&!catBlocked)?'':'none';
+  var be=document.getElementById('expBtn'); if(be)be.style.display=actorEmp?'':'none';
+  mountDateFields();
+  subscribeRealtime();
+  booted=true;
+  renderAll();
+
+  try{
+    var qp=new URLSearchParams(location.search);
+    var seam=qp.get('customer');
+    if(seam&&CUSTMAP[seam]){
+      if(qp.get('view')==='list'){
+
+        showTab('list');
+        var q=document.getElementById('q');
+        if(q){ q.value=CUSTMAP[seam].name||CUSTMAP[seam].customer_code||''; listFilterChanged(); }
+      } else {
+        openDrawer('create'); pickCust(seam);
+      }
+    }
+  }catch(e){}
+}
+
+/* catalogs */
+async function loadCatalogs(){
+  try{
+    var rv=await SB.from('reference_values').select('code,list_id,label,metadata,active,sort_order').in('list_id',['CS','LP','LR','LS','CT','CP','CG']).eq('active',true).order('sort_order');
+    if(rv.error)throw rv.error;
+
+    var _src=[], _pri=[], _rca1=[], _rca2=[], _ct=[], _cp=[];
+    (rv.data||[]).forEach(function(v){
+      if(v.metadata&&v.metadata.provisional)PROV[v.list_id]=true;
+      if(v.list_id==='CS'){_src.push(v);SRCMAP[v.code]=v.label;}
+      else if(v.list_id==='LP'){_pri.push(v);PRIMAP[v.code]=v.label;}
+      else if(v.list_id==='LR'){_rca1.push(v);RCAMAP[v.code]=v.label;}
+      else if(v.list_id==='LS'){_rca2.push(v);RCAMAP[v.code]=v.label;}
+      else if(v.list_id==='CT'){_ct.push(v);}
+      else if(v.list_id==='CP'){_cp.push(v);}
+      else if(v.list_id==='CG'&&v.metadata){GATE[v.metadata.status]={quote:v.metadata.quote,so:v.metadata.so};}
+    });
+    SRC=_src; PRI=_pri; RCA1=_rca1; RCA2=_rca2; CT=_ct; CP=_cp;
+    var cu=await SB.from('customers').select('id,customer_code,name,status,mobile,sales_emp,ccr_emp,credit_hold,credit_limit,credit_used,partner_side').eq('is_deleted',false);
+    if(cu.error)throw cu.error;
+    CUSTS=cu.data||[]; CUSTS.forEach(function(c){CUSTMAP[c.id]=c;});
+    var it=await SB.from('items').select('item_id,description,lifecycle_status').eq('lifecycle_status','Active');
+    if(it.error)throw it.error;
+    ITEMS=it.data||[]; ITEMS.forEach(function(i){ITEMMAP[i.item_id]=i;});
+    var um=await SB.from('uom').select('uom_code,label,active').eq('active',true);
+    if(!um.error)UOMS=um.data||[];
+    var rf=await SB.from('referrers').select('id,name,referrer_type,status').eq('status','Active');
+    if(!rf.error)REFERRERS=(rf.data||[]).map(function(x){return {id:x.id,name:x.name,type:x.referrer_type};});
+    REFERRERS.forEach(function(x){REFMAP[x.id]=x;});
+    var em=await SB.from('employees').select('id,full_name,employee_code,department,reports_to,posting_unit').eq('active',true);
+    if(!em.error&&em.data){EMPS=em.data;EMPS.forEach(function(e){EMPMAP[e.id]=e;EMPBYCODE[e.employee_code]=e;});}
+
+    TEAM=(SCOPE&&SCOPE.bound&&SCOPE.team)?SCOPE.team.slice():[];
+    if(actorEmp&&TEAM.indexOf(actorEmp)<0)TEAM.push(actorEmp);
+
+    if(SCOPE&&SCOPE.bound&&SCOPE.ccr_pool){ ccrErr=null;
+      CCRS=SCOPE.ccr_pool.map(function(x){return EMPBYCODE[x.employee_code]||x;})
+                         .sort(function(a,b){return (a.full_name||"").localeCompare(b.full_name||"");}); }
+    else{ ccrErr=SCOPE&&SCOPE.bound?null:'scope unavailable'; CCRS=[]; }
+
+    if(SCOPE&&SCOPE.bound&&SCOPE.sales_pool){ salesErr=null;
+      SALESREPS=SCOPE.sales_pool.map(function(x){return EMPBYCODE[x.employee_code]||x;})
+                                .sort(function(a,b){return (a.full_name||"").localeCompare(b.full_name||"");}); }
+    else{ salesErr=SCOPE&&SCOPE.bound?null:'the served scope is unavailable without a bound session'; SALESREPS=[]; }
+    var tc=await SB.from('tat_config').select('module_code,stage_code,tat_minutes,description,active').eq('module_code','M05').eq('stage_code','FOLLOWUP').eq('active',true).maybeSingle();
+    if(!tc.error)TAT=tc.data;
+    var ns=await SB.from('number_series').select('series_code,label,scope,active').eq('series_code','LEAD').maybeSingle();
+    if(!ns.error)SERIES=ns.data;
+
+    var wm=await SB.from('workflow_module_map').select('live_status_values').eq('module_code','M05').limit(1);
+    if(!wm.error&&wm.data&&wm.data[0]&&wm.data[0].live_status_values&&wm.data[0].live_status_values.length){
+      STATUSSET=wm.data[0].live_status_values.slice();
+      var mirror=PIPE.concat(OFFPIPE);
+      var missing=STATUSSET.filter(function(s){return mirror.indexOf(s)<0;})
+        .concat(mirror.filter(function(s){return STATUSSET.indexOf(s)<0;}));
+      if(missing.length)toast('Unknown status: '+missing.join(', ')+'. Report this.','warn');
+    }
+  }catch(ex){ loadErr.cat=ex.message||String(ex); }
+  catBlocked = !!loadErr.cat || SRC.length===0 || PRI.length===0 || ITEMS.length===0;
+  var slot=document.getElementById('catErrSlot');
+  if(slot){
+    if(catBlocked){
+      var why=[]; if(loadErr.cat)why.push(RKF.errText(loadErr.cat,{fallback:'reference lists could not be read'}));
+      if(!loadErr.cat&&SRC.length===0)why.push('source list CS is empty');
+      if(!loadErr.cat&&PRI.length===0)why.push('priority list LP is empty');
+      if(!loadErr.cat&&ITEMS.length===0)why.push('no Active items in M02c');
+
+      slot.innerHTML='<div class="dedupe-warn hard show" style="margin:8px 18px" id="catErr"><b>Lead creation is blocked.</b> Reload. <span class="hint" style="margin:0">Missing: '+esc(why.join(' \u00b7 '))+'</span></div>';
+    } else if(!SERIES||!SERIES.active){
+      slot.innerHTML='<div class="dedupe-warn soft show" style="margin:8px 18px">The lead number series is not active.</div>';
+    } else slot.innerHTML='';
+  }
+}
+
+/* vm */
+function vm(row,kids){
+  return {uuid:row.id, id:row.lead_code, unit:row.unit, fy:row.fy,
+    customerId:row.customer_id, prospect:row.prospect_name||"", contact:row.contact||"",
+    source:row.source_code, referrer:row.referrer_id||"", priority:row.priority||"",
+    est:row.est_value===null?null:Number(row.est_value), status:row.status,
+    salesEmp:row.sales_emp, ccrEmp:row.ccr_emp, mgrEmp:row.manager_emp,
+    site:row.site||"", competitor:row.competitor||"",
+    probability:row.probability===null||row.probability===undefined?null:Number(row.probability),
+    pincode:row.pincode?String(row.pincode).trim():"", area:row.area||"", district:row.district||"", stateCode:row.state_code||"",
+    addr1:row.addr_line1||"", addr2:row.addr_line2||"",
+    fuNext:row.follow_up_next, fuLast:row.follow_up_last, fuCountCol:row.follow_up_count,
+    rca1:row.rca1_code||"", rca2:row.rca2_code||"", wonQuote:row.won_quote_id||null,
+    createdAt:row.created_at, updatedAt:row.updated_at, createdBy:row.created_by, updatedBy:row.updated_by,
+    version:row.version, appKey:row.app_key,
+    interests:(kids.int[row.id]||[]), atts:(kids.att[row.id]||[]), fu:(kids.fu[row.id]||[]),
+    notes:(kids.nt[row.id]||[]), noteEdits:(kids.nted[row.id]||[]),
+    audit:(kids.aud[row.id]||[]), owners:(kids.own[row.id]||[])};
+}
+
+async function loadLeads(){
+  try{
+    var q=SB.from('leads').select('id,lead_code,unit,fy,customer_id,prospect_name,source_code,referrer_id,est_value,status,priority,sales_emp,ccr_emp,manager_emp,site,competitor,probability,created_at,updated_at,created_by,version,follow_up_next,follow_up_last,follow_up_count,rca1_code,rca2_code,won_quote_id,app_key,updated_by,is_deleted,contact,pincode,area,district,state_code,addr_line1,addr_line2',{count:'exact'}).eq('is_deleted',false);
+    var wf=(typeof readDMY==='function')?readDMY('fFrom'):"";
+    var wt=(typeof readDMY==='function')?readDMY('fTo'):"";
+    if(wf)q=q.gte('created_at',wf);                                   
+    if(wt)q=q.lte('created_at',wt+'T23:59:59.999+05:30');
+    var res=await q.order('created_at',{ascending:false}).limit(loadCap);
+    if(res.error)throw res.error;
+    var rows=res.data||[];
+    totalLeads=(typeof res.count==='number')?res.count:null;
+    var ids=rows.map(function(r){return r.id;});
+    var kids={int:{},att:{},fu:{},nt:{},nted:{},aud:{},own:{}};   
+    if(ids.length){
+
+      var k1=await SB.from('lead_product_interests').select('id,lead_id,line_no,item_id,qty,uom_code,created_at,created_by,app_key,is_deleted').in('lead_id',ids).eq('is_deleted',false).order('line_no');
+      if(!k1.error)(k1.data||[]).forEach(function(x){(kids.int[x.lead_id]=kids.int[x.lead_id]||[]).push({line:x.line_no,item:x.item_id,qty:x.qty,uom:x.uom_code||""});});
+      var k2=await SB.from('lead_attachments').select('id,lead_id,kind,storage_path,file_name,by_emp,at,app_key').in('lead_id',ids).order('at');
+      if(!k2.error)(k2.data||[]).forEach(function(x){(kids.att[x.lead_id]=kids.att[x.lead_id]||[]).push({kind:x.kind,path:x.storage_path,file:x.file_name,by:x.by_emp,at:x.at});});
+      var k3=await SB.from('lead_followups').select('id,lead_id,followup_date,next_date,outcome,by_emp,created_at,app_key,created_by').in('lead_id',ids).order('followup_date');
+      if(!k3.error)(k3.data||[]).forEach(function(x){(kids.fu[x.lead_id]=kids.fu[x.lead_id]||[]).push({at:x.followup_date,next:x.next_date,out:x.outcome,by:x.by_emp});});
+      var k4=await SB.from('lead_notes').select('id,lead_id,by_emp,at,text,app_key').in('lead_id',ids).order('at');
+
+      if(!k4.error)(k4.data||[]).forEach(function(x){(kids.nt[x.lead_id]=kids.nt[x.lead_id]||[]).push({id:x.id,by:x.by_emp,at:x.at,txt:x.text});});
+
+      var k4b=await SB.from('lead_note_audit').select('id,note_id,lead_id,old_text,new_text,reason,by_emp,at,app_key').in('lead_id',ids).order('at',{ascending:false});
+      if(!k4b.error)(k4b.data||[]).forEach(function(x){(kids.nted[x.lead_id]=kids.nted[x.lead_id]||[]).push({note:x.note_id,old:x.old_text,neu:x.new_text,by:x.by_emp,at:x.at,reason:x.reason});});
+      var k5=await SB.from('lead_status_audit').select('id,lead_id,from_status,to_status,by_emp,at,reason,app_key').in('lead_id',ids).order('at',{ascending:false});
+      if(!k5.error)(k5.data||[]).forEach(function(x){(kids.aud[x.lead_id]=kids.aud[x.lead_id]||[]).push({from:x.from_status,to:x.to_status,by:x.by_emp,at:x.at,reason:x.reason||""});});
+      var k6=await SB.from('lead_owner_audit').select('id,lead_id,owner_role,old_emp,new_emp,by_emp,reason,at,app_key').in('lead_id',ids).order('at',{ascending:false});
+      if(!k6.error)(k6.data||[]).forEach(function(x){(kids.own[x.lead_id]=kids.own[x.lead_id]||[]).push({role:x.owner_role,old:x.old_emp,neu:x.new_emp,by:x.by_emp,at:x.at,reason:x.reason||""});});
+    }
+    leads=rows.map(function(row){return vm(row,kids);});
+    loadErr.list=null;
+  }catch(ex){ loadErr.list=ex.message||String(ex); leads=[]; totalLeads=null; }
+}
+
+async function loadMoreLeads(){
+  if(windowBusy)return; windowBusy=true;
+  var b=document.getElementById("moreLeadsBtn"); if(b){b.disabled=true;b.textContent="Loading…";}
+  loadCap+=LOAD_PAGE;
+  await loadLeads(); resetWindows(); renderAll();
+  windowBusy=false;
+}
+
+async function reloadWindow(){
+  if(windowBusy){return;} windowBusy=true;
+  loadCap=LOAD_PAGE;
+  await loadLeads(); resetWindows(); renderAll();
+  windowBusy=false;
+}
+function listFilterChanged(){ resetWindows(); renderCenter(); }
+
+function byId(id){for(var i=0;i<leads.length;i++)if(leads[i].uuid===id)return leads[i];return null;}
+async function reload(keepSel){var k=selId;await loadLeads();if(keepSel)selId=k;else{selId=null;paneOpen=false;}renderAll();}
+
+/* realtime freshness */
+var rtChan=null;   
+function subscribeRealtime(){
+  try{
+    if(!SB.channel){rtState="unavailable";return;}
+    rtChan=SB.channel('m05-leads')
+      .on('postgres_changes',{event:'*',schema:'public',table:'leads'},function(){ if(booted)reload(true); })
+      .subscribe(function(st){ rtState=(st==='SUBSCRIBED')?'live':String(st).toLowerCase(); if(booted)renderActions(); });
+  }catch(ex){ rtState="unavailable"; }
+}
+
+window.addEventListener('pagehide',function(){ try{ if(rtChan&&SB&&SB.removeChannel) SB.removeChannel(rtChan); }catch(e){} rtChan=null; });
+
+/* tabs */
+function showTab(t){
+
+  if(t!==curTab&&t!=="ws"){
+    selId=null; paneOpen=false;
+    var pane=document.getElementById("lead360");
+    if(pane){pane.classList.add("off");pane.innerHTML="";}
+    resetWindows();                              
+  }
+  ["list","ws","ins"].forEach(function(x){var e=document.getElementById("tab-"+x);if(e)e.classList.toggle("act",x===t);});
+  curTab=t; var ins=(t==="ins");
+  document.getElementById("subbar").style.display=ins?"none":"flex";
+  document.getElementById("workzone").style.display=ins?"none":"flex";
+  document.getElementById("actions").style.display=ins?"none":"flex";
+  document.getElementById("insZone").style.display=ins?"block":"none";
+  document.getElementById("lfbar").style.display=(t==="list")?"flex":"none";
+  if(ins){renderInsights();renderActions();return;}   
+  buildListFilters();
+  renderCenter();render360();renderActions();
+}
+function renderAll(){
+  if(curTab==="ins"){renderInsights();renderActions();return;}
+  document.getElementById("lfbar").style.display=(curTab==="list")?"flex":"none";
+  buildListFilters();
+  renderCenter();render360();renderActions();renderInsights();
+}
+function nav(x){ 
+  var url = x + '.html' + (new URLSearchParams(location.search).get('embed')==='1' ? '?embed=1' : '');
+  try { if (window.parent !== window) { window.parent.postMessage({type:'rk_nav', module:x}, '*'); } } catch(e){}
+  window.location.href = url; }
+function navQuote(qs){ 
+  var emb = new URLSearchParams(location.search).get('embed')==='1';
+  window.location.href = 'm06.html?' + (emb?'embed=1&':'') + qs; }
+</script>
+<script>
+
+function mountDateFields(){
+  [["fFromSlot","fFrom"],["fToSlot","fTo"],["fuNextSlot","fuNext"],["lFuNextSlot","lFuNext"]].forEach(function(p){
+    var slot=document.getElementById(p[0]); if(!slot||slot.getAttribute('data-mounted'))return;
+    slot.innerHTML=dateFieldHTML(p[1]); slot.setAttribute('data-mounted','1');
+  });
+
+  ["fFrom","fTo"].forEach(function(id){
+    var el=document.getElementById(id); if(el)el.addEventListener('input',function(){onDateWindow();});
+    var cal=document.getElementById(id+'-cal'); if(cal)cal.addEventListener('click',function(){setTimeout(onDateWindow,0);});
+  });
+}
+var _dwTimer=null;
+function onDateWindow(){
+  resetWindows(); renderCenter();
+  if(_dwTimer)clearTimeout(_dwTimer);
+  _dwTimer=setTimeout(function(){ reloadWindow(); },400);      
+}
+
+/* List top filter bar */
+function opts(id,items){var s=document.getElementById(id);if(!s)return;var keep=s.value;
+  s.innerHTML='<option value="">All</option>'+items.map(function(it){return '<option value="'+esc(it.v)+'"'+(String(it.v)===keep?' selected':'')+'>'+esc(it.l)+'</option>';}).join("");
+  if(s.value!==keep)s.value=keep&&items.some(function(it){return String(it.v)===keep;})?keep:"";}
+function uniqBy(arr,key){var o={},out=[];arr.forEach(function(x){var k=key(x);if(k&&!o[k]){o[k]=1;out.push(k);}});return out;}
+function buildListFilters(){
+  var all=scoped();
+  opts("fCcr",uniqBy(all,function(l){return l.ccrEmp;}).map(function(v){return {v:v,l:empName(v)+(empCode(v)?' ('+empCode(v)+')':'')};}));
+  opts("fSales",uniqBy(all,function(l){return l.salesEmp;}).map(function(v){return {v:v,l:empName(v)+(empCode(v)?' ('+empCode(v)+')':'')};}));
+  opts("fDist",uniqBy(all,function(l){return l.district;}).map(function(v){return {v:v,l:v};}));
+  opts("fUnit",uniqBy(all,function(l){return l.unit;}).map(function(v){return {v:v,l:v};}));
+  opts("fCustR",uniqBy(all,function(l){return l.customerId;}).map(function(v){return {v:v,l:(CUSTMAP[v]?CUSTMAP[v].name+' ('+CUSTMAP[v].customer_code+')':v)};}));
+}
+function clearListFilters(){
+  ["fCcr","fSales","fDist","fUnit","fCustR","fPeriod","fFrom","fTo"].forEach(function(id){var e=document.getElementById(id);if(e)e.value="";});
+  renderCenter();renderActions();}
+function periodOK(l){
+  var p=(document.getElementById("fPeriod")||{}).value||"";
+  if(!p||!l.createdAt)return true;
+  var d=dDiff(String(l.createdAt).slice(0,10),TODAY_ISO);     
+  if(p==="Day")return d<=0; if(p==="Week")return d<=7; if(p==="Month")return d<=31; return true;}
+function rangeOK(l){
+  var f=readDMY("fFrom"), t=readDMY("fTo");
+  if(!f&&!t)return true;
+  var c=String(l.createdAt||"").slice(0,10); if(!c)return false;
+  if(f&&c<f)return false; if(t&&c>t)return false; return true;}
+
+/* search */
+var viaTag={};
+function filtered(){
+  viaTag={};
+  var q=((document.getElementById("q")||{}).value||"").toLowerCase().trim();
+  var onList=(curTab==="list");
+  var g=function(id){var e=document.getElementById(id);return e?e.value:"";};
+  return scoped().filter(function(l){
+
+    if(g("fCcr")&&l.ccrEmp!==g("fCcr"))return false;
+    if(g("fSales")&&l.salesEmp!==g("fSales"))return false;
+    if(g("fDist")&&l.district!==g("fDist"))return false;
+    if(g("fUnit")&&l.unit!==g("fUnit"))return false;
+    if(g("fCustR")&&l.customerId!==g("fCustR"))return false;
+    if(!periodOK(l))return false;
+    if(!rangeOK(l))return false;
+    if(!q)return true;
+    var direct=[l.id,custLabel(l),custCode(l),srcName(l.source),refName(l.referrer),
+                empName(l.ccrEmp),empName(l.salesEmp),priName(l.priority),l.status,
+                (l.est===null?"":l.est),(l.fuNext?fmtDate(l.fuNext):"")].join(" ").toLowerCase();
+    if(!onList)direct+=" "+l.interests.map(function(i){return itemName(i.item);}).join(" ").toLowerCase();
+    if(direct.indexOf(q)>=0)return true;
+
+    var probes=[["contact",l.contact],["pincode",l.pincode],["area",l.area],["district",l.district],
+                ["unit",l.unit],["competitor",l.competitor],["site",l.site],
+                ["RCA",rcaName(l.rca1)+" "+rcaName(l.rca2)],
+                ["note",l.notes.map(function(n){return n.txt;}).join(" ")],
+                ["follow-up",l.fu.map(function(f){return f.out;}).join(" ")],
+                ["attachment",l.atts.map(function(a){return a.file;}).join(" ")],
+                ["item",l.interests.map(function(i){return i.item+" "+itemName(i.item);}).join(" ")]];
+    for(var i=0;i<probes.length;i++){
+      var v=String(probes[i][1]||"").toLowerCase();
+      if(v&&v.indexOf(q)>=0){viaTag[l.uuid]=probes[i][0];return true;}
+    }
+    return false;
+  });
+}
+
+/* ---------- centre ---------- */
+function renderCenter(){ curTab==="ws"?renderWorkspace():renderList(); renderActions(); }
+function centreState(){
+  if(!booted)return '<div class="surf">Loading leads…</div>';
+  if(loadErr.list)return '<div class="surf err">'+esc(RKF.errText(loadErr.list,{fallback:'Could not load.'}))+' Reload.</div>';
+  if(!actorEmp)return notSignedIn();
+  return null;}
+
+/* Lead workspace */
+function renderWorkspace(){
+  var c=document.getElementById("center"); if(!c)return;
+  var st=centreState();
+  if(st){c.innerHTML=st;return;}
+  if(!selId){c.innerHTML='<div class="surf">No lead selected.</div>';return;}
+  var l=byId(selId);
+  if(!l){c.innerHTML='<div class="surf">Lead not in the loaded window.</div>';return;}
+  if(WSQ.lead!==l.uuid)loadWsQuotes(l);          
+  var h='<div style="display:grid;grid-template-columns:minmax(360px,1fr) minmax(360px,1.2fr);gap:14px;align-items:start;padding:12px">';
+  h+='<div class="surface" style="border:1px solid var(--line);border-radius:8px;background:var(--surface);padding:14px;overflow:auto">'+build360Html(l)+'</div>';
+  h+='<div class="surface" style="border:1px solid var(--line);border-radius:8px;background:var(--surface);padding:14px;overflow:auto">'+wsQuotesHtml(l)+'</div>';
+  h+='</div>';
+  c.innerHTML=h;
+}
+async function loadWsQuotes(l){
+  WSQ={lead:l.uuid,rows:null,err:null};
+  FCH={lead:l.uuid,rows:null,err:null};
+  try{
+    var r=await SB.from('quotes')
+      .select('id,quote_no,rev_no,status,grand_total,total_weight_mt,validity_date,salesperson_emp,created_at')
+      .eq('from_lead_id',l.uuid).eq('is_deleted',false)
+      .order('created_at',{ascending:false});
+    if(WSQ.lead!==l.uuid)return;                 
+    if(r.error)WSQ.err=r.error.message||String(r.error); else WSQ.rows=r.data||[];
+  }catch(ex){ if(WSQ.lead===l.uuid)WSQ.err=ex.message||String(ex); }
+
+  try{
+    var f=await SB.from('leads_field_changes')
+      .select('field,old_value,new_value,at,by_emp')
+      .eq('doc_uuid',l.uuid).order('at',{ascending:false}).limit(200);
+    if(FCH.lead===l.uuid){ if(f.error)FCH.err=f.error.message||String(f.error); else FCH.rows=f.data||[]; }
+  }catch(ex2){ if(FCH.lead===l.uuid)FCH.err=ex2.message||String(ex2); }
+  if(curTab==="ws")renderWorkspace();
+}
+function wsQuotesHtml(l){
+  var h='<div class="c360-hd" style="margin-bottom:8px">Quotes on this lead'+
+        (WSQ.rows?' <span class="hint" style="margin:0">('+WSQ.rows.length+')</span>':'')+'</div>';
+  if(WSQ.lead!==l.uuid||(!WSQ.rows&&!WSQ.err)){h+='<div class="surf">Loading quotes…</div>';return h;}
+  if(WSQ.err){h+='<div class="surf err">Quotes could not be read.</div>';return h;}
+  if(!WSQ.rows.length){
+    h+='<div class="hint">No quote yet.</div>';
+    return h;
+  }
+  h+='<div class="recwrap"><table class="grid"><thead><tr>'+
+     '<th>Quote no</th><th class="num">Rev</th><th>Status</th><th class="num">Value</th>'+
+     '<th class="num">Weight MT</th><th>Validity</th><th>Salesperson</th></tr></thead><tbody>';
+  WSQ.rows.forEach(function(q){
+    h+='<tr style="cursor:pointer" onclick="navQuote(\'quote='+esc(q.id)+'\')" title="Open this quote in M06">'+
+       '<td><b>'+esc(q.quote_no||q.id)+'</b></td>'+
+       '<td class="num">'+esc(q.rev_no===null||q.rev_no===undefined?"—":q.rev_no)+'</td>'+
+       '<td>'+esc(q.status||"—")+'</td>'+
+       '<td class="num">'+rs(q.grand_total)+'</td>'+
+       '<td class="num">'+esc(q.total_weight_mt===null||q.total_weight_mt===undefined?"—":q.total_weight_mt)+'</td>'+
+       '<td>'+esc(q.validity_date?fmtDate(q.validity_date):"—")+'</td>'+
+       '<td>'+esc(empName(q.salesperson_emp))+'</td></tr>';});
+  h+='</tbody></table></div>'+
+     '<div class="hint">Each row is a quote raised FROM this lead (quotes.from_lead_id) — click a row to open it on the Quote screen. The M06 workspace stays the quote authority; this is a read.</div>';
+  return h;
+}
+
+/* List */
+var FUORDER={"fu-over":0,"fu-today":1,"fu-week":2,"fu-future":3,"fu-none":4};
+function sortKey(l,k){
+  switch(k){
+    case "fu": return FUORDER[fuClass(l)];
+    case "id": return l.id||"";
+    case "cust": return (custLabel(l)||"").toLowerCase();
+    case "source": return srcName(l.source).toLowerCase();
+    case "ref": return refName(l.referrer).toLowerCase();
+    case "ccr": return empName(l.ccrEmp).toLowerCase();
+    case "sales": return empName(l.salesEmp).toLowerCase();
+    case "pri": return priName(l.priority).toLowerCase();
+    case "status": return l.status||"";
+    case "est": return l.est||0;
+    case "next": return l.fuNext||"9999-12-31";
+    default: return "";}}
+function sortList(k){ RKF.sort.toggle(listSort,k); renderList(); }
+function renderList(){
+  var c=document.getElementById("center"); var st=centreState();
+  if(st){c.innerHTML=st;return;}
+  var rows=filtered();
+  RKF.sort.rows(rows,listSort,sortKey,function(a,b){ return FUORDER[fuClass(a)]-FUORDER[fuClass(b)]; });
+  function th(k,lbl,cls){ return RKF.sort.th(listSort,k,lbl,"sortList('"+k+"')",cls); }
+  var h='<div class="recwrap"><table class="grid"><thead><tr>'+
+    th("id","Lead")+th("cust","Customer")+th("source","Source")+th("ref","Referrer")+th("ccr","CCR")+
+    th("sales","Salesperson")+th("pri","Priority")+th("status","Status")+th("est","Est ₹","num")+th("next","Next f/u")+
+    '</tr></thead><tbody>';
+  if(!rows.length)h+='<tr><td colspan="10" class="surf">'+(leads.length===0?'No leads yet.':'No leads in scope match.')+'</td></tr>';
+
+  var shown=rows.slice(0,listShown);
+  shown.forEach(function(l){
+    h+='<tr'+(selId===l.uuid?' class="sel"':'')+' onclick="selectLead(\''+l.uuid+'\')">'+
+      '<td class="d-code">'+esc(l.id||"—")+'</td>'+
+      '<td><b>'+esc(custLabel(l))+'</b>'+(isProspect(l)?' <span class="tg-s tg-pend">prospect</span>':'')+
+        (viaTag[l.uuid]?' <span class="viachip">via '+esc(viaTag[l.uuid])+'</span>':'')+'</td>'+
+      '<td><span class="srcpill">'+esc(srcName(l.source))+'</span></td>'+
+      '<td>'+(l.referrer?esc(refName(l.referrer)):'<span class="hint">—</span>')+'</td>'+
+      '<td>'+esc(empName(l.ccrEmp))+'</td>'+
+      '<td>'+esc(empName(l.salesEmp))+'</td>'+
+      '<td>'+(priTag(l.priority)||'<span class="hint">—</span>')+'</td>'+
+      '<td>'+statusTag(l.status)+'</td>'+
+      '<td class="num">'+rs(l.est)+'</td>'+
+      '<td>'+fuText(l)+(tatBreach(l)?' <span class="tg-s tg-Lost">TAT</span>':'')+'</td></tr>';});
+  if(rows.length>shown.length)
+    h+='<tr><td colspan="10" class="surf">showing <b>'+shown.length+'</b> of <b>'+rows.length+'</b> matching lead(s) — '+
+       '<button class="link-btn" onclick="listMore()">show '+Math.min(LIST_PAGE,rows.length-shown.length)+' more</button>'+
+       ' &middot; or refine the filter above.</td></tr>';
+  c.innerHTML=h+'</tbody></table></div>';
+}
+function listMore(){ listShown+=LIST_PAGE; renderList(); }
+
+function selectLead(id){
+  selId=id; paneOpen=false;
+  var pane=document.getElementById("lead360"); if(pane){pane.classList.add("off");pane.innerHTML="";}
+  var l=byId(id); if(l)loadWsQuotes(l);
+  showTab('ws');
+}
+function closePane(){ paneOpen=false; document.getElementById("lead360").classList.add("off"); renderCenter(); render360(); renderActions(); }
+
+function openLeadHistory(){
+  var l=selId?byId(selId):null; if(!l)return;
+  RKF.history.open({ client:SB, module_code:'M05', record_entity:'lead',
+    record_key:l.uuid, title:l.id||custLabel(l), focus:'history-btn',
+    emptyMessage:'No changes recorded' });
+}
+function closeHistory(){ RKF.history.close(); }
+</script>
+<script>
+
+function render360(){
+  var d=document.getElementById("lead360");
+  if(!paneOpen||!selId){d.classList.add("off");d.innerHTML="";return;}
+  var l=byId(selId);
+  if(!l){d.classList.add("off");d.innerHTML="";selId=null;paneOpen=false;return;}
+  d.classList.remove("off");
+  d.innerHTML='<span class="c360-x" tabindex="0" onclick="closePane()">&times;</span>'+build360Html(l);
+}
+
+function build360Html(l){
+  var kv=function(k,v){return '<div class="kv"><span>'+k+'</span><b>'+v+'</b></div>';};
+  var pend=isProspect(l);
+  var h='<div class="c360-hd">'+esc(custLabel(l))+'</div>'+
+    '<div class="c360-sub"><span class="d-code">'+esc(l.id||"—")+'</span> '+statusTag(l.status)+
+      (pend?' <span class="tg-s tg-pend">customer not approved</span>':'')+
+      ' <span id="alog-access-point"><button class="btn btn-g btn-sm" id="history-btn" title="Activity Log" onclick="openLeadHistory()">&#128340; History</button></span></div>';
+  if(pend)h+='<div class="cfg-note" style="color:var(--warn);border-color:var(--warn)">Text prospect — link a customer code before Convert.</div>';
+  if(!pend){
+    var cRow=custOf(l), gt=txnGate(cRow,"quote");
+    if(gt.length){
+      var hardG=gt.filter(function(g){return g.level==="block";}).length;
+      h+='<div class="dedupe-warn '+(hardG?'hard':'soft')+' show" style="margin-top:8px">Customer <b>'+esc(gt[0].state)+'</b>: quoting is <b>'+esc(gateWord(gt[0].level))+'</b>.</div>';
+    }
+  }
+  /* Enquiry */
+  h+='<div class="c360-sec"><div class="sh">Enquiry</div>'+
+     kv("Contact",esc(l.contact||"—"))+
+     kv("Customer code",esc(custCode(l)||(pend?"— (prospect)":"—")))+
+     kv("Source",esc(srcName(l.source))+' <span class="hint" style="margin:0">'+esc(l.source||"")+'</span>');
+  if(l.referrer)h+='<div class="kv"><span>Referrer</span><b><button class="link-btn" onclick="nav(\'mref\')">'+esc(refName(l.referrer))+' &#8599;</button></b></div>';
+  h+=kv("Priority / Est",(priTag(l.priority)||'—')+' '+rs(l.est))+
+     kv("Site / area",esc([l.site,l.area,l.district,l.stateCode].filter(Boolean).join(" · ")||"—"))+
+     kv("Pincode",esc(l.pincode||"—"))+
+     kv("Address",esc([l.addr1,l.addr2].filter(Boolean).join(", ")||"—"))+
+     kv("Probability",(l.probability===null?'<span class="hint" style="margin:0">not captured</span>':esc(l.probability)+"%"))+
+     kv("Competitor",esc(l.competitor||"—"))+
+     kv("Unit / FY",esc(l.unit+" · "+l.fy))+'</div>';
+  /* Products of interest */
+  h+='<div class="c360-sec"><div class="sh">Products of interest ('+l.interests.length+')</div>';
+  if(!l.interests.length)h+='<div class="hint">No product interest recorded.</div>';
+  l.interests.forEach(function(it){h+=kv(esc(itemName(it.item))+' <span class="hint" style="margin:0">'+esc(it.item)+'</span>',esc(it.qty)+' '+esc(it.uom||""));});
+  h+='</div>';
+  /* Attachments */
+  h+='<div class="c360-sec"><div class="sh">Attachments ('+l.atts.length+')</div>';
+  if(!l.atts.length)h+='<div class="hint">No attachments.</div>';
+  l.atts.forEach(function(a){h+='<span class="att-chip">&#128206; '+esc(a.kind)+': '+esc(a.file)+'</span>';});
+    h+='</div>';
+
+  h+='<div class="c360-sec"><div class="sh">Follow-up log ('+l.fu.length+') · next: '+fuText(l)+'</div>';
+  if(!l.fu.length)h+='<div class="hint">No follow-ups yet.</div>';
+  l.fu.slice().reverse().forEach(function(f){
+    h+='<div class="fu-item"><div class="fu-meta">'+esc(fmtDate(f.at))+' · '+esc(empName(f.by))+(f.next?' · next '+esc(fmtDate(f.next)):'')+'</div>'+esc(f.out)+'</div>';});
+  if(TAT)h+='<div class="hint">Overdue is pulled from tat_config M05/FOLLOWUP = '+esc(TAT.tat_minutes)+' min'+((TAT.description||"").indexOf("PROVISIONAL")>=0?' <span class="p2note">provisional</span>':'')+'.</div>';
+  else h+='<div class="hint">No follow-up TAT configured.</div>';
+  h+='</div>';
+
+  h+='<div class="c360-sec"><div class="sh">Linked quotes</div>';
+
+  if(l.wonQuote)h+='<div class="q-link" onclick="navQuote(\'quote='+esc(l.wonQuote)+'\')" title="Open this quote"><b>Won quote linked</b> · '+esc(l.wonQuote)+'<span class="go">Open &#8599;</span></div>';
+  else h+='<div class="q-link" onclick="navQuote(\'from_lead='+esc(l.uuid)+'\')" title="Opens the latest quote raised from this lead, or the quote list if none has been raised"><b>Quotes for this lead</b><span class="go">Open &#8599;</span></div>';
+  h+='<div class="hint">'+((l.status==="Quoted"||l.wonQuote)?''
+     :'No quote linked yet.')+'</div></div>';
+
+  if(l.rca1)h+='<div class="c360-sec"><div class="sh">Close RCA (2 legs)</div><div style="font-size:var(--fs-body);color:var(--accent)">'+
+     '<b>RCA1:</b> '+esc(rcaName(l.rca1))+' <span class="hint" style="margin:0">'+esc(l.rca1)+'</span>'+
+     (l.rca2?'<br><b>RCA2:</b> '+esc(rcaName(l.rca2))+' <span class="hint" style="margin:0">'+esc(l.rca2)+'</span>':'')+'</div>'+
+     provChip('LR')+'</div>';
+
+  h+='<div class="c360-sec"><div class="sh">Notes</div>';
+  if(!l.notes.length)h+='<div class="hint">No notes yet.</div>';
+  var canEditNote=!!actorEmp&&R().create;
+  l.notes.slice().reverse().forEach(function(n){
+    var trail=(l.noteEdits||[]).filter(function(e){return e.note===n.id;});
+    h+='<div class="fu-item"><div class="fu-meta">'+esc(empName(n.by))+' · '+esc(stampOf(n.at))+
+       (trail.length?' · <b>edited '+trail.length+'&times;</b>':'')+
+       (canEditNote&&n.id?' · <a href="#" onclick="return openNoteEdit(\''+esc(n.id)+'\')">edit</a>':'')+
+       '</div>'+esc(n.txt)+
+       '<div id="ne_'+esc(n.id)+'" style="display:none;margin-top:6px">'+
+         '<textarea class="in" id="neTxt_'+esc(n.id)+'" rows="2" style="width:100%">'+esc(n.txt)+'</textarea>'+
+         '<input class="in" id="neWhy_'+esc(n.id)+'" placeholder="Why changed?" style="width:100%;margin-top:4px"/>'+
+         '<div style="display:flex;gap:6px;margin-top:4px">'+
+           '<button class="btn btn-p btn-sm" onclick="saveNoteEdit(\''+esc(n.id)+'\')">Save change</button>'+
+           '<button class="btn btn-g btn-sm" onclick="closeNoteEdit(\''+esc(n.id)+'\')">Cancel</button></div></div>'+
+       (trail.length?'<div class="trail" style="margin-top:6px">'+trail.map(function(e){
+          return '<div class="hist-item"><span class="hm">'+esc(stampOf(e.at))+' · '+esc(empName(e.by))+' · '+esc(e.reason)+'</span><br>'+
+                 '<span class="hm">was:</span> '+esc(e.old)+'</div>';}).join('')+'</div>':'')+
+       '</div>';});
+  h+='<div style="display:flex;gap:6px;margin-top:7px"><input class="in" id="noteIn" style="flex:1"/>'+
+     '<button class="btn btn-g btn-sm" id="noteBtn" onclick="addLeadNote()">Add</button></div>'+
+     '</div>';
+
+  h+='<div class="c360-sec"><div class="sh">History (audit)</div>';
+  if(!l.audit.length&&!l.owners.length)h+='<div class="hint">No status or ownership changes recorded yet.</div>';
+  l.audit.forEach(function(a){
+    h+='<div class="hist-item"><span class="hm">'+esc(stampOf(a.at))+' · '+esc(empName(a.by))+'</span><br>'+
+       esc((a.from||"·")+" → "+a.to)+(a.reason?'<br><span class="hm">'+esc(a.reason)+'</span>':'')+'</div>';});
+  l.owners.forEach(function(o){
+    h+='<div class="hist-item"><span class="hm">'+esc(stampOf(o.at))+' · '+esc(empName(o.by))+'</span><br>'+
+       esc(o.role+" owner: "+empName(o.old)+" → "+empName(o.neu))+'<br><span class="hm">'+esc(o.reason)+'</span></div>';});
+
+  if(FCH.lead===l.uuid){
+    if(FCH.err)h+='<div class="hint" style="color:var(--accent)">Field changes could not be read.</div>';
+    else if(!FCH.rows)h+='<div class="hint">Loading field changes…</div>';
+    else if(FCH.rows.length){
+      h+='<div class="hm" style="margin-top:6px;font-weight:700">Field changes ('+FCH.rows.length+(FCH.rows.length===200?'+':'')+')</div>';
+      FCH.rows.forEach(function(fc){
+        h+='<div class="hist-item"><span class="hm">'+esc(stampOf(fc.at))+' · '+esc(empName(fc.by_emp))+'</span><br>'+
+           '<b>'+esc(fc.field)+'</b>: '+esc(fc.old_value===null?'—':fc.old_value)+' → '+esc(fc.new_value===null?'—':fc.new_value)+'</div>';});
+    }
+  }
+  h+='<div class="hint">Created '+esc(stampOf(l.createdAt))+' by '+esc(empName(l.createdBy))+
+     ' · last updated '+esc(stampOf(l.updatedAt))+(l.updatedBy?' by '+esc(empName(l.updatedBy)):'')+
+     '</div></div>';
+  /* Ownership */
+  h+='<div class="c360-sec"><div class="sh">Ownership</div>'+
+     kv("Sales",esc(empName(l.salesEmp)))+kv("CCR",esc(empName(l.ccrEmp)))+kv("Manager",esc(empName(l.mgrEmp)))+'</div>';
+
+  h+='<div class="c360-sec"><div class="sh">Pipeline freshness</div><div class="hint">'+esc(rtState)+'</div></div>';
+  return h;
+}
+
+/* action bar */
+function renderActions(){
+  var a=document.getElementById("actions"); if(!a)return;
+  var r=R(); var l=selId?byId(selId):null;
+  if(!booted){a.innerHTML='<span class="ctx">Loading…</span>';return;}
+  var rows=(loadErr.list||!actorEmp)?[]:filtered();
+  var val=rows.reduce(function(s,x){return s+(x.est||0);},0);
+  var over=rows.filter(function(x){return fuClass(x)==="fu-over";}).length;
+  var tat=rows.filter(tatBreach).length;
+
+  var win="";
+  if(totalLeads!==null&&totalLeads>leads.length){
+    win=' &nbsp;|&nbsp; <span style="color:var(--warn);font-weight:700">loaded the newest '+leads.length+' of '+totalLeads+' lead(s)</span>'+
+        ' <button class="btn btn-g btn-sm" id="moreLeadsBtn" onclick="loadMoreLeads()">Load older</button>'+
+        '';
+  }
+  var ctx='<span class="ctx"><b>'+rows.length+'</b> in view · <b>'+rs(val)+'</b> pipeline'+
+    (over?' · <span style="color:var(--accent);font-weight:700">'+over+' overdue</span>':'')+
+    (tat?' · <span style="color:var(--accent);font-weight:700">'+tat+' past TAT</span>':'')+
+    (l?' &nbsp;|&nbsp; <b>'+esc(custLabel(l))+'</b> '+statusTag(l.status)+' · '+rs(l.est)+' · next '+fuText(l):'')+
+    win+'</span>';
+  var h=ctx+'<div style="flex:1"></div>';
+  if(l){
+    var open=!isTerminal(l.status);
+    if(isProspect(l))h+='<button class="btn btn-g" onclick="openCs()" style="border-color:var(--warn);color:var(--warn)">Set customer code</button>';
+
+    if(r.create)h+='<button class="btn btn-g" id="editBtn" onclick="openEdit()"'+
+      (canEdit(l)?'':' disabled title="'+esc(editBlockReason(l))+'"')+'>Edit</button>';
+    h+='<button class="btn btn-g" onclick="openFu()"'+(open?'':' disabled title="Terminal lead — no further follow-up or transition (AS-6)"')+'>Log follow-up</button>';
+    if(r.reassign)h+='<button class="btn btn-g" onclick="reassign()">Reassign</button>';
+    if(r.cancel)h+='<button class="btn btn-d" onclick="cancelLead()"'+(open?'':' disabled title="Already closed"')+'>Cancel</button>';
+    h+='<button class="btn btn-p" id="convBtn" onclick="convertLead()"'+(open?'':' disabled title="Terminal lead cannot be converted"')+'>Convert to Quote</button>';
+  }
+  if(r.create)h+='<button class="btn btn-p" id="newBtn" onclick="openNewLead()"'+(catBlocked?' disabled title="Reference data failed to load — creation is blocked"':'')+'>+ New lead</button>';
+  a.innerHTML=h;
+}
+
+function openModal(title,body,btns){
+  document.getElementById("modalTitle").textContent=title;
+  document.getElementById("modalBody").innerHTML=body;
+  document.getElementById("modalFoot").innerHTML=btns.map(function(b){return '<button class="btn '+b.c+'"'+(b.id?' id="'+b.id+'"':'')+' onclick="'+b.f+'">'+b.t+'</button>';}).join("");
+  document.getElementById("modalBd").classList.add("show");}
+function closeModal(){document.getElementById("modalBd").classList.remove("show");}
+function needActor(){ if(!actorEmp){toast("Your login is not mapped to an employee. Saving is disabled.","err");return false;} return true; }
+function friendlyErr(ex){ return RKF.errText(ex); }
+
+function isVersionClash(ex){
+  var m=(ex&&(ex.message||ex.details))||String(ex);
+  return m.indexOf('changed by someone else')>=0||m.indexOf('changed during')>=0||m.indexOf('expected_version')>=0;}
+function offerReload(ex){
+  openModal("This lead changed while you were editing",
+    '<div class="dedupe-warn hard show" style="margin:0">'+esc(friendlyErr(ex))+'</div>'+
+    '<div class="cfg-note">Nothing was written. Reload the lead, then re-apply yours.</div>',
+    [{t:"Stay here",c:"btn-g",f:"closeModal()"},{t:"Reload this lead",c:"btn-p",f:"closeModal();reloadForEdit()"}]);}
+async function reloadForEdit(){ await reload(true); if(selId&&canEdit(byId(selId)))openEdit(); }
+async function rpcThen(name,args,okMsg,keepSel){
+  try{ var r=await SB.rpc(name,args); if(r.error)throw r.error;
+    closeModal(); if(okMsg)toast(okMsg); await reload(keepSel!==false); return r.data;
+  }catch(ex){ toast(friendlyErr(ex),"err"); return null; }}
+
+/* notes */
+async function addLeadNote(){
+  if(!needActor())return; var l=byId(selId); if(!l)return;
+  var el=document.getElementById("noteIn"); var txt=(el.value||"").trim();
+  if(!txt){toast("Note is empty.","warn");return;}
+  var btn=document.getElementById("noteBtn");
+  await saveGuard(btn,"Saving…",async function(){
+    try{ var r=await SB.rpc('lead_note_add',{p_id:l.uuid,p_text:txt,p_by_emp:actorEmp});
+      if(r.error)throw r.error; toast("Note added."); await reload(true);
+    }catch(ex){ toast(friendlyErr(ex),"err"); }});
+}
+
+function allowedTransitions(l){
+  if(isTerminal(l.status))return [];                        
+
+  var all=STATUSSET||PIPE.concat(OFFPIPE);
+  return all.filter(function(s){return s!==l.status&&s!=="Cancelled";});
+}
+function openFu(){
+  if(!needActor())return; var l=byId(selId); if(!l)return;
+  if(isTerminal(l.status)){toast("Lead is "+l.status+" — terminal. No follow-up or transition is possible (AS-6).","err");return;}
+  var ss=document.getElementById("fuStatus");
+  var allowed=allowedTransitions(l);
+  ss.innerHTML='<option value="">Stay in '+esc(l.status)+'</option>'+allowed.map(function(s){return '<option value="'+esc(s)+'">'+esc(s)+'</option>';}).join("");
+  document.getElementById("fuMoveHint").innerHTML='Current: <b>'+esc(l.status)+'</b>. '+
+    (allowed.length?'':'No onward move.');
+  var r1=document.getElementById("rca1");
+  r1.innerHTML='<option value="">- select -</option>'+RCA1.map(function(v){return '<option value="'+esc(v.code)+'">'+esc(v.label)+'</option>';}).join("");
+  document.getElementById("rcaProv").innerHTML=provChip('LR');
+  rca2fill();
+  document.getElementById("fuOut").value="";
+  var fn=document.getElementById("fuNext"); if(fn)fn.value="";
+  document.getElementById("tatNote").innerHTML= TAT
+    ? ('Follow-up TAT: <b>'+esc(TAT.tat_minutes)+' minutes</b>'+((TAT.description||"").indexOf("PROVISIONAL")>=0?' <span class="p2note">provisional</span>':''))
+    : 'No follow-up TAT configured.';
+  fuStatusChange();
+  document.getElementById("fuBd").classList.add("show");
+}
+function fuStatusChange(){
+  var v=document.getElementById("fuStatus").value;
+  document.getElementById("rcaWrap").classList.toggle("show",RCA_STATUSES.indexOf(v)>=0);   
+}
+function rca2fill(){
+  var k=document.getElementById("rca1").value; var r2=document.getElementById("rca2");
+  var kids=RCA2.filter(function(v){return v.metadata&&v.metadata.parent_rca1===k;});
+  r2.innerHTML='<option value="">- select -</option>'+kids.map(function(v){return '<option value="'+esc(v.code)+'">'+esc(v.label)+'</option>';}).join("");
+  if(!kids.length&&k)r2.innerHTML='<option value="">no sub-reason mapped for this RCA1</option>';
+}
+function closeFu(){document.getElementById("fuBd").classList.remove("show");}
+async function saveFu(){
+  if(!needActor())return; var l=byId(selId); if(!l)return;
+  var out=document.getElementById("fuOut").value.trim();
+  if(!out){toast("Outcome is required.","err");return;}
+  var to=document.getElementById("fuStatus").value||null;
+  var next=readDMY("fuNext")||null;
+  var rca1=null,rca2=null;
+  if(to&&RCA_STATUSES.indexOf(to)>=0){
+    rca1=document.getElementById("rca1").value||null;
+    rca2=document.getElementById("rca2").value||null;
+    if(!rca1){toast("Closing to "+to+" requires RCA1 (and its dependent RCA2).","err");return;}
+  }
+  var btn=document.getElementById("fuSaveBtn");
+  await saveGuard(btn,"Saving…",async function(){
+    try{
+      var r=await SB.rpc('lead_followup_add',{p_id:l.uuid,p_outcome:out,p_next:next,
+        p_expected_from:l.status,p_to:to,p_rca1:rca1,p_rca2:rca2,p_by_emp:actorEmp});
+      if(r.error)throw r.error;
+      closeFu();
+      toast("Follow-up logged"+(to?(" · lead moved to "+to):"")+(next?(" · next "+fmtDate(next)):"")+".");
+      await reload(true);
+    }catch(ex){ toast(friendlyErr(ex),"err"); }});
+}
+
+function cancelLead(){
+  if(!needActor())return; var l=byId(selId); if(!l)return;
+  if(isTerminal(l.status)){toast("Lead is already closed ("+l.status+").","err");return;}
+  openModal("Cancel lead "+(l.id||""),
+    '<div class="dedupe-warn soft show" style="margin:0 0 10px">The lead becomes read-only and leaves the pipeline.</div>'+
+    '<div class="fg"><label>Reason (mandatory, audited)</label><input class="in" id="cxReason" placeholder="Why cancelled?"/></div>',
+    [{t:"Keep the lead",c:"btn-g",f:"closeModal()"},{t:"Cancel lead",c:"btn-d",f:"confirmCancel()"}]);
+}
+async function confirmCancel(){
+  var l=byId(selId); if(!l)return;
+  var v=(document.getElementById("cxReason").value||"").trim();   
+  if(!v){toast("A cancellation reason is required.","err");return;}
+  await rpcThen('lead_cancel',{p_id:l.uuid,p_reason:v,p_by_emp:actorEmp},"Lead cancelled.");
+}
+
+function reassign(){
+  if(!needActor())return; var l=byId(selId); if(!l)return;
+  var emps=EMPS.map(function(e){return '<option value="'+esc(e.id)+'">'+esc(e.full_name)+' ('+esc(e.employee_code)+')</option>';}).join("");
+  openModal("Reassign lead "+(l.id||""),
+    '<div class="fr"><div class="fg"><label>Owner role</label><select class="in" id="raRole"><option value="sales">Sales</option><option value="ccr">CCR</option><option value="manager">Manager</option></select></div>'+
+    '<div class="fg"><label>New owner (M04 employee master)</label><select class="in" id="raEmp"><option value="">- select -</option>'+emps+'</select></div></div>'+
+    '<div class="fg"><label>Reason (mandatory, audited)</label><input class="in" id="raReason" placeholder="Why reassign?"/></div>'+
+    '<div class="cfg-note">Current owners — Sales: <b>'+esc(empName(l.salesEmp))+'</b> · CCR: <b>'+esc(empName(l.ccrEmp))+'</b> · Manager: <b>'+esc(empName(l.mgrEmp))+'</b>.<br>'+
+    '</div>',
+    [{t:"Cancel",c:"btn-g",f:"closeModal()"},{t:"Reassign",c:"btn-p",f:"confirmReassign()"}]);
+}
+async function confirmReassign(){
+  var l=byId(selId); if(!l)return;
+  var role=document.getElementById("raRole").value;
+  var emp=document.getElementById("raEmp").value;
+  var rn=(document.getElementById("raReason").value||"").trim();  
+  if(!emp){toast("Pick the new owner from the employee master.","err");return;}
+  if(!rn){toast("A reassignment reason is required.","err");return;}
+  await rpcThen('lead_reassign',{p_id:l.uuid,p_owner_role:role,p_new_emp:emp,p_reason:rn,p_by_emp:actorEmp},
+    "Reassigned — "+role+" owner is now "+empName(emp)+" (audited).");
+}
+
+var convertToken={};
+function convertLead(){
+  if(!needActor())return; var l=byId(selId); if(!l)return;
+  if(isTerminal(l.status)){toast("Lead is "+l.status+" — a closed lead cannot be converted.","err");return;}
+  if(isProspect(l)){
+    toast("Text prospect — set an approved customer code first.","err");
+    return;}
+  if(convertBusy[l.uuid]){toast("Convert already in progress.","warn");return;}
+
+  var c=custOf(l); var gates=txnGate(c,"quote");
+  var hard=gates.filter(function(g){return g.level==="block";});
+  var warns=gates.filter(function(g){return g.level==="warn";});
+  if(hard.length){
+    toast("Blocked: "+custLabel(l)+" is "+hard[0].state+" — quoting is not allowed for that customer state (M-CONFIG CG gate). Clear the state in M01 first.","err");return;}
+  if(warns.length){
+    openModal("Customer gate — warn",
+      '<div class="dedupe-warn soft show" style="margin:0"><b>'+esc(custLabel(l))+'</b> is <b>'+esc(warns[0].state)+'</b>. Proceed?</div>',
+      [{t:"Not now",c:"btn-g",f:"closeModal()"},{t:"Proceed",c:"btn-p",f:"closeModal();convertAfterGate()"}]);
+    return;}
+  convertAfterGate();
+}
+function convertAfterGate(){
+  var l=byId(selId); if(!l)return;
+  if(l.status!=="Qualified"&&l.status!=="Quoted"){
+    openModal("Lead is not yet Qualified",
+      '<div class="dedupe-warn soft show" style="margin:0">This lead is <b>'+esc(l.status)+'</b>, not yet Qualified. Proceed?</div>',
+      [{t:"Not now",c:"btn-g",f:"closeModal()"},{t:"Convert anyway",c:"btn-p",f:"closeModal();doConvert()"}]);
+    return;}
+  doConvert();
+}
+async function doConvert(){
+  var l=byId(selId); if(!l)return;
+  if(convertBusy[l.uuid])return;
+  convertBusy[l.uuid]=true;
+  var btn=document.getElementById("convBtn"); if(btn){btn.disabled=true;btn.textContent="Converting…";}
+  convertToken[l.uuid]=convertToken[l.uuid]||uuid4();      
+  try{
+    var r=await SB.rpc('lead_convert',{p_id:l.uuid,p_client_token:convertToken[l.uuid],p_by_emp:actorEmp});
+    if(r.error)throw r.error;
+    delete convertToken[l.uuid];
+    toast("Quote created. Lead → Quoted.");
+    await reload(true);
+  }catch(ex){ toast(friendlyErr(ex),"err"); }
+  finally{ delete convertBusy[l.uuid];
+    var b2=document.getElementById("convBtn"); if(b2){b2.disabled=false;b2.textContent="Convert to Quote";} }
+}
+
+/* Set customer code */
+function openCs(){
+  if(!needActor())return; var l=byId(selId); if(!l)return;
+  document.getElementById("csSearch").value=""; csType();
+  document.getElementById("csBd").classList.add("show");
+}
+function closeCs(){document.getElementById("csBd").classList.remove("show");}
+function csType(){
+  var q=((document.getElementById("csSearch")||{}).value||"").toLowerCase();
+  var hits=CUSTS.filter(function(c){return c.status==='Active'&&c.partner_side!=='Creditor'&&(c.name+" "+c.customer_code).toLowerCase().indexOf(q)>=0;}).slice(0,20);
+  var h=hits.map(function(c){
+    return '<div class="q-link" onclick="assignCust(\''+esc(c.id)+'\')"><b>'+esc(c.name)+'</b> · '+esc(c.customer_code)+'<span class="go">Link</span></div>';}).join("");
+  if(!hits.length)h='<div class="hint">No approved customer matches.</div>';
+  h+='<div class="cfg-note">No customer code is ever minted here. To bring a prospect into M01, use <b>create as Pending review</b> — M01 owns the approval and <code>can_approve_own = NEVER</code>.'+
+     '<div style="margin-top:7px"><button class="btn btn-g btn-sm" onclick="closeCs();quickCreateCust(prospectNameOfSelected())">Create this prospect in M01</button>'+
+
+     ' <button class="btn btn-g btn-sm" onclick="nav(\'m01\')">Open M01 to approve a Pending customer &#8599;</button>'+
+     '</div></div>';
+  document.getElementById("csHits").innerHTML=h;
+}
+function prospectNameOfSelected(){var l=byId(selId);return l?(l.prospect||""):"";}
+async function assignCust(id){
+  var l=byId(selId); if(!l)return;
+  var c=CUSTMAP[id];
+  try{
+    var r=await SB.rpc('lead_set_customer',{p_id:l.uuid,p_customer:id,p_by_emp:actorEmp});
+    if(r.error)throw r.error;
+    closeCs(); toast("Customer set to "+(c?c.name+" ("+c.customer_code+")":"the approved code")+".");
+    await reload(true);
+  }catch(ex){ toast(friendlyErr(ex),"err"); }
+}
+</script>
+<script>
+
+var REFERRAL_CODE='CS05';        
+var draftInts=[], draftAtts=[], chosenCust=null, prospectName="", attKind="Document";
+
+var drawerMode="create", editLead=null, editBaseInts="";
+
+function ccrOptions(selected,extra){
+  var seen={}, out='<option value="">- select a CCR -</option>';
+  CCRS.forEach(function(e){ seen[e.id]=1;
+    out+='<option value="'+esc(e.id)+'"'+(e.id===selected?' selected':'')+'>'+esc(e.full_name)+' ('+esc(e.employee_code)+')</option>';});
+  if(extra&&!seen[extra]&&EMPMAP[extra])
+    out+='<option value="'+esc(extra)+'" selected>'+esc(empName(extra))+' ('+esc(empCode(extra))+')</option>';
+  return out;}
+function renderCcr(){
+  var slot=document.getElementById("ccrSlot"), hint=document.getElementById("ccrHint");
+  if(!slot)return;
+  var fromCust=(chosenCust&&chosenCust.ccr_emp)?chosenCust.ccr_emp:null;
+  var cur=fromCust||(drawerMode==="edit"&&editLead?editLead.ccrEmp:null)||null;
+  slot.innerHTML='<select class="in" id="lCcr">'+ccrOptions(cur,cur)+'</select>';
+  var sel=document.getElementById("lCcr"); if(sel&&cur)sel.value=cur;
+  if(ccrErr){ hint.innerHTML='<span style="color:var(--accent)">The Customer Care list failed to load. Reload.</span>'; return; }
+  if(fromCust){
+    if(sel)sel.disabled=true;                 
+    hint.innerHTML='Inherited from <b>'+esc(chosenCust.name)+'</b>&rsquo;s mapped CCR — resolved from the customer record on save.';
+  }else{
+    if(sel)sel.disabled=false;
+    hint.innerHTML=CCRS.length
+      ? ''
+      : '<span style="color:var(--accent)">No active Customer Care employee.</span>';
+  }
+}
+
+var salesPick=null;                    
+function managerOf(empId){
+  var e=empId?EMPMAP[empId]:null;
+  var m=(e&&e.reports_to)?EMPBYCODE[e.reports_to]:null;
+  return m?m.id:null;}
+function isActiveR01(empId){
+  if(!empId)return false;
+  for(var i=0;i<SALESREPS.length;i++)if(SALESREPS[i].id===empId)return true;
+  return false;}
+
+function inheritedSales(){
+  var m=(chosenCust&&chosenCust.sales_emp)?chosenCust.sales_emp:null;
+  return isActiveR01(m)?m:null;}
+
+function resolvedSales(){
+  if(drawerMode==="edit")return (editLead&&editLead.salesEmp)||null;
+  return inheritedSales()||salesPick||null;}
+function salesOptions(selected){
+  var out='<option value="">- select a salesperson -</option>';
+  SALESREPS.forEach(function(e){
+    out+='<option value="'+esc(e.id)+'"'+(e.id===selected?' selected':'')+'>'+esc(e.full_name)+' ('+esc(e.employee_code)+')</option>';});
+  return out;}
+function onSalesPick(){
+  var s=document.getElementById("lSales");
+  salesPick=(s&&s.value)||null;
+  renderMgrDisplay();}
+function renderMgrDisplay(){
+  var md=document.getElementById("lMgrD"), mh=document.getElementById("mgrHint");
+  if(!md)return;
+  var salesId=resolvedSales();
+  var e=salesId?EMPMAP[salesId]:null;
+  var mgrId=managerOf(salesId);
+  md.value=mgrId?(empName(mgrId)+(empCode(mgrId)?" ("+empCode(mgrId)+")":"")):"";
+  if(!salesId)                md.placeholder="From salesperson";
+  else if(mgrId)              md.placeholder="";
+  else if(!e)                 md.placeholder="Derived on save";
+  else if(!e.reports_to)      md.placeholder="No reporting line";
+  else                        md.placeholder="Derived on save";
+  if(mh)mh.innerHTML=mgrId
+    ? 'Derived from M04 &mdash; <b>'+esc(empName(salesId))+'</b> reports to this employee. The server re-derives it on save; this is the display of that rule, not a second one.'
+    : (salesId?'The reporting line could not be resolved on this screen, so nothing is shown &mdash; <code>manager_emp</code> is derived server-side on save.':'');
+}
+function renderOwnerDisplay(){
+  var slot=document.getElementById("salesSlot"), hint=document.getElementById("salesHint");
+  if(!slot)return;
+  var edit=(drawerMode==="edit");
+  var inh=edit?null:inheritedSales();
+  var mapped=(chosenCust&&chosenCust.sales_emp)?chosenCust.sales_emp:null;
+
+  if(edit){
+
+    var cur=(editLead&&editLead.salesEmp)||null;
+    slot.innerHTML='<input class="in" id="lSalesD" readonly style="background:var(--surface2)"/>';
+    var sdE=document.getElementById("lSalesD");
+    sdE.value=cur?(empName(cur)+(empCode(cur)?" ("+empCode(cur)+")":"")):"";
+    sdE.placeholder=cur?"":"this lead carries no salesperson";
+    if(hint)hint.innerHTML='';
+    renderMgrDisplay(); return;
+  }
+  if(inh){
+    slot.innerHTML='<input class="in" id="lSalesD" readonly style="background:var(--surface2)"/>';
+    var sdI=document.getElementById("lSalesD");
+    sdI.value=empName(inh)+(empCode(inh)?" ("+empCode(inh)+")":"");
+    if(hint)hint.innerHTML='From the customer: <b>'+esc(empName(inh))+'</b> ('+esc(empCode(inh))+')';
+    renderMgrDisplay(); return;
+  }
+
+  slot.innerHTML='<select class="in" id="lSales" onchange="onSalesPick()">'+salesOptions(salesPick)+'</select>';
+  var sel=document.getElementById("lSales");
+  if(sel&&salesPick)sel.value=salesPick;
+  if(sel&&sel.value!==(salesPick||""))salesPick=sel.value||null;   
+  if(hint){
+    if(salesErr)
+      hint.innerHTML='<span style="color:var(--accent)">The salesperson list failed to load. Reload.</span>';
+    else if(!SALESREPS.length)
+      hint.innerHTML='<span style="color:var(--accent)">No active Sales Executive.</span>';
+    else{
+      var why;
+      if(!chosenCust) why='text prospect';
+      else if(!mapped) why='<b>'+esc(chosenCust.name)+'</b> carries <b>no mapped salesperson</b> in M01';
+      else{
+
+        var who=EMPMAP[mapped]
+          ? '<b>'+esc(empName(mapped))+'</b>'+(empCode(mapped)?' ('+esc(empCode(mapped))+')':'')
+          : 'an employee who is no longer active';
+        why='<b>'+esc(chosenCust.name)+'</b> is mapped to '+who+' in M01, who is <b>not an active Sales Executive (R01)</b>. Pick a salesperson for this lead, and have the customer&rsquo;s mapping corrected in M01';
+      }
+      hint.innerHTML='<b>Mandatory.</b> '+why+'. The list is every employee holding an <b>active R01</b> role in M04 &mdash; nothing is defaulted to you. A lead with no salesperson is invisible to every sales-scoped login, so one is required.';
+    }
+  }
+  renderMgrDisplay();
+}
+
+function openDrawer(mode){
+  if(!needActor())return;
+  drawerMode=(mode==="edit")?"edit":"create";
+  var r=R();
+  if(!r.create){toast("Not permitted for your role.","err");return;}
+  if(catBlocked){toast("Reference data failed to load. Reload.","err");return;}
+  var s=document.getElementById("lSource");
+  s.innerHTML='<option value="">- select -</option>'+SRC.map(function(v){return '<option value="'+esc(v.code)+'">'+esc(v.label)+'</option>';}).join("");
+  var p=document.getElementById("lPri");
+  p.innerHTML='<option value="">- none -</option>'+PRI.map(function(v){return '<option value="'+esc(v.code)+'">'+esc(v.label)+'</option>';}).join("");
+  var rf=document.getElementById("lRef");
+  rf.innerHTML='<option value="">- select an Active referrer -</option>'+REFERRERS.map(function(v){return '<option value="'+esc(v.id)+'">'+esc(v.name)+' ('+esc(v.id)+')</option>';}).join("");
+  ["lCust","lContact","lEst","lComp","lNotes","lPin","lDistD","lState","lAddr1","lAddr2","lSite","lSalesD","lMgrD"].forEach(function(id){var e=document.getElementById(id);if(e)e.value="";});
+  var fx=document.getElementById("lFuNext"); if(fx)fx.value="";
+  document.getElementById("areaSlot").innerHTML='<select class="in" id="lArea"><option value="">--</option></select>';
+  document.getElementById("custPick").textContent="";
+  document.getElementById("pinMsg").textContent="";
+  document.getElementById("dupWarn").className="dupbanner";
+  document.getElementById("custHits").style.display="none";
+  chosenCust=null; prospectName=""; salesPick=null;   
+  draftInts=[{item:"",qty:"",uom:(UOMS[0]?UOMS[0].uom_code:"")}]; draftAtts=[];
+  renderInts(); renderAtts(); onSource(); renderCcr(); renderOwnerDisplay();
+  var edit=(drawerMode==="edit");
+  document.getElementById("ovTitle").textContent=edit?("Edit lead "+((editLead&&editLead.id)||"")):"New Lead";
+  document.getElementById("lCust").readOnly=edit;
+  document.getElementById("lCust").style.background=edit?"var(--surface2)":"";
+  document.getElementById("editMeta").style.display=edit?"block":"none";
+  document.getElementById("custEditNote").style.display=edit?"block":"none";
+  document.getElementById("fuEditRow").style.display=edit?"flex":"none";
+
+  document.getElementById("notesHint").innerHTML=edit
+    ? ''
+    : '';
+  document.getElementById("ownerHint").innerHTML=
+    ''+
+    (SERIES&&SERIES.active?'':' <span style="color:var(--accent)">The lead number series is not active.</span>');
+  document.getElementById("ovSaveBtn").textContent=edit?"Save changes":"Save lead → New";
+  document.getElementById("ovProg").textContent=edit
+    ? ""
+    : "";
+  document.getElementById("ovWrap").classList.add("show");
+}
+function closeDrawer(){document.getElementById("ovWrap").classList.remove("show");drawerMode="create";editLead=null;}
+
+function openEdit(){
+  if(!needActor())return;
+  var l=selId?byId(selId):null;
+  if(!l){toast("Select a lead first.","warn");return;}
+  if(!canEdit(l)){toast(editBlockReason(l),"err");return;}
+  editLead=l;
+  openDrawer("edit");
+
+  document.getElementById("editMeta").innerHTML=
+    '<div class="cfg-note" style="margin:0 0 12px">'+
+    'Lead <b class="d-code">'+esc(l.id||"—")+'</b> · unit <b>'+esc(l.unit||"—")+'</b> · FY <b>'+esc(l.fy||"—")+'</b> · '+
+    'status '+statusTag(l.status)+' · version <b>'+esc(l.version)+'</b><br>'+
+    'Created '+esc(stampOf(l.createdAt))+' by '+esc(empName(l.createdBy))+
+    ' · last updated '+esc(stampOf(l.updatedAt))+(l.updatedBy?' by '+esc(empName(l.updatedBy)):'')+'<br>'+
+    '</div>';
+
+  chosenCust=l.customerId?CUSTMAP[l.customerId]:null;
+  prospectName=l.customerId?"":(l.prospect||"");
+  document.getElementById("lCust").value=custLabel(l);
+  document.getElementById("custPick").innerHTML=l.customerId
+    ? 'Existing customer · <b>'+esc(custCode(l))+'</b>'
+    : '<b style="color:var(--warn)">Text prospect</b>';
+  document.getElementById("custEditNote").innerHTML=
+    '<button class="btn btn-g btn-sm" onclick="closeDrawer();openCs()">Change / link customer &rarr;</button>'+
+    '';
+
+  document.getElementById("lContact").value=l.contact||"";
+  document.getElementById("lSource").value=l.source||"";
+  document.getElementById("lPri").value=l.priority||"";
+  onSource();
+  if(l.referrer)document.getElementById("lRef").value=l.referrer;
+  document.getElementById("lEst").value=(l.est===null?"":l.est);
+  document.getElementById("lComp").value=l.competitor||"";
+  document.getElementById("lAddr1").value=l.addr1||"";
+  document.getElementById("lAddr2").value=l.addr2||"";
+  document.getElementById("lSite").value=l.site||"";
+  document.getElementById("lDistD").value=l.district||"";
+  document.getElementById("lState").value=l.stateCode||"";
+  var fn=document.getElementById("lFuNext");
+  if(fn&&l.fuNext&&typeof isoToDMY==='function')fn.value=isoToDMY(l.fuNext);
+  document.getElementById("lPin").value=l.pincode||"";
+  if(l.pincode)pinLookup(l.area||"");                       
+  draftInts=l.interests.length
+    ? l.interests.map(function(i){return {item:i.item,qty:String(i.qty),uom:i.uom||(UOMS[0]?UOMS[0].uom_code:"")};})
+    : [{item:"",qty:"",uom:(UOMS[0]?UOMS[0].uom_code:"")}];
+  editBaseInts=intsKey(draftInts);
+  renderInts(); renderCcr(); renderOwnerDisplay();
+  document.getElementById("ovTitle").textContent="Edit lead "+(l.id||"");
+}
+function intsKey(a){return (a||[]).filter(function(x){return x.item;})
+  .map(function(x){return x.item+"|"+Number(x.qty||0)+"|"+(x.uom||"");}).join(";");}
+
+function custType(){
+  var raw=(document.getElementById("lCust").value||"").trim();
+  var q=raw.toLowerCase(); var box=document.getElementById("custHits");
+  if(drawerMode==="edit")return;                 
+  if(!q){box.style.display="none";chosenCust=null;prospectName="";document.getElementById("custPick").textContent="";renderCcr();renderOwnerDisplay();return;}
+  var hits=CUSTS.filter(function(c){return c.partner_side!=='Creditor'&&(c.name+" "+c.customer_code).toLowerCase().indexOf(q)>=0;}).slice(0,12);
+  var h=hits.map(function(c){
+    return '<div class="hit" onclick="pickCust(\''+esc(c.id)+'\')"><b>'+esc(c.name)+'</b> <span class="hint" style="margin:0">'+esc(c.customer_code)+' · '+esc(c.status)+'</span></div>';}).join("");
+  h+='<div class="hit mk" onclick="useProspect()">Keep “'+esc(raw)+'” as a text prospect</div>';
+  h+='<div class="hit mk" onclick="quickCreateCust()">+ Create “'+esc(raw)+'” in M01</div>';
+  box.innerHTML=h; box.style.display="block";
+}
+
+async function custAddress(customerId){
+  if(CUSTADDR[customerId])return CUSTADDR[customerId];
+  try{
+    var a=await SB.from('customer_addresses').select('address_id,customer_id,addr_type,pincode,area,district,state,address_line,gst_at_addr,is_default,created_at,app_key,created_by,city,address_line2,consignee_name,consignee_contact_name,consignee_mobile').eq('customer_id',customerId);
+    if(a.error)throw a.error;
+    var rows=(a.data||[]).slice().sort(function(x,y){
+
+      var rx=(x.is_default?0:2)+((x.addr_type==='Billing')?0:1);
+      var ry=(y.is_default?0:2)+((y.addr_type==='Billing')?0:1);
+      return rx-ry;});
+    rows.err=null; CUSTADDR[customerId]=rows; return rows;
+  }catch(ex){ var e=[]; e.err=(ex&&ex.message)||String(ex); CUSTADDR[customerId]=e; return e; }
+}
+async function pickCust(id){
+  var c=CUSTMAP[id]; if(!c)return;
+  chosenCust=c; prospectName="";
+  document.getElementById("lCust").value=c.name;
+  if(c.mobile)document.getElementById("lContact").value=c.mobile;
+  document.getElementById("custHits").style.display="none";
+  renderCcr(); renderOwnerDisplay();                       
+  checkDup(id);
+  document.getElementById("custPick").innerHTML='Existing customer · <b>'+esc(c.customer_code)+'</b> · '+esc(c.status)+
+    (c.status!=='Active'?' <span style="color:var(--warn)">— not approved yet</span>':'')+
+    ' · reading the M01 address&hellip;';
+  var rows=await custAddress(c.id);
+  if(chosenCust!==c)return;                                
+  var a=rows[0]||null;
+  if(a){
+    if(a.address_line)document.getElementById("lAddr1").value=a.address_line;
+    if(a.address_line2)document.getElementById("lAddr2").value=a.address_line2;
+
+    if(a.city&&!document.getElementById("lSite").value)document.getElementById("lSite").value=a.city;
+    var pin=String(a.pincode||"").trim();
+    if(/^[1-9][0-9]{5}$/.test(pin)){
+      document.getElementById("lPin").value=pin;
+      await pinLookup(a.area||"");                         
+    }
+  }
+  document.getElementById("custPick").innerHTML='Existing customer · <b>'+esc(c.customer_code)+'</b> · '+esc(c.status)+
+    (c.status!=='Active'?' <span style="color:var(--warn)">— not approved yet</span>':'')+
+    (a?' · contact, address, site and pincode carried from M01 (W-1). Change the pincode and the postal engine re-derives area / district / state; your address lines and site are left alone.'
+      :(rows.err
+        ? ' · address read failed'
+        : ' · no address on the customer'));
+}
+function useProspect(){
+
+  prospectName=(document.getElementById("lCust").value||"").trim();
+  document.getElementById("lCust").value=prospectName;
+  chosenCust=null;
+  document.getElementById("custHits").style.display="none";
+  document.getElementById("custPick").innerHTML='<b style="color:var(--warn)">Text prospect</b> — link a customer code before Convert.';
+  document.getElementById("dupWarn").className="dupbanner";
+  renderCcr(); renderOwnerDisplay();          
+}
+
+function checkDup(customerId){
+  var open=leads.filter(function(l){return l.customerId===customerId&&!isTerminal(l.status);});
+  var w=document.getElementById("dupWarn");
+  if(open.length){
+    w.className="dupbanner show";
+    w.innerHTML='&#9888; '+open.length+' open lead already exists for this customer — <b>'+esc(open[0].id||"")+'</b> ('+esc(open[0].status)+', '+rs(open[0].est)+
+      (open.length>1?', +'+(open.length-1)+' more':'')+').';
+  } else w.className="dupbanner";
+}
+
+function quickCreateCust(nameIn){
+  var nm=(typeof nameIn==='string'&&nameIn)?nameIn:(document.getElementById("lCust")?(document.getElementById("lCust").value||"").trim():"");
+  document.getElementById("custHits").style.display="none";
+  if(!nm){toast("Type the customer name first.","warn");return;}
+  if(!CT.length){toast("Customer types did not load. Reload.","err");return;}
+  openModal("Create customer in M01",
+    '<div class="dedupe-warn soft show" style="margin:0 0 10px">This writes through <b>M01’s own create path</b> — a consumer module never writes M01 tables directly. The record is saved <b>Pending review</b> and routed to your derived approver; <code>can_approve_own = NEVER</code>.</div>'+
+    '<div class="fr"><div class="fg"><label>Customer name</label><input class="in" id="qcName" value="'+esc(nm)+'"/></div>'+
+    '<div class="fg"><label>Type</label><select class="in" id="qcType">'+CT.map(function(t){return '<option value="'+esc(t.code)+'">'+esc(t.label)+'</option>';}).join("")+'</select></div></div>'+
+    '<div class="fr"><div class="fg"><label>Mobile (10 digits, starts 6-9)</label><input class="in" id="qcMob" maxlength="10"/></div>'+
+    '<div class="fg"><label>Pincode</label><input class="in" id="qcPin" maxlength="6" oninput="this.value=this.value.replace(/[^0-9]/g,\'\');qcPin()"/><div class="hint" id="qcPinMsg"></div></div></div>'+
+    '<div class="fr"><div class="fg"><label>District (derived)</label><input class="in" id="qcDist" readonly style="background:var(--surface2)"/></div>'+
+    '<div class="fg"><label>City (derived)</label><input class="in" id="qcCity" readonly style="background:var(--surface2)"/></div></div>'+
+    '<div class="fr"><div class="fg"><label>Source</label><select class="in" id="qcSrc">'+SRC.map(function(s){return '<option value="'+esc(s.code)+'">'+esc(s.label)+'</option>';}).join("")+'</select></div>'+
+    '<div class="fg"><label>Payment terms</label><select class="in" id="qcTerms">'+CP.map(function(t){return '<option value="'+esc(t.code)+'">'+esc(t.label)+'</option>';}).join("")+'</select></div></div>'+
+    '<div class="fg"><label><input type="checkbox" id="qcUnreg" checked onchange="qcToggleGst()"/> Unregistered (no GSTIN)</label></div>'+
+    '<div id="qcGstBlock"><div class="fr"><div class="fg"><label>GSTIN</label><input class="in" id="qcGst" maxlength="15"/></div>'+
+    '<div class="fg"><label>PAN</label><input class="in" id="qcPan" maxlength="10"/></div></div></div>'+
+    '<div class="fg" id="qcUnregBlock"><label>Unregistered reason</label><input class="in" id="qcUnregReason" placeholder="Why no GSTIN?"/></div>'+
+    '<div class="fr"><div class="fg"><label>Contact name</label><input class="in" id="qcConName" value="'+esc(nm)+'"/></div>'+
+    '<div class="fg"><label>Address line 1</label><input class="in" id="qcAddr"/></div></div>'+
+    '',
+    [{t:"Cancel",c:"btn-g",f:"closeModal()"},{t:"Create as Pending",c:"btn-p",id:"qcBtn",f:"doQuickCreate()"}]);
+  qcToggleGst();
+}
+function qcToggleGst(){
+  var un=document.getElementById("qcUnreg").checked;
+  document.getElementById("qcGstBlock").style.display=un?"none":"block";
+  document.getElementById("qcUnregBlock").style.display=un?"block":"none";
+}
+var qcGeo={district:"",city:"",state:""};
+async function qcPin(){
+  var v=(document.getElementById("qcPin").value||"").trim();
+  var m=document.getElementById("qcPinMsg");
+  qcGeo={district:"",city:"",state:""};
+  document.getElementById("qcDist").value=""; document.getElementById("qcCity").value="";
+  if(v.length!==6){m.textContent=v?"6 digits needed":"";return;}
+  if(!/^[1-9][0-9]{5}$/.test(v)){m.textContent="invalid — 6 digits, first digit 1-9";return;}
+  m.textContent="looking up…";
+  var r=await SB.from('pincode_master').select('city,taluk,district,state_name,state_code').eq('pincode',v).limit(1);
+  if(r.error||!r.data||!r.data.length){m.textContent="Pincode not in the postal master.";return;}
+  var d=r.data[0]; qcGeo={district:d.district||"",city:d.city||"",state:d.state_name||d.state_code||""};
+  document.getElementById("qcDist").value=qcGeo.district; document.getElementById("qcCity").value=qcGeo.city;
+  m.textContent="auto-mapped from pincode_master";
+}
+async function doQuickCreate(){
+  if(!needActor())return;
+  var nm=(document.getElementById("qcName").value||"").trim();
+  var mob=(document.getElementById("qcMob").value||"").trim();
+  var pin=(document.getElementById("qcPin").value||"").trim();
+  var un=document.getElementById("qcUnreg").checked;
+  var addr=(document.getElementById("qcAddr").value||"").trim();
+  var con=(document.getElementById("qcConName").value||"").trim();
+  if(!nm||!mob||!pin||!qcGeo.district){toast("Name, mobile and a known pincode are required.","err");return;}
+  if(un&&!(document.getElementById("qcUnregReason").value||"").trim()){toast("An unregistered reason is required when there is no GSTIN.","err");return;}
+  var payload={name:nm,customer_type:document.getElementById("qcType").value,mobile:mob,
+    source_code:document.getElementById("qcSrc").value,referrer_id:"",
+    gstin:un?"":(document.getElementById("qcGst").value||""),
+    pan:un?"":(document.getElementById("qcPan").value||""),
+    tan:"",aadhaar:"",gst_unregistered:un,unreg_reason:un?(document.getElementById("qcUnregReason").value||"").trim():"",
+    credit_limit:0,credit_days:0,terms_code:document.getElementById("qcTerms").value,
+    tds_applicable:false,tcs_applicable:false,
+    sales_emp:actorEmp,ccr_emp:actorEmp,
+    district:qcGeo.district,area:"",city:qcGeo.city,state:qcGeo.state,pincode:pin,
+    unit:actorUnit||"",
+    contacts:[{name:con||nm,mobile:mob,is_primary:true}],
+    addresses:[{addr_type:"Billing",pincode:pin,area:"",district:qcGeo.district,state:qcGeo.state,city:qcGeo.city,address_line:addr||nm,address_line2:"",gst_at_addr:"",is_default:true},
+               {addr_type:"Shipping",pincode:pin,area:"",district:qcGeo.district,state:qcGeo.state,city:qcGeo.city,address_line:addr||nm,address_line2:"",gst_at_addr:"",is_default:false}]};
+  var btn=document.getElementById("qcBtn");
+  await saveGuard(btn,"Creating…",async function(){
+    try{
+      var r=await SB.rpc('customer_create',{p:payload,p_by_emp:actorEmp});
+      if(r.error)throw r.error;
+      var cu=await SB.from('customers').select('id,customer_code,name,status,mobile,sales_emp,ccr_emp,credit_hold,credit_limit,credit_used,partner_side').eq('is_deleted',false);
+      if(!cu.error){CUSTS=cu.data||[];CUSTMAP={};CUSTS.forEach(function(c){CUSTMAP[c.id]=c;});}
+      closeModal();
+      var made=CUSTMAP[r.data];
+      if(made&&document.getElementById("ovWrap").classList.contains("show")){pickCust(made.id);}
+
+      var qcSt=(made&&made.status)?made.status:null;
+      toast("Customer "+(made?made.customer_code:"")+" created in M01 with status "+(qcSt||"(unknown)")+
+            (qcSt==='Pending'
+              ? " — routed to your approver. You cannot approve your own record (can_approve_own = NEVER)."
+              : " — M01 governs this status; approval is never given here."),"warn");
+    }catch(ex){ toast(friendlyErr(ex),"err"); }});
+}
+
+function onSource(){
+  var v=document.getElementById("lSource").value;
+  document.getElementById("refWrap").style.display=(v===REFERRAL_CODE)?"flex":"none";
+}
+
+async function pinLookup(preferAreaIn){
+  var prefer=(typeof preferAreaIn==='string')?preferAreaIn:"";
+  var p=(document.getElementById("lPin").value||"").trim();
+  var m=document.getElementById("pinMsg");
+  var dd=document.getElementById("lDistD"), st=document.getElementById("lState");
+  if(p.length<6){ dd.value="";st.value="";document.getElementById("areaSlot").innerHTML='<select class="in" id="lArea"><option value="">--</option></select>';
+    m.textContent=p?"6 digits needed (first digit 1-9)":""; return; }
+  if(!/^[1-9][0-9]{5}$/.test(p)){ dd.value="";st.value="";m.innerHTML='<span style="color:var(--accent)">Pincode: 6 digits, not starting with 0.</span>'; return; }
+  m.textContent="looking up…";
+  try{
+    var r=await SB.from('pincode_master').select('city,taluk,district,state_name,state_code,active').eq('pincode',p);
+    if(r.error)throw r.error;
+    var rows=(r.data||[]).filter(function(x){return x.active!==false;});
+    if(!rows.length){ dd.value="";st.value="";
+      document.getElementById("areaSlot").innerHTML='<input class="in" id="lArea" placeholder="Area / taluk"/>';
+      m.innerHTML='<span style="color:var(--warn)">Pincode not found.</span>'; return; }
+    dd.value=rows[0].district||"";
+    st.value=(rows[0].state_name||"")+(rows[0].state_code?" ("+rows[0].state_code+")":"");
+    var taluks=[];rows.forEach(function(x){if(x.taluk&&taluks.indexOf(x.taluk)<0)taluks.push(x.taluk);});
+    if(taluks.length){
+
+      var one=(taluks.length===1);
+      var keep=(prefer&&taluks.indexOf(prefer)>=0)?prefer:(one?taluks[0]:"");
+      document.getElementById("areaSlot").innerHTML='<select class="in" id="lArea">'+
+        (one?'':'<option value="">- select -</option>')+
+        taluks.map(function(t){return '<option value="'+esc(t)+'"'+(t===keep?' selected':'')+'>'+esc(t)+'</option>';}).join("")+'</select>';
+      var ael=document.getElementById("lArea"); if(ael&&keep)ael.value=keep;
+      m.textContent="auto-mapped: "+(rows[0].city||"")+" · "+(rows[0].district||"")+" · "+(rows[0].state_name||"")+
+        (one?" · single taluk — area set to "+taluks[0]:" · "+taluks.length+" taluks — pick the area");
+    }else{
+      document.getElementById("areaSlot").innerHTML='<input class="in" id="lArea" placeholder="Area / taluk"'+(prefer?' value="'+esc(prefer)+'"':'')+'/>';
+      m.textContent="auto-mapped: "+(rows[0].district||"")+" · "+(rows[0].state_name||"")+" — no taluk on record, enter the area manually";
+    }
+  }catch(ex){ m.innerHTML='<span style="color:var(--accent)">Postal lookup failed.</span>'; }
+}
+
+function addInterest(){draftInts.push({item:"",qty:"",uom:(UOMS[0]?UOMS[0].uom_code:"")});renderInts();}
+function itemControl(i){
+  var it=draftInts[i];
+  if(ITEMS.length<=10){   
+    return '<select class="in" style="flex:2" onchange="draftInts['+i+'].item=this.value"><option value="">Select item…</option>'+
+      ITEMS.map(function(x){return '<option value="'+esc(x.item_id)+'"'+(x.item_id===it.item?' selected':'')+'>'+esc(x.description)+' ('+esc(x.item_id)+')</option>';}).join("")+'</select>';
+  }
+  return '<div style="flex:2;position:relative"><input class="in" id="intIn'+i+'" style="width:100%" autocomplete="off" placeholder="Item code or description" value="'+esc(it.item?itemName(it.item):"")+'" oninput="intType('+i+')"/>'+
+    '<div class="hits" id="intHits'+i+'" style="display:none;position:absolute;left:0;right:0"></div></div>';
+}
+function intType(i){
+  var el=document.getElementById("intIn"+i); var q=(el.value||"").toLowerCase().trim();
+  var box=document.getElementById("intHits"+i);
+  draftInts[i].item="";
+  if(!q){box.style.display="none";return;}
+  var hits=ITEMS.filter(function(x){return (x.description+" "+x.item_id).toLowerCase().indexOf(q)>=0;}).slice(0,12);
+  box.innerHTML=hits.length?hits.map(function(x){return '<div class="hit" onclick="pickItem('+i+',\''+esc(x.item_id)+'\')">'+esc(x.description)+' <span class="hint" style="margin:0">'+esc(x.item_id)+'</span></div>';}).join("")
+    :'<div class="hint" style="padding:7px 10px">No active item matches.</div>';
+  box.style.display="block";
+}
+function pickItem(i,code){
+  draftInts[i].item=code;
+  var el=document.getElementById("intIn"+i); if(el)el.value=itemName(code);
+  var box=document.getElementById("intHits"+i); if(box)box.style.display="none";
+}
+function renderInts(){
+  var c=document.getElementById("intRows"),h="";
+  draftInts.forEach(function(it,i){
+    h+='<div class="int-row">'+itemControl(i)+
+      '<input class="in" style="width:70px" type="number" min="0" step="0.001" placeholder="qty" value="'+esc(it.qty)+'" oninput="draftInts['+i+'].qty=this.value"/>'+
+      '<select class="in" style="width:86px" onchange="draftInts['+i+'].uom=this.value">'+
+        (UOMS.length?UOMS.map(function(u){return '<option value="'+esc(u.uom_code)+'"'+(u.uom_code===it.uom?' selected':'')+'>'+esc(u.uom_code)+'</option>';}).join("")
+                    :'<option value="">no UOM master</option>')+'</select>'+
+      (draftInts.length>1?'<button class="btn btn-g btn-sm" onclick="draftInts.splice('+i+',1);renderInts()">&times;</button>':'')+
+      '</div>';});
+  c.innerHTML=h;
+}
+
+var ATT_BUCKET='lead-attachments';
+function pickAtt(kind){attKind=kind;document.getElementById("attFile").click();}
+function attPicked(){
+  var fs=document.getElementById("attFile").files;
+  for(var i=0;i<fs.length;i++)draftAtts.push({kind:attKind,file:fs[i]});
+  document.getElementById("attFile").value="";
+  renderAtts();
+}
+function renderAtts(){
+  var c=document.getElementById("attList"),h="";
+  draftAtts.forEach(function(a,i){
+    h+='<span class="att-chip">&#128206; '+esc(a.kind)+': '+esc(a.file.name)+' <span style="cursor:pointer;color:var(--accent)" onclick="draftAtts.splice('+i+',1);renderAtts()">&times;</span></span>';});
+  c.innerHTML=h||'<span class="hint">'+(drawerMode==="edit"
+    ? 'No new attachments.'
+    : 'No attachments yet.')+'</span>';
+}
+async function uploadAtts(leadId){
+  var okN=0,failed=[];
+  for(var i=0;i<draftAtts.length;i++){
+    var a=draftAtts[i];
+    var path=leadId+'/'+Date.now()+'_'+String(a.file.name).replace(/[^A-Za-z0-9._-]/g,'_');
+    try{
+      var up=await SB.storage.from(ATT_BUCKET).upload(path,a.file);
+      if(up.error)throw up.error;
+      var r=await SB.rpc('lead_attachment_add',{p_id:leadId,p_kind:a.kind,p_path:path,p_file:a.file.name,p_by_emp:actorEmp});
+      if(r.error)throw r.error;
+      okN++;
+    }catch(ex){ failed.push(a.file.name+": "+(ex.message||ex)); }
+  }
+  return {ok:okN,failed:failed};
+}
+
+async function saveLead(){
+  if(drawerMode==="edit")return saveLeadEdit();     
+  if(!needActor())return;
+  var src=document.getElementById("lSource").value;
+  if(!chosenCust&&!prospectName){toast("Pick a customer or keep the typed name.","err");return;}
+  if(!src){toast("Source is required.","err");return;}
+  if(src===REFERRAL_CODE&&!document.getElementById("lRef").value){toast("Source is Referral — pick an Active referrer.","err");return;}
+  var ints=draftInts.filter(function(i){return i.item;});
+  if(!ints.length){toast("At least one product of interest is required.","err");return;}
+  for(var i=0;i<ints.length;i++){
+    if(!ints[i].qty||Number(ints[i].qty)<=0){toast("Every product needs a quantity above zero.","err");return;}
+  }
+  var pin=(document.getElementById("lPin").value||"").trim();
+  if(pin&&!/^[1-9][0-9]{5}$/.test(pin)){toast("Pincode must be 6 digits and cannot start with 0.","err");return;}
+
+  var ccrEl=document.getElementById("lCcr");
+  var ccrPick=(chosenCust&&chosenCust.ccr_emp)?chosenCust.ccr_emp:((ccrEl&&ccrEl.value)||"");
+  if(!ccrPick){toast("A CCR is required.","err");return;}
+
+  var inhSales=inheritedSales();
+  var salesEl=document.getElementById("lSales");
+  var salesSend=inhSales?null:((salesEl&&salesEl.value)||salesPick||"");
+  if(!inhSales&&!salesSend){toast("A salesperson is required.","err");return;}
+  var areaEl=document.getElementById("lArea");
+  var payload={
+    customer_id: chosenCust?chosenCust.id:null,
+    prospect_name: chosenCust?null:prospectName,   
+    contact: (document.getElementById("lContact").value||"").trim(),
+    source_code: src,
+    referrer_id: (src===REFERRAL_CODE)?(document.getElementById("lRef").value||null):null,
+    priority: document.getElementById("lPri").value||null,
+    est_value: (document.getElementById("lEst").value||"")===""?null:Number(document.getElementById("lEst").value),
+    competitor: (document.getElementById("lComp").value||"").trim(),
+    pincode: pin||null,
+    area: areaEl?(areaEl.value||"").trim():"",
+    addr_line1: (document.getElementById("lAddr1").value||"").trim(),
+    addr_line2: (document.getElementById("lAddr2").value||"").trim(),
+    site: (document.getElementById("lSite").value||"").trim(),
+    ccr_emp: ccrPick,                       
+    notes: (document.getElementById("lNotes").value||"").trim(),
+    interests: ints.map(function(x){return {item_id:x.item,qty:Number(x.qty),uom_code:x.uom||null};})
+  };
+
+  if(salesSend)payload.sales_emp=salesSend;
+  var btn=document.getElementById("ovSaveBtn");
+  await saveGuard(btn,"Saving…",async function(){
+    try{
+      var r=await SB.rpc('lead_create',{p:payload,p_by_emp:actorEmp});
+      if(r.error)throw r.error;
+      var newId=r.data;
+      var attRes={ok:0,failed:[]};
+      if(draftAtts.length)attRes=await uploadAtts(newId);
+      closeDrawer();
+      await loadLeads();
+      selId=newId; paneOpen=false;               
+      var madeL=byId(newId); if(madeL)loadWsQuotes(madeL);
+      showTab('ws');
+      var made=byId(newId);
+      renderAll(); render360();
+      var msg="Lead "+(made&&made.id?made.id:"")+" created as New"+
+        (payload.prospect_name?" · text prospect":"")+
+        (attRes.ok?" · "+attRes.ok+" attachment(s) stored":"");
+      toast(msg);
+      if(attRes.failed.length)toast("Attachment(s) not stored: "+attRes.failed.join(" | "),"err");
+    }catch(ex){ toast(friendlyErr(ex),"err"); }});
+}
+
+async function currentVersion(id){
+  var r=await SB.from('leads').select('version').eq('id',id).maybeSingle();
+  if(r.error)throw r.error;
+  if(!r.data)throw new Error("The lead could not be re-read — reload and retry.");
+  return r.data.version;}
+async function saveLeadEdit(){
+  if(!needActor())return;
+  var l=editLead; if(!l){toast("Nothing is being edited.","err");return;}
+  if(!canEdit(l)){toast(editBlockReason(l),"err");return;}
+  var src=document.getElementById("lSource").value;
+  if(!src){toast("Source is required.","err");return;}
+  if(src===REFERRAL_CODE&&!document.getElementById("lRef").value){toast("Source is Referral — pick an Active referrer.","err");return;}
+  var ints=draftInts.filter(function(i){return i.item;});
+  if(!ints.length){toast("At least one product of interest is required.","err");return;}
+  for(var i=0;i<ints.length;i++){
+    if(!ints[i].qty||Number(ints[i].qty)<=0){toast("Every product of interest needs a quantity greater than zero.","err");return;}
+  }
+  var pin=(document.getElementById("lPin").value||"").trim();
+  if(pin&&!/^[1-9][0-9]{5}$/.test(pin)){toast("Pincode must be 6 digits and cannot start with 0.","err");return;}
+  var ccrEl=document.getElementById("lCcr");
+  var ccrPick=(chosenCust&&chosenCust.ccr_emp)?chosenCust.ccr_emp:((ccrEl&&ccrEl.value)||"");
+  if(!ccrPick){toast("A CCR is required.","err");return;}
+  var areaEl=document.getElementById("lArea");
+  var pinChanged=(pin||"")!==(l.pincode||"");
+
+  var p={
+    contact:(document.getElementById("lContact").value||"").trim(),
+    source_code:src,
+    referrer_id:(src===REFERRAL_CODE)?(document.getElementById("lRef").value||null):null,
+    priority:document.getElementById("lPri").value||null,
+    competitor:(document.getElementById("lComp").value||"").trim(),
+    est_value:(document.getElementById("lEst").value||"")===""?null:Number(document.getElementById("lEst").value),
+    site:(document.getElementById("lSite").value||"").trim(),
+    addr_line1:(document.getElementById("lAddr1").value||"").trim(),
+    addr_line2:(document.getElementById("lAddr2").value||"").trim(),
+    follow_up_next:(typeof readDMY==='function'?readDMY("lFuNext"):"")||null,
+    ccr_emp:ccrPick
+  };
+
+  if(pin){ p.pincode=pin; p.area=areaEl?(areaEl.value||"").trim():""; }
+  else if(l.pincode){ p.pincode=null; p.area=""; }
+  var newNote=(document.getElementById("lNotes").value||"").trim();
+  var intsChanged=(intsKey(draftInts)!==editBaseInts);
+  var btn=document.getElementById("ovSaveBtn");
+  await saveGuard(btn,"Saving…",async function(){
+    var did=[];
+    try{
+      var r=await SB.rpc('lead_update',{p_id:l.uuid,p_expected_version:l.version,p:p,p_by_emp:actorEmp});
+      if(r.error)throw r.error;
+      did.push("details");
+      if(intsChanged){
+        var v2=await currentVersion(l.uuid);                    
+        var ri=await SB.rpc('lead_interests_set',{p_id:l.uuid,p_expected_version:v2,
+          p_interests:ints.map(function(x){return {item_id:x.item,qty:Number(x.qty),uom_code:x.uom||null};}),
+          p_by_emp:actorEmp});
+        if(ri.error)throw ri.error;
+        did.push(ri.data+" product interest line(s)");
+      }
+      if(newNote){
+        var rn=await SB.rpc('lead_note_add',{p_id:l.uuid,p_text:newNote,p_by_emp:actorEmp});
+        if(rn.error)throw rn.error;
+        did.push("1 note appended");
+      }
+      var attRes={ok:0,failed:[]};
+      if(draftAtts.length){ attRes=await uploadAtts(l.uuid); if(attRes.ok)did.push(attRes.ok+" attachment(s)"); }
+      closeDrawer();
+      toast("Lead "+(l.id||"")+" updated — "+did.join(" · ")+".");
+      if(attRes.failed.length)toast("Attachment(s) not stored: "+attRes.failed.join(" | "),"err");
+      await reload(true);
+    }catch(ex){
+      if(isVersionClash(ex)){ closeDrawer(); offerReload(ex); return; }
+      toast(friendlyErr(ex),"err");
+    }});
+}
+</script>
+<script>
+
+function csvCell(x){x=String(x==null?"":x);return /[",\n]/.test(x)?'"'+x.replace(/"/g,'""')+'"':x;}
+function exportLeads(){
+  if(!actorEmp){toast("Sign in first — there is nothing in scope to export.","err");return;}
+  var rows=scoped();
+  if(!rows.length){toast("Nothing in your scope to export.","warn");return;}
+  var cols=["lead_code","customer_code","customer_name","customer_status","prospect_name","contact",
+    "salesperson_code","salesperson_name","ccr_code","ccr_name","manager_code","manager_name","unit","fy",
+    "source_code","source_name","referrer_id","referrer_name","priority_code","priority_name",
+    "est_value","probability","pincode","area","district","state_code","addr_line1","addr_line2","site","competitor",
+    "status","rca1_code","rca1_name","rca2_code","rca2_name",
+    "next_followup","last_followup","followup_count","item_codes","item_descs","qty_list","uom_list",
+    "attachment_count","note_count","last_note","won_quote_id","created_at","created_by_code","created_by_name"];
+  var lines=[cols.join(",")];
+  rows.forEach(function(l){
+    var c=custOf(l);
+    var v=[l.id,c?c.customer_code:"",c?c.name:"",c?c.status:"",l.prospect,l.contact,
+      empCode(l.salesEmp),empName(l.salesEmp),empCode(l.ccrEmp),empName(l.ccrEmp),empCode(l.mgrEmp),empName(l.mgrEmp),l.unit,l.fy,
+      l.source,srcName(l.source),l.referrer,l.referrer?refName(l.referrer):"",l.priority,priName(l.priority),
+      l.est===null?"":l.est,l.probability===null?"":l.probability,l.pincode,l.area,l.district,l.stateCode,l.addr1,l.addr2,l.site,l.competitor,
+      l.status,l.rca1,rcaName(l.rca1),l.rca2,rcaName(l.rca2),
+      l.fuNext||"",l.fuLast||"",l.fu.length,
+      l.interests.map(function(i){return i.item;}).join("|"),
+      l.interests.map(function(i){return itemName(i.item);}).join("|"),
+      l.interests.map(function(i){return i.qty;}).join("|"),
+      l.interests.map(function(i){return i.uom;}).join("|"),
+      l.atts.length,l.notes.length,l.notes.length?l.notes[l.notes.length-1].txt:"",
+      l.wonQuote||"",l.createdAt,empCode(l.createdBy),empName(l.createdBy)];
+    lines.push(v.map(csvCell).join(","));});
+  try{
+    RKF.exportRows(lines,"leads_"+TODAY_ISO+".csv");
+  }catch(e){ toast("The export could not be created.","err"); return; }
+  toast("Exported "+rows.length+" lead(s) — every coded column carries code AND description; rows are YOUR scope only ("+R().see.toUpperCase()+"), not the whole book.");
+}
+
+var IMPCOLS=["customer_code","prospect_name","contact","source_code","referrer_id","priority","est_value",
+             "competitor","pincode","area","addr_line1","addr_line2","site","ccr_code","item_codes","qty_list","uom_list","notes"];
+var impRows=[];
+
+var impDefaultSales=null;
+function openImport(){
+  if(!needActor())return;
+  if(!R().create){toast("Not permitted for your role.","err");return;}
+  if(catBlocked){toast("Reference data failed to load — import is blocked.","err");return;}
+  document.getElementById("impFile").value="";document.getElementById("impRes").innerHTML="";
+  document.getElementById("impDo").disabled=true;impRows=[];
+
+  impDefaultSales=null;
+  var ds=document.getElementById("impDefSales");
+  if(ds){
+    ds.innerHTML=salesOptions(null);
+    var dh=document.getElementById("impDefSalesHint");
+    if(salesErr&&dh)dh.innerHTML='<span style="color:var(--accent)">The salesperson list failed to load. Reload.</span>';
+  }
+  document.getElementById("impBd").classList.add("show");
+}
+
+function onImpDefSales(){
+  var s=document.getElementById("impDefSales");
+  impDefaultSales=(s&&s.value)||null;
+  if(document.getElementById("impFile").files&&document.getElementById("impFile").files[0])parseLeads();
+}
+function closeImp(){document.getElementById("impBd").classList.remove("show");}
+function dlTemplate(){
+  try{
+    var b=new Blob([IMPCOLS.join(",")+"\n"],{type:"text/csv"});
+    var a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="lead_import_template.csv";
+    document.body.appendChild(a);a.click();document.body.removeChild(a);
+    toast("Template downloaded.");
+  }catch(e){toast("The template could not be created.","err");}
+}
+
+function openNoteEdit(id){
+  var b=document.getElementById("ne_"+id); if(b)b.style.display="block";
+  var t=document.getElementById("neTxt_"+id); if(t)t.focus();
+  return false;
+}
+function closeNoteEdit(id){
+  var b=document.getElementById("ne_"+id); if(b)b.style.display="none";
+  return false;
+}
+async function saveNoteEdit(id){
+  if(!needActor())return;
+  var t=document.getElementById("neTxt_"+id), w=document.getElementById("neWhy_"+id);
+  var txt=(t&&t.value||"").trim(), why=(w&&w.value||"").trim();
+  if(!txt){toast("A note cannot be emptied.","err");return;}
+  if(!why){toast("A reason is required.","err");return;}
+  try{
+    var r=await SB.rpc('lead_note_edit',{p_note_id:id,p_text:txt,p_reason:why,p_by_emp:actorEmp});
+    if(r.error)throw r.error;
+    var d=r.data||{};
+    if(d.changed===false){ toast(RKF.errText(d,{fallback:"The note is unchanged."}),"warn"); closeNoteEdit(id); return; }
+    await reload(false);
+    toast("Note updated.");
+  }catch(ex){ toast(friendlyErr(ex),"err"); }
+}
+
+function splitCsv(line){
+  var out=[],cur="",inq=false;
+  for(var i=0;i<line.length;i++){var ch=line[i];
+    if(inq){ if(ch==='"'&&line[i+1]==='"'){cur+='"';i++;} else if(ch==='"'){inq=false;} else cur+=ch; }
+    else { if(ch==='"')inq=true; else if(ch===','){out.push(cur);cur="";} else cur+=ch; }}
+  out.push(cur);return out;}
+function validateRow(row){
+  var errs=[],warns=[];
+  var cust=null;
+  if(row.customer_code){
+    cust=CUSTS.filter(function(c){return c.customer_code===row.customer_code;})[0];
+    if(!cust)errs.push("customer_code not found in M01");
+  } else if(!row.prospect_name){ errs.push("customer_code or prospect_name required"); }
+  if(!row.source_code)errs.push("source_code required");
+  else if(!SRCMAP[row.source_code])errs.push("source_code "+row.source_code+" is not a valid CS value");
+  if(row.source_code===REFERRAL_CODE&&!row.referrer_id)errs.push("Referral source needs referrer_id");
+  if(row.referrer_id&&!REFMAP[row.referrer_id])errs.push("referrer_id is not an Active referrer");
+  if(row.priority&&!PRIMAP[row.priority])errs.push("priority must be a valid LP code");
+  if(row.pincode&&!/^[1-9][0-9]{5}$/.test(row.pincode))errs.push("pincode must be 6 digits, first 1-9");
+  var codes=(row.item_codes||"").split("|").filter(Boolean);
+  var qtys=(row.qty_list||"").split("|").filter(function(x){return x!=="";});
+  var uoms=(row.uom_list||"").split("|");
+  if(!codes.length)errs.push("item_codes required (pipe-separated)");
+  codes.forEach(function(c){if(!ITEMMAP[c])errs.push("item "+c+" is not an Active M02c item");});
+  if(codes.length&&qtys.length!==codes.length)errs.push("qty_list must have one quantity per item");
+  qtys.forEach(function(q){if(!(Number(q)>0))errs.push("every quantity must be greater than zero");});
+  uoms.forEach(function(u){if(u&&UOMS.length&&!UOMS.some(function(x){return x.uom_code===u;}))errs.push("UOM "+u+" is not in the M-RM master");});
+  if(row.est_value&&isNaN(Number(row.est_value)))errs.push("est_value must be numeric");
+
+  var ccr=null;
+
+  var sales=null, salesRoute=null, salesWhy=[];
+  if(cust&&cust.sales_emp){
+    if(isActiveR01(cust.sales_emp)){ sales=cust.sales_emp; salesRoute="customer"; }
+    else salesWhy.push("the customer is mapped to "+(empCode(cust.sales_emp)||"someone")+" in M01, who is not an active Sales Executive (R01)");
+  }
+  if(!sales&&impDefaultSales&&isActiveR01(impDefaultSales)){ sales=impDefaultSales; salesRoute="batch default"; }
+  if(!sales){
+    errs.push("no salesperson could be resolved"+(salesWhy.length?" — "+salesWhy.join("; "):"")+
+      (impDefaultSales?"; the batch default did not apply":"; and no batch-default salesperson has been chosen for this import"));
+  }
+
+  if(cust&&cust.ccr_emp){ if(row.ccr_code)warns.push("ccr_code ignored — the customer's mapped CCR wins"); }
+  else if(!row.ccr_code){ errs.push("ccr_code required — this row's customer carries no mapped CCR (a lead cannot exist without a CCR)"); }
+  else{
+    var ce=EMPBYCODE[row.ccr_code];
+    if(!ce)errs.push("ccr_code "+row.ccr_code+" is not an active employee in M04");
+    else if(!CCRS.some(function(x){return x.id===ce.id;}))errs.push("ccr_code "+row.ccr_code+" does not hold an active R05 (Customer Care) role");
+    else ccr=ce.id;
+  }
+  if(cust){
+    var open=leads.filter(function(l){return l.customerId===cust.id&&!isTerminal(l.status);});
+    if(open.length)warns.push("open lead already exists ("+(open[0].id||"")+") — allowed, not blocked");
+  }
+  return {errs:errs,warns:warns,cust:cust,codes:codes,qtys:qtys,uoms:uoms,ccr:ccr,sales:sales,salesRoute:salesRoute};
+}
+function parseLeads(){
+  var f=document.getElementById("impFile").files[0]; if(!f)return;
+  var rd=new FileReader();
+  rd.onload=function(){
+    var lines=String(rd.result).split(/\r?\n/).filter(function(x){return x.trim();});
+    if(lines.length<2){document.getElementById("impRes").innerHTML='<div class="dedupe-warn hard show">No data rows found.</div>';document.getElementById("impDo").disabled=true;return;}
+    var head=splitCsv(lines[0]).map(function(h){return h.trim().toLowerCase();});
+    impRows=lines.slice(1).map(function(ln){
+      var cells=splitCsv(ln),o={};head.forEach(function(h,i){o[h]=(cells[i]||"").trim();});
+      var v=validateRow(o); return {r:o,v:v};});
+    var ok=impRows.filter(function(x){return !x.v.errs.length;}).length;
+    var h='<div style="display:flex;gap:10px;margin:12px 0"><span class="imp-pill ok">'+ok+' importable</span><span class="imp-pill bad">'+(impRows.length-ok)+' blocked</span></div>'+
+      '<table class="grid"><thead><tr><th>Customer / prospect</th><th>Source</th><th>Items</th><th>Salesperson</th><th>Check</th></tr></thead><tbody>';
+    impRows.forEach(function(x){
+      h+='<tr><td>'+esc(x.r.customer_code||x.r.prospect_name||"")+'</td><td>'+esc(x.r.source_code||"")+'</td><td>'+esc(x.r.item_codes||"")+'</td><td>'+
+        (x.v.sales?(esc(empName(x.v.sales))+' <span class="hint">via '+esc(x.v.salesRoute)+'</span>'):'<span class="imp-pill bad">none</span>')+'</td><td>'+
+        (x.v.errs.length?'<span class="imp-pill bad">FIX: '+esc(x.v.errs.join("; "))+'</span>'
+                        :'<span class="imp-pill ok">OK</span>'+(x.v.warns.length?' <span class="hint">'+esc(x.v.warns.join("; "))+'</span>':''))+
+        '</td></tr>';});
+    document.getElementById("impRes").innerHTML=h+'</tbody></table>';
+    document.getElementById("impDo").disabled=(ok===0);
+  };
+  rd.readAsText(f);
+}
+async function doImport(){
+  if(!needActor())return;
+  var todo=impRows.filter(function(x){return !x.v.errs.length;});
+  if(!todo.length)return;
+  var btn=document.getElementById("impDo");
+  await saveGuard(btn,"Importing…",async function(){
+    var done=0,fail=0,msgs=[];
+    for(var i=0;i<todo.length;i++){
+      var r=todo[i].r,v=todo[i].v;
+
+      var payload={customer_id:v.cust?v.cust.id:null,prospect_name:v.cust?null:(r.prospect_name?RKF.inputLaw.pc(String(r.prospect_name).trim()):null),
+        contact:r.contact||"",source_code:r.source_code,referrer_id:r.referrer_id||null,priority:r.priority||null,
+        est_value:r.est_value?Number(r.est_value):null,competitor:r.competitor||"",
+        pincode:r.pincode||null,area:r.area||"",addr_line1:r.addr_line1||"",addr_line2:r.addr_line2||"",site:r.site||"",
+        ccr_emp:(v.cust&&v.cust.ccr_emp)?v.cust.ccr_emp:(v.ccr||null),notes:RKF.inputLaw.sc(String(r.notes||"").trim()),
+
+        batch_default_sales_emp:impDefaultSales||null,
+        interests:v.codes.map(function(c,k){return {item_id:c,qty:Number(v.qtys[k]),uom_code:v.uoms[k]||null};})};
+      try{ var rr=await SB.rpc('lead_create',{p:payload,p_by_emp:actorEmp});   
+        if(rr.error)throw rr.error; done++;
+      }catch(ex){ fail++; msgs.push((r.customer_code||r.prospect_name||("row "+(i+1)))+": "+friendlyErr(ex)); }
+    }
+    await reload(false);
+    document.getElementById("impRes").innerHTML='<div style="font-weight:700;margin-bottom:6px">Result: '+done+' created as New · '+fail+' refused</div>'+
+      (msgs.length?'<div style="color:var(--accent);font-size:var(--fs-body)">'+msgs.map(function(m){return esc(m);}).join("<br>")+'</div>':'')+
+      '';
+    document.getElementById("impDo").disabled=true;
+    toast("Import: "+done+" created"+(fail?", "+fail+" refused":"")+".",fail?"warn":"");
+  });
+
+  impRows=[];
+  var impBtn=document.getElementById("impDo"); if(impBtn){impBtn.disabled=true;}
+}
+
+function isOpen(l){return !isTerminal(l.status);}
+function quotedAt(l){
+  var best=null;
+  l.audit.forEach(function(a){ if(a.to==='Quoted'&&(!best||a.at<best))best=a.at; });
+  return best;}
+function metrics(set){
+  var open=set.filter(isOpen);
+  var openVal=open.reduce(function(a,l){return a+(l.est||0);},0);
+  var withProb=open.filter(function(l){return l.probability!==null;});
+  var weighted=withProb.reduce(function(a,l){return a+(l.est||0)*(l.probability/100);},0);
+  var won=set.filter(function(l){return l.status==='Won';});
+  var lost=set.filter(function(l){return l.status==='Lost'||l.status==='Dropped';});
+  var wonVal=won.reduce(function(a,l){return a+(l.est||0);},0);
+  var decided=won.length+lost.length;
+  var conv=set.filter(function(l){return !!quotedAt(l);});
+  var cyc=conv.map(function(l){return Math.max(0,Math.round((Date.parse(quotedAt(l))-Date.parse(l.createdAt))/86400000));});
+  var avgCyc=cyc.length?Math.round(cyc.reduce(function(a,b){return a+b;},0)/cyc.length):null;
+  return {n:set.length,open:open.length,openVal:openVal,weighted:weighted,weightedBasis:withProb.length,
+    won:won.length,wonVal:wonVal,lost:lost.length,decided:decided,
+    winRate:decided?Math.round(won.length/decided*100):null,
+    avgCyc:avgCyc,cycN:cyc.length,
+    overdue:set.filter(function(l){return fuClass(l)==="fu-over";}).length};
+}
+function pct(n,d){return d?Math.max(Math.round(n/d*100),3):3;}
+function renderInsights(){
+  var area=document.getElementById("insZone"); if(!area)return;
+  if(!booted){area.innerHTML='<div class="surf">Loading insights…</div>';return;}
+  if(loadErr.list){area.innerHTML='<div class="surf err">'+esc(RKF.errText(loadErr.list,{fallback:'Could not load.'}))+' Reload.</div>';return;}
+  if(!actorEmp){area.innerHTML=notSignedIn();return;}
+  var all=scoped();
+  if(!all.length){area.innerHTML='<div class="surf">No leads in scope yet.</div>';return;}
+  var m=metrics(all);
+  var h='<div class="ins-grid">';
+
+  h+='<div class="ins-card w3"><div class="ins-hd">Pipeline (your scope: '+esc(R().see.toUpperCase())+')</div><div class="ins-bd"><div class="kpi-row">'+
+    '<div class="kpi"><div class="v">'+m.open+'</div><div class="l">Open leads</div></div>'+
+    '<div class="kpi"><div class="v">'+rs(m.openVal)+'</div><div class="l">Open pipeline</div></div>'+
+    '<div class="kpi"><div class="v">'+rs(Math.round(m.weighted))+'</div><div class="l">Weighted forecast</div></div>'+
+    '<div class="kpi"><div class="v">'+(m.winRate===null?"—":m.winRate+"%")+'</div><div class="l">Win rate</div></div>'+
+    '<div class="kpi"><div class="v">'+(m.avgCyc===null?"—":m.avgCyc+"d")+'</div><div class="l">Avg cycle</div></div>'+
+    '<div class="kpi"><div class="v" style="color:'+(m.overdue?"var(--accent)":"var(--navy)")+'">'+m.overdue+'</div><div class="l">Overdue f/u</div></div>'+
+    '</div>'+
+    '</div></div>';
+
+  var byS={};PIPE.forEach(function(s){byS[s]=0;});all.forEach(function(l){if(byS[l.status]!==undefined)byS[l.status]++;});
+  h+='<div class="ins-card w2"><div class="ins-hd">Conversion funnel</div><div class="ins-bd">';
+  PIPE.forEach(function(s){h+='<div class="bar-row"><div class="bl">'+esc(s)+'</div><div class="bar-track"><div class="bar-fill" style="width:'+pct(byS[s],all.length)+'%;background:'+STCOL[s]+'">'+byS[s]+'</div></div></div>';});
+  h+='</div></div>';
+
+  var bySrc={};all.forEach(function(l){if(l.source)bySrc[l.source]=(bySrc[l.source]||0)+1;});
+  h+='<div class="ins-card"><div class="ins-hd">By source'+provChip('CS')+'</div><div class="ins-bd">';
+  Object.keys(bySrc).sort(function(a,b){return bySrc[b]-bySrc[a];}).forEach(function(s){
+    h+='<div class="bar-row"><div class="bl">'+esc(srcName(s))+'</div><div class="bar-track"><div class="bar-fill" style="width:'+pct(bySrc[s],all.length)+'%;background:var(--m05)">'+bySrc[s]+'</div></div></div>';});
+  h+='</div></div>';
+
+  var refLeads=all.filter(function(l){return !!l.referrer;});
+  var refWon=refLeads.filter(function(l){return l.status==='Won';}).reduce(function(a,l){return a+(l.est||0);},0);
+  h+='<div class="ins-card"><div class="ins-hd">Referrer-sourced (M-REF)</div><div class="ins-bd"><div class="kpi-row">'+
+    '<div class="kpi"><div class="v">'+refLeads.length+'</div><div class="l">leads via referrers</div></div>'+
+    '<div class="kpi"><div class="v">'+rs(refWon)+'</div><div class="l">won value</div></div></div></div></div>';
+
+  var byRca={};all.forEach(function(l){if(l.rca1&&(l.status==='Lost'||l.status==='Dropped'))byRca[l.rca1]=(byRca[l.rca1]||0)+1;});
+  var rcaKeys=Object.keys(byRca).sort(function(a,b){return byRca[b]-byRca[a];});
+  h+='<div class="ins-card w2"><div class="ins-hd">Loss reasons — RCA1 Pareto'+provChip('LR')+'</div><div class="ins-bd">';
+  if(!rcaKeys.length)h+='<div class="hint">No Lost or Dropped leads in scope.</div>';
+  rcaKeys.forEach(function(k){h+='<div class="bar-row"><div class="bl">'+esc(rcaName(k))+'</div><div class="bar-track"><div class="bar-fill" style="width:'+pct(byRca[k],all.length)+'%;background:var(--accent)">'+byRca[k]+'</div></div></div>';});
+  h+='</div></div>';
+
+  h+='<div class="ins-card w3"><div class="ins-hd">Source ROI (yield)</div><div class="ins-bd"><table class="grid"><thead><tr>'+
+     '<th>Source</th><th class="num">Leads</th><th class="num">Won ₹</th><th class="num">Win-rate %</th><th class="num">₹ won per lead</th><th class="num">Avg cycle (d)</th></tr></thead><tbody>';
+  var srcRows=Object.keys(bySrc).map(function(s){
+    var sub=all.filter(function(l){return l.source===s;}); var mm=metrics(sub);
+    return {s:s,mm:mm,per:sub.length?mm.wonVal/sub.length:0};}).sort(function(a,b){return b.per-a.per;});
+  if(!srcRows.length)h+='<tr><td colspan="6" class="surf">No sourced leads in scope.</td></tr>';
+  srcRows.forEach(function(x){
+    h+='<tr><td>'+esc(srcName(x.s))+' <span class="hint">'+esc(x.s)+'</span></td><td class="num">'+x.mm.n+'</td><td class="num">'+rs(x.mm.wonVal)+'</td>'+
+      '<td class="num">'+(x.mm.winRate===null?"—":x.mm.winRate+"%")+'</td><td class="num">'+rs(Math.round(x.per))+'</td>'+
+      '<td class="num">'+(x.mm.avgCyc===null?"—":x.mm.avgCyc)+'</td></tr>';});
+  h+='</tbody></table></div></div>';
+
+  var r=R(); var groups=[];
+
+  uniqBy(all,function(l){return l.salesEmp;}).forEach(function(id){groups.push({label:empName(id),set:all.filter(function(l){return l.salesEmp===id;})});});
+  function perfTable(title,rows){
+    var t='<div class="ins-hd" style="border-top:1px solid var(--line)">'+esc(title)+'</div><div class="ins-bd"><table class="grid"><thead><tr>'+
+      '<th>'+esc(title.indexOf("Territory")>=0?"Territory":"Performer")+'</th><th class="num">Leads</th><th class="num">Open ₹</th><th class="num">Weighted ₹</th>'+
+      '<th class="num">Won ₹</th><th class="num">Win-rate %</th><th class="num">Avg cycle (d)</th><th class="num">Overdue f/u</th></tr></thead><tbody>';
+    if(!rows.length)t+='<tr><td colspan="8" class="surf">Nothing in this slice.</td></tr>';
+    rows.sort(function(a,b){return metrics(b.set).openVal-metrics(a.set).openVal;}).forEach(function(g){
+      var mm=metrics(g.set);
+      t+='<tr><td><b>'+esc(g.label)+'</b></td><td class="num">'+mm.n+'</td><td class="num">'+rs(mm.openVal)+'</td>'+
+         '<td class="num">'+rs(Math.round(mm.weighted))+'</td><td class="num">'+rs(mm.wonVal)+'</td>'+
+         '<td class="num">'+(mm.winRate===null?"—":mm.winRate+"%")+'</td><td class="num">'+(mm.avgCyc===null?"—":mm.avgCyc)+'</td>'+
+         '<td class="num"'+(mm.overdue?' style="color:var(--accent)"':'')+'>'+mm.overdue+'</td></tr>';});
+    return t+'</tbody></table></div>';}
+  h+='<div class="ins-card w3"><div class="ins-hd">Rep / territory performance</div>'+
+     perfTable("Rep performance",groups);
+  if(r.see==='all'){
+    var byDist=uniqBy(all,function(l){return l.district;}).map(function(d){return {label:d,set:all.filter(function(l){return l.district===d;})};});
+    var byUnit=uniqBy(all,function(l){return l.unit;}).map(function(u){return {label:u,set:all.filter(function(l){return l.unit===u;})};});
+    h+=perfTable("Territory — by district",byDist)+perfTable("Territory — by unit",byUnit);
+  }
+  h+='<div class="ins-bd"></div></div>';
+
+  area.innerHTML=h+'</div>';
+}
+
+window.openNewLead=async function(){
+  try{await loadCatalogs();}catch(e){toast('Lists could not be refreshed.','warn');}
+  openDrawer();
+};
+['openEdit','openImport','openCs','reassign','openFu'].forEach(function(n){
+  var f=window[n];
+  if(typeof f!=='function')return;
+  window[n]=async function(){
+    try{await loadCatalogs();}catch(e){toast('Lists could not be refreshed.','warn');}
+    return f.apply(this,arguments);
+  };
+});
+
+boot();
+</script>
+<script>
+
+(function(){
+
+  var _loader=async function(){
+  await loadCatalogs(); await reload(true);
+};
+  var _opts={hold:function(){
+  if(!booted||windowBusy)return true;
+  if(document.querySelector('[data-rkf-dialog].show'))return true;
+  return [].some.call(document.querySelectorAll('[id^="ne_"]'),function(x){return x.style.display==='block';});
+}};
+  if(window.RKF&&RKF.live)RKF.live(SB,['leads','lead_product_interests','lead_followups','lead_notes','lead_attachments','customers','items','uom','referrers','employees','reference_values'],_loader,_opts);
+  else if(window.RKF&&RKF.liveMasters)RKF.liveMasters(_loader,_opts);
+})();
+</script>
+</body>
+</html>
