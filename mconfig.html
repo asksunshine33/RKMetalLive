@@ -642,7 +642,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
         <button class="btn btn-g btn-sm" onclick="addSeg('seq')">+ Number</button>
       </div>
     </div>
-    <div class="field" style="width:200px"><label>Start Number</label><input id="es-start" type="number" value="1" oninput="renderPreview()"/></div>
+    <div class="field" style="width:200px"><label>Start Number</label><input id="es-start" type="number" min="1" value="1" placeholder="Empty: continue" oninput="renderPreview()"/></div>
     <input type="hidden" id="es-fy"/><input type="hidden" id="es-unit"/>
     <div class="field" id="es-eff-wrap" style="display:none"><label>Effective from *</label><span id="es-eff-slot"></span></div>
 
@@ -1546,7 +1546,7 @@ async function saveNewList() {
 
 function effRev(seriesId) {
   var today = todayIST();   
-  var rs = LIVE.revisions.filter(function (r) { return r.series_id === seriesId && String(r.effective_from) <= today; })
+  var rs = LIVE.revisions.filter(function (r) { return r.series_id === seriesId && r.active !== false && String(r.effective_from) <= today; })
     .sort(function (a, b) { return String(b.effective_from).localeCompare(String(a.effective_from)); });
   return rs[0] || null;
 }
@@ -1558,9 +1558,9 @@ function segsOf(seriesId) {
     .map(function (g) { return { type: g.seg_type, value: g.seg_value, pad: g.pad }; });
 }
 function counterOf(s) {
-  var fy = fyNow();
-  var key = (s.scope === 'Unit') ? (unitNow() || '') : 'GLOBAL';
-  var exact = LIVE.counters.filter(function (c) { return c.series_id === s.id && c.scope_key === key && c.fy === fy; })[0];
+  var rv = effRev(s.id);
+  var key = (((rv && rv.scope) || s.scope) === 'Unit') ? (unitNow() || '') : 'GLOBAL';
+  var exact = LIVE.counters.filter(function (c) { return c.series_id === s.id && c.scope_key === key; })[0];
   if (exact) return exact;
   return LIVE.counters.filter(function (c) { return c.series_id === s.id; })
     .sort(function (a, b) { return String(b.fy).localeCompare(String(a.fy)); })[0] || null;
@@ -1586,7 +1586,9 @@ function patternString(segs) {
 function seriesRowHtml(s) {
   var segs = segsOf(s.id); var c = counterOf(s);
   var last = c && c.current_value > 0 ? fmtWithSegs(segs, s, c.current_value) : '-';
-  var next = fmtWithSegs(segs, s, (c ? Number(c.current_value) : 0) + 1);
+  var rv = effRev(s.id);   /* 676: a format's Start Number is the next number until its counter has issued under it (next_number's own rule) */
+  var fresh = rv && rv.start_number && (!c || new Date(c.updated_at) < new Date(Math.max(new Date(rv.created_at).getTime(), new Date(rv.effective_from + 'T00:00:00Z').getTime())));
+  var next = fmtWithSegs(segs, s, fresh ? Number(rv.start_number) : (c ? Number(c.current_value) : 0) + 1);
   var fy = s.scope === 'Unit' ? fyNow() : '-';
   var sb = s.scope === 'Unit' ? '<span class="scope-badge unit">Unit</span>' : '<span class="scope-badge global">Global</span>';
   return '<div class="num2-row" style="opacity:' + (s.active ? '1' : '.5') + '" data-code="' + esc(s.series_code) + '" data-name="' + esc(s.label) + '" data-scope="' + (s.scope === 'Unit' ? 'unit' : 'global') + '" data-pattern="' + esc(patternString(segs)) + '" data-fy="' + esc(fy) + '" data-unit="' + esc(s.scope === 'Unit' ? (unitNow() || '') : '') + '">' +
@@ -1628,7 +1630,8 @@ var esAddMode = false;
 var editingSeriesCode = '';
 function buildPattern() { return patternString(esSegments); }
 function resolvePattern() {
-  var start = parseInt($id('es-start').value, 10) || 1;
+  var start = parseInt($id('es-start').value, 10);
+  if (!(start >= 1)) { var cs = LIVE.series.filter(function (x) { return x.series_code === editingSeriesCode; })[0]; var cc = cs ? counterOf(cs) : null; start = (cc ? Number(cc.current_value) : 0) + 1; }
   return esSegments.map(function (s) {
     if (s.type === 'text') return s.value || '';
     if (s.type === 'unit') return esScope === 'unit' ? (unitNow() || '') : '';
@@ -1685,7 +1688,7 @@ function openEditSeries(btn) {
   esSegments = s ? segsOf(s.id).map(function (g) { return { type: g.type, value: g.value, pad: g.pad }; }) : [];
   $id('es-scope-unit').checked = esScope === 'unit'; $id('es-scope-global').checked = esScope === 'global';
   $id('es-fy').value = fyNow(); $id('es-unit').value = esScope === 'unit' ? (unitNow() || '') : '';
-  $id('es-start').value = 1;
+  $id('es-start').value = '';
   renderSegs(); renderPreview();
   RKF.modal.open('edit-series-modal');
 }
@@ -1729,10 +1732,13 @@ async function saveSeriesEdit() {
 
   var eff = readDMY('es-eff');
   if (!eff) { toast('Effective-from date is required.'); return; }
-  var r3 = await supa.rpc('add_number_format_revision', { p_series_code: editingSeriesCode, p_effective_from: eff, p_scope: scopeDb, p_pattern: patternJson, p_note: 'Edited in M-CONFIG', p_by: SESSION.empId });
+  var stv = String($id('es-start').value || '').trim(); var st = stv === '' ? null : parseInt(stv, 10);
+  if (st !== null && !(st >= 1)) { toast('Start number must be 1 or more.'); return; }
+  var r3 = await supa.rpc('add_number_format_revision', { p_series_code: editingSeriesCode, p_effective_from: eff, p_scope: scopeDb, p_pattern: patternJson, p_note: 'Edited in M-CONFIG', p_by: SESSION.empId, p_start_number: st });
   if (r3.error) { toast(cfgFail('Numbering series', r3)); return; }
-  var s = LIVE.series.filter(function (x) { return x.series_code === editingSeriesCode; })[0];
-  if (s) LIVE.revisions.push({ revision_id: r3.data || ('new-' + Date.now()), series_id: s.id, effective_from: eff, scope: scopeDb, pattern: patternJson, note: 'Edited in M-CONFIG' });
+  [['revisions', 'number_format_revision'], ['series', 'number_series'], ['counters', 'number_counters']].forEach(function (j) { delete LOADERR[j[1]]; });
+  try { LIVE.revisions = await load('number_format_revision'); LIVE.series = await load('number_series'); LIVE.counters = await load('number_counters'); }
+  catch (e) { LOADERR['number_series'] = String(e.message || e); }
   await audit('Number format revision for ' + editingSeriesCode + ': pattern ' + buildPattern() + ' effective ' + isoToDMY(eff) + ' (append-only, new numbers only)');
   RKF.modal.close(); renderNumbering();
   toast('Series format saved (effective ' + isoToDMY(eff) + ').');
