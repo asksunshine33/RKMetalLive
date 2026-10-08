@@ -4,7 +4,7 @@
 
 var RKF = global.RKF = global.RKF || {};
 
-RKF.version = 'RKF-1.13.0';
+RKF.version = 'RKF-1.14.0';
 RKF.versionCheck = function (expected) { return expected === RKF.version; };
 
 function escHtml(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
@@ -139,6 +139,11 @@ RKF.caseLaw = {
 
   KEEP: /^vl$|^ev-label$|^tg-sched$|^(tg|ce)-v[12]$|^es-seg-text-|^f-label$|^mt-label$|^mt-base$|^lv-label$|^ptc-calc$|^pono$|^nqpono$|^m2c-|^u-phone$/,
 
+  /* T13 2026-10-08, his word "mm has to stay as mm ... stays how it is universally spelled" (M02A value label only):
+     a unit word right after a number takes its approved spelling; the rest of the field stays Proper. */
+  UNIT_FIELD: /^v-label$/,
+  isUnitField: function (k) { return RKF.caseLaw.UNIT_FIELD.test(RKF.caseLaw.norm(k)); },
+
   SENTENCE: /reason|remark|note|(^|[-_])rsn|(^|[-_])rem($|[-_])|^rs-input$|^czask$|^fuout$|^netxt_|^newhy_/,
 
   norm: function (k) { return String(k || '').toLowerCase(); },
@@ -180,6 +185,18 @@ RKF.inputLaw = {
       w = w.toLowerCase();
       return w.charAt(0).toUpperCase() + w.slice(1);
     });
+  },
+
+  /* T13: his approved list 2026-10-08 - mm cm m km in ft Rmt g kg MT sq.m sq.ft ml L deg micron gsm.
+     Longest first; matched only after a digit (optional space), never inside a word. */
+  UNITS: [['sq\\.?\\s?ft','sq.ft'],['sq\\.?\\s?m','sq.m'],['rmt','Rmt'],['gsm','gsm'],['mm','mm'],['cm','cm'],['km','km'],
+          ['kg','kg'],['ml','ml'],['mt','MT'],['ft','ft'],['in','in'],['m','m'],['g','g'],['l','L'],['[µμΜ]','µ']],
+  units: function (s) {
+    var out = String(s == null ? '' : s);
+    RKF.inputLaw.UNITS.forEach(function (u) {
+      out = out.replace(new RegExp('(\\d)(\\s?)' + u[0] + '(?![A-Za-z0-9µμΜ])', 'gi'), function (m, d, sp) { return d + sp + u[1]; });
+    });
+    return out;
   },
 
   sc: function (s) {
@@ -1128,7 +1145,10 @@ RKF.typeahead = function (id, opts) {
     var v = el.value; if (!v || !v.trim()) return;
     if (d === 'sentence') return put(el, RKF.inputLaw.sc(v));
     if (d === 'lower') return put(el, CL.lower(v));
-    put(el, RKF.inputLaw.pc(v));
+    var pv = RKF.inputLaw.pc(v);
+    var k = CL.keyOf(el);
+    if (k && CL.isUnitField(k)) pv = RKF.inputLaw.units(pv);   /* T13 */
+    put(el, pv);
   }
   RKF.caseLaw.apply = applyCase;
 
